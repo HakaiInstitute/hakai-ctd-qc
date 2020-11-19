@@ -1,7 +1,6 @@
-from typing import Any
-
 import gsw
 from pyproj import Geod
+from typing import Any
 
 
 def get_ocean_derived_variables(df):
@@ -16,7 +15,7 @@ def get_ocean_derived_variables(df):
 def get_bbox_from_target_range(station_info,
                                distance=1000):
     """
-    Litle function that gives back a square region centred on a target region for
+    Little function that gives back a square region centred on a target region for
     which sides is a defined distance away from the middle.
     """
     g = Geod(ellps='WGS84')
