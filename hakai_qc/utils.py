@@ -1,9 +1,8 @@
 import gsw
 from pyproj import Geod
-from typing import Any
 
 
-def get_ocean_derived_variables(df):
+def derived_ocean_variables(df):
     # Compute Derived Variables with TEOS-10 equations
     df['absolute salinity'] = gsw.SA_from_SP(df['salinity'], df['pressure'], df['longitude'], df['latitude'])
     df['conservative temperature'] = gsw.CT_from_t(df['absolute salinity'], df['temperature'], df['pressure'])

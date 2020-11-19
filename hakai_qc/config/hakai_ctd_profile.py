@@ -1,9 +1,9 @@
-def get_hakai_ctd_profile_parameters():
+def hakai_ctd_profile_parameters():
     # QC configuration
     # This configuration is used to call the corresponding method in the ioos_qc library
     # See documentation for description of each test and its inputs:
     #   https://ioos.github.io/ioos_qc/api/ioos_qc.html#module-ioos_qc.qartod
-
+    # TODO this should be stored in a json file I think instead.
     # Define all the tests to apply to each variables
     qc_config = {
         "position": {
@@ -32,6 +32,8 @@ def get_hakai_ctd_profile_parameters():
                 "gross_range_test": {
                     "suspect_span": [0, 12000],
                     "fail_span": [0, 12000],
+                    "maximum_suspect_depth_ratio": 1.05,
+                    "maximum_fail_depth_ratio": 1.1
                 },
                 "aggregate": {}
             }

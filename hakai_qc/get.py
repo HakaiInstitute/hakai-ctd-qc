@@ -1,15 +1,42 @@
 import pandas as pd
+import pkg_resources
+from hakai_api import Client
 
 
-def get_hakai_stations():
+def hakai_stations():
     # Load Hakai Station List
-    hakai_stations = pd.read_csv(r'../HakaiStationLocations.csv', sep=';', index_col='Station')
+    station_list_file = "HakaiStationLocations.csv"
+    station_list_path = pkg_resources.resource_filename(__name__, station_list_file)
+    hakai_stations_list = pd.read_csv(station_list_path, sep=';', index_col='Station')
 
     # Index per station name
-    hakai_stations.index = hakai_stations.index.str.upper()  # Force Site Names to be uppercase
+    hakai_stations_list.index = hakai_stations_list.index.str.upper()  # Force Site Names to be uppercase
 
     # Convert Depth columns to float values
-    hakai_stations['Bot_depth'] = pd.to_numeric(hakai_stations['Bot_depth'], errors='coerce').astype(float)
-    hakai_stations['Bot_depth_GIS'] = pd.to_numeric(hakai_stations['Bot_depth_GIS'], errors='coerce').astype(float)
+    hakai_stations_list['Bot_depth'] = pd.to_numeric(hakai_stations_list['Bot_depth'],
+                                                     errors='coerce').astype(float)
+    hakai_stations_list['Bot_depth_GIS'] = pd.to_numeric(hakai_stations_list['Bot_depth_GIS'],
+                                                         errors='coerce').astype(float)
 
-    return hakai_stations
+    return hakai_stations_list
+
+
+def hakai_ctd_data(filterUrl):
+    """
+    hakai_ctd_data(filterUrl) method used the Hakai Python API Client to query Processed CTD data from the Hakai
+    database based on the filter provided. The data is then converted to a Pandas data frame.
+    """
+    if filterUrl is None:
+        print('You don''t want to download all the data!')
+    # Get Hakai Data
+    # Get Data from Hakai API
+    client = Client()  # Follow stdout prompts to get an API token
+
+    # CTD data endpoint
+    hakai_ctd_endpoint = 'ctd/views/file/cast/data'
+
+    # Make a data request for sampling stations
+    url = '%s/%s?%s' % (client.api_root, hakai_ctd_endpoint, filterUrl)
+    response = client.get(url)
+    df = pd.DataFrame(response.json())
+    return df, url

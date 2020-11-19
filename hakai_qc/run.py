@@ -4,11 +4,11 @@ from ioos_qc.config import QcConfig
 from hakai_qc import utils
 
 
-def run_tests_on_profiles(df,
-                          hakai_stations,
-                          qc_config,
-                          group_variables=['device_model', 'device_sn', 'ctd_file_pk', 'ctd_cast_pk', 'direction_flag']
-                          ):
+def tests_on_profiles(df,
+                      hakai_stations,
+                      qc_config,
+                      group_variables=['device_model', 'device_sn', 'ctd_file_pk', 'ctd_cast_pk', 'direction_flag']
+                      ):
 
     # Loop through each  variables and profiles and apply QARTOD tests
     maximum_suspect_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_suspect_depth_ratio']
