@@ -15,5 +15,6 @@ setup(name='hakai_qc',
           'gsw',
           'pyproj',
           'pandas',
+          'hakai_api',
       ],
       zip_safe=False)
