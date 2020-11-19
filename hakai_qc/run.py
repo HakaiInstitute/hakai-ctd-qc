@@ -92,5 +92,11 @@ def tests_on_profiles(df,
                             df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 1
                     else:
                         df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 9
+                # TODO apply sigma0 flag to CTD data
+                # TODO apply bad pressure/depth to other data
+                # TODO add do_cap_flag to qartod flags
+                # TODO add a text description of the tests results for each profiles which can populate the drop
+                #  comment: how many flagged 3, 4 or 9
+
 
     return df
