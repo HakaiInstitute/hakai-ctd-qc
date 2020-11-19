@@ -89,7 +89,7 @@ def hakai_ctd_profile_parameters():
                 "attenuated_signal_test": {
                     "suspect_threshold": 0.1,
                     "fail_threshold": 0.02,
-                    "check_type": "std"
+                    "check_type": "range"
                 },
                 "aggregate": {}
             }
