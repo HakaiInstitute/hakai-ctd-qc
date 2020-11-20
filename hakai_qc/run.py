@@ -54,7 +54,7 @@ def tests_on_profiles(df,
             print(config)
             for index, unique_cast_df in station_df.groupby(by=group_variables):
                 qc = QcConfig(config)
-                if key is 'position':
+                if key == 'position':
                     qc_results = qc.run(
                         tinp=unique_cast_df['depth'],
                         zinp=unique_cast_df['depth'],
