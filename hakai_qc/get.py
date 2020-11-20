@@ -1,6 +1,9 @@
 import pandas as pd
 import pkg_resources
 from hakai_api import Client
+import json
+import hakai_qc
+import os
 
 
 def hakai_stations():
@@ -40,3 +43,13 @@ def hakai_ctd_data(filterUrl):
     response = client.get(url)
     df = pd.DataFrame(response.json())
     return df, url
+
+
+def json_config(config_file):
+    """
+    Small tool to parse json configuration file
+    """
+    with open(os.path.join(hakai_qc.__path__[0], 'config', config_file)) as json_file:
+        qc_config = json.load(json_file)
+
+    return qc_config
