@@ -9,6 +9,7 @@ def tests_on_profiles(df,
                       qc_config,
                       group_variables=['device_model', 'device_sn', 'ctd_file_pk', 'ctd_cast_pk', 'direction_flag']
                       ):
+    string_indent = 2*' '
 
     # Loop through each  variables and profiles and apply QARTOD tests
     maximum_suspect_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_suspect_depth_ratio']
@@ -50,8 +51,13 @@ def tests_on_profiles(df,
 
         # Run the rest of the tests one profile at the time
         for key, config in qc_config.items():
-            print(key)
-            print(config)
+            # Print to follow what's happening
+            print(string_indent+key)
+            for test_type in config.keys():
+                print(2 * string_indent + test_type)
+                for test in config[test_type].items():
+                    print(3 * string_indent + str(test))
+
             for index, unique_cast_df in station_df.groupby(by=group_variables):
                 qc = QcConfig(config)
                 if key == 'position':
