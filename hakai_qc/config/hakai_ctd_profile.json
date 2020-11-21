@@ -125,12 +125,18 @@
               "fail_span": [0, 45],
               "suspect_span": [5, 35]
           },
-          "rate_of_change_test": {
-              "threshold": 1
-          },
           "spike_test": {
               "suspect_threshold": 0.5,
               "fail_threshold": 1
+          },
+          "aggregate": {}
+      }
+    },
+    "temperature": {
+      "qartod": {
+          "gross_range_test": {
+              "fail_span": [-2, 100],
+              "suspect_span": [-2, 40]
           },
           "aggregate": {}
       }
