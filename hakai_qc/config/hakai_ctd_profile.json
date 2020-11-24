@@ -142,7 +142,7 @@
       }
   },
   "sigma0": {
-      "qartod_profile": {
+      "qartod": {
           "density_inversion_test": {
               "suspect_threshold": -0.005,
               "fail_threshold": -0.05
