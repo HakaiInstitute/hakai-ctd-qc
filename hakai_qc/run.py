@@ -1,5 +1,6 @@
 import gsw
 from ioos_qc.config import QcConfig
+from ioos_qc.qartod import qartod_compare
 
 from hakai_qc import utils
 
@@ -103,6 +104,36 @@ def tests_on_profiles(df,
                 # TODO add do_cap_flag to qartod flags
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
+    # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
+    # Apply hakai_flag_value to all corresponding qartod_aggregate flag if available
+    for flag_value_column in df.filter(like='_hakai_flag_value').columns.to_list():
+        qartod_aggregate_column = 'depth_hakai_flag_value'.replace('_hakai_flag_value', '') + '_qartod_aggregate'
+        if qartod_aggregate_column in df.columns:
+            df = apply_qartod_flag([qartod_aggregate_column], [flag_value_column], df_to_convert=df)
+
+    # Apply Density Flags to Salinity, Conductivity and Temperature data
+    df = apply_qartod_flag(['salinity_qartod_aggregate', 'temperature_qartod_aggregate'], ['sigma0_qartod_aggregate'],
+                           df_to_convert=df)
+    # Apply bottom hit flag to all qartod_aggregate flags
+    df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(), ['bottom_hit_flag'],
+                           df_to_convert=df)
+
+    # Apply Pressure and Depth flag to all qartod_aggregate flags
+    df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(),
+                           ['pressure_qartod_aggregate', 'depth_qartod_aggregate'],
+                           df_to_convert=df)
+
+    # Apply Position Flag at all qartod_aggregate flags
+    df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(), ['position_qartod_aggregate'],
+                           df_to_convert=df)
+
+    # Apply DO Cap Flag to oxygen qartod_aggregate flags
+    df = apply_qartod_flag(['dissolved_oxygen_ml_l_qartod_aggregate'], ['dissolved_oxygen_ml_l_do_cap_flag'],
+                           df_to_convert=df)
+    df = apply_qartod_flag(['rinko_do_ml_l_qartod_aggregate'], ['rinko_do_ml_l_do_cap_flag'], df_to_convert=df)
+    return df
 
 
     return df
+
+    """
