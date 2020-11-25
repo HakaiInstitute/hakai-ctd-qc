@@ -159,6 +159,32 @@ def tests_on_profiles(df,
     return df
 
 
+def bottom_hit_detection(df,
+                         flag_channel,
+                         profile_group_variable='hakai_id',
+                         vertical_variable='depth',
+                         profile_direction_variable='direction_flag'):
+    """
+    Method that flag consecutive data near the bottom of a profile that was flagged SUSPECT=3 or FAIl=4. Output a
+    'bottom_hit_flag' channel.
+    """
+
+    # For each profile (down and up cast), get the density flag value for the deepest record.
+    #  If flagged [3,4], it has likely hit the bottom.
+    df['bottom_hit_flag'] = 1
+
+    bottom_hit_id = df.sort_values(by=[profile_group_variable, profile_direction_variable, vertical_variable]) \
+        .groupby(by=[profile_group_variable, profile_direction_variable]) \
+        .last()[flag_channel].isin([3, 4])
+
+    # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
+    for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_group_variable]:
+        for index, df_bottom_hit in df[df[profile_group_variable] == hakai_id].groupby(by=[profile_group_variable,
+                                                                                           profile_direction_variable]):
+            # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
+            df.loc[df_bottom_hit[df_bottom_hit[vertical_variable] >
+                                 df_bottom_hit[df_bottom_hit[flag_channel] == 1][vertical_variable].max()].index,
+                   'bottom_hit_flag'] = 4
     return df
 
     """
