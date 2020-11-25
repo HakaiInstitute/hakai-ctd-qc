@@ -120,6 +120,15 @@ def tests_on_profiles(df,
                               vertical_variable='depth',
                               profile_direction_variable='direction_flag')
 
+    # Detect PAR Shadow
+    min_par_for_shadow_detection = 5
+    df['par_cummax'] = df.sort_values(by=['hakai_id', 'direction_flag', 'depth'], ascending=False).groupby(
+        by=['hakai_id', 'direction_flag'])['par'].cummax()
+
+    df['par_shadow_flag'] = 1
+    df.loc[(df['par'] < df['par_cummax']) & (df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = 3
+    df = apply_qartod_flag(['par_qartod_aggregate'], ['par_shadow_flag'], df)
+
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Apply hakai_flag_value to all corresponding qartod_aggregate flag if available
     for flag_value_column in df.filter(like='_hakai_flag_value').columns.to_list():
