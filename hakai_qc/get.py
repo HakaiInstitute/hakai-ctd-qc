@@ -53,3 +53,20 @@ def json_config(config_file):
         qc_config = json.load(json_file)
 
     return qc_config
+
+
+def config_as_dataframe(qc_config):
+    # Convert qc_config dictionary to a dataframe which can be easier to read by the user.
+    qc_table = pd.DataFrame()
+    for var in qc_config.keys():
+        for module in qc_config[var].keys():
+            test = pd.DataFrame.from_dict(qc_config[var][module]).unstack()
+            test.name = 'Value'
+            test = test.reset_index().rename({'level_0': 'Test', 'level_1': 'Input'}, axis=1)
+            test['Module'] = module
+            test['Variable'] = var
+            qc_table = qc_table.append(test)
+
+    qc_table = qc_table.set_index(['Variable', 'Module', 'Test', 'Input']).dropna()
+    return qc_table
+
