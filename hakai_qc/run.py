@@ -86,11 +86,11 @@ def tests_on_profiles(df,
 
                 # Add the aggregated test results to the data frame
                 if 'qartod' in qc_results:
-                    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']
+                    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']\
+                        .astype(int)
 
-                elif 'qartod_profile' in qc_results:
-                    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod_profile'][
-                        'density_inversion_test']
+                # TODO add a text description of the tests results for each profiles which can populate the drop
+                #  comment: how many flagged 3, 4 or 9
 
                 # DO CAP DETECTION
                 # Compare Dissolved Oxygen Sensor up and downcast, if the sensor cap is left on. Both are generally
