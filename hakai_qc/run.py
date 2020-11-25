@@ -1,4 +1,5 @@
 import gsw
+import pandas as pd
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare
 
@@ -15,6 +16,14 @@ def tests_on_profiles(df,
     # Loop through each  variables and profiles and apply QARTOD tests
     maximum_suspect_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_suspect_depth_ratio']
     maximum_fail_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_fail_depth_ratio']
+
+    # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
+    #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
+    flag_list = [-9.99E-29]
+    df = df.join(
+        df[df.filter(items=list(qc_config.keys())).columns.to_list()].isin([-9.99E-29])
+            .replace(False, 1).replace(True, 3).add_suffix('_hakai_flag_value'))
+    df.replace(flag_list, pd.NA)
 
     # Run the tests for one station at the time
     for station_name, station_df in df.groupby(by='station'):
