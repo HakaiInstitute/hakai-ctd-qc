@@ -111,11 +111,15 @@ def tests_on_profiles(df,
                             df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 1
                     else:
                         df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 9
-                # TODO apply sigma0 flag to CTD data
-                # TODO apply bad pressure/depth to other data
-                # TODO add do_cap_flag to qartod flags
-                # TODO add a text description of the tests results for each profiles which can populate the drop
-                #  comment: how many flagged 3, 4 or 9
+
+    # BOTTOM HIT DETECTION
+    #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
+    df = bottom_hit_detection(df,
+                              flag_channel='sigma0_qartod_aggregate',
+                              profile_group_variable='hakai_id',
+                              vertical_variable='depth',
+                              profile_direction_variable='direction_flag')
+
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Apply hakai_flag_value to all corresponding qartod_aggregate flag if available
     for flag_value_column in df.filter(like='_hakai_flag_value').columns.to_list():
