@@ -208,6 +208,3 @@ def apply_qartod_flag(apply_to, reference, df_to_convert=None):
 
     return updated_flags
 
-    #elif type(apply_to) is str and type(reference) is str and df_to_convert is not None:
-     #   df_to_convert[apply_to] = qartod_compare([df_to_convert[apply_to].values, df_to_convert[reference].values])
-      #  updated_flags = df_to_convert
