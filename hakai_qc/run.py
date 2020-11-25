@@ -187,4 +187,27 @@ def bottom_hit_detection(df,
                    'bottom_hit_flag'] = 4
     return df
 
+
+def apply_qartod_flag(apply_to, reference, df_to_convert=None):
     """
+    Apply QARTOD flags from a reference vector to another vector. The tool can handle multiple reference vectors and a
+    dataframe input.
+    """
+    # Can handle a data frame input
+    if type(apply_to) is list is list and type(reference) is list and df_to_convert is not None:
+        for item in apply_to:
+            qartod_vectors = [df_to_convert[qartod_vector].values for qartod_vector in reference]
+            qartod_vectors.append(df_to_convert[item].values)
+
+            df_to_convert[item] = qartod_compare(qartod_vectors)
+
+        updated_flags = df_to_convert
+
+    else:
+        updated_flags = qartod_compare([apply_to, reference])
+
+    return updated_flags
+
+    #elif type(apply_to) is str and type(reference) is str and df_to_convert is not None:
+     #   df_to_convert[apply_to] = qartod_compare([df_to_convert[apply_to].values, df_to_convert[reference].values])
+      #  updated_flags = df_to_convert
