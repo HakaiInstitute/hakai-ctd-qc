@@ -83,12 +83,15 @@ def tests_on_profiles(df,
                     df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod_profile'][
                         'density_inversion_test']
 
-                # DO Cap Test
+                # DO CAP DETECTION
+                # Compare Dissolved Oxygen Sensor up and downcast, if the sensor cap is left on. Both are generally
+                # a lot different
                 if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
                     # Compare up and downcast to see if there's a significant difference recorded for each depth.
                     #  When the cap is left on the Rinko Sensor it's pretty obvious by comparing the up and downcast.
                     is_pk = df['ctd_cast_pk'] == index[3]
-                    if any(df[is_pk]['direction_flag'] == 'u'):
+                    # Make sure that there's an up cast available to compare with and
+                    if any(df[is_pk]['direction_flag'] == 'u') and index[-1] is 'd':
                         mean_do_diff = df[is_pk].groupby(by='pressure')['dissolved_oxygen_ml_l'].diff().mean()
 
                         if mean_do_diff > 0.5:
