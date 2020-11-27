@@ -88,7 +88,11 @@ def tests_on_profiles(df,
                 if 'qartod' in qc_results:
                     df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']\
                         .astype(int)
-
+                if 'argo' in qc_results:
+                    # Add every argo tests to the data frame
+                    for test in qc_results['argo'].keys():
+                        df.loc[unique_cast_df.index, key + '_argo_'+test] = qc_results['argo'][test] \
+                            .astype(int)
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
 
