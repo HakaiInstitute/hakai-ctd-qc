@@ -142,12 +142,11 @@
       }
   },
   "sigma0": {
-      "qartod": {
+      "argo": {
           "density_inversion_test": {
-              "suspect_threshold": -0.005,
-              "fail_threshold": -0.05
-          },
-          "aggregate": {}
+              "suspect_threshold": 0.005,
+              "fail_threshold": 0.05
+          }
       }
   }
 }
