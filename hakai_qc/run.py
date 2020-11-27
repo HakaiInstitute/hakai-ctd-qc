@@ -28,8 +28,8 @@ def tests_on_profiles(df,
                 df[df[column]==flag][column + '_hakai_flag_value'] = 4
     df = df.replace(flag_list, pd.NA)
 
-    # Run the tests for one station at the time
-    for station_name, station_df in df.groupby(by='station'):
+    # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
+    for station_name, station_df in df.dropna(axis=0, subset=['depth', 'pressure']).groupby(by='station'):
         print('QAQC ' + str(station_name))
         site_qc_config = qc_config
 
