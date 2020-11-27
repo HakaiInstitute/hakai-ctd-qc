@@ -23,9 +23,9 @@ def tests_on_profiles(df,
     columns_to_flag = set(qc_config.keys())-set(['position'])
     for flag in flag_list:
         for column in columns_to_flag:
-            if any(df[column]==flag):
+            if any(df[column] == flag):
                 df[column+'_hakai_flag_value'] = 1
-                df[df[column]==flag][column + '_hakai_flag_value'] = 4
+                df.loc[df[column] == flag, column + '_hakai_flag_value'] = 4
     df = df.replace(flag_list, pd.NA)
 
     # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
