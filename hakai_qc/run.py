@@ -104,22 +104,27 @@ def tests_on_profiles(df,
                     #  When the cap is left on the Rinko Sensor it's pretty obvious by comparing the up and downcast.
                     is_pk = df['ctd_cast_pk'] == index[3]
                     # Make sure that there's an up cast available to compare with and
-                    if any(df[is_pk]['direction_flag'] == 'u') and index[-1] is 'd':
-                        mean_do_diff = df[is_pk].groupby(by='pressure')['dissolved_oxygen_ml_l'].diff().mean()
+                    # Look if there's an up cast, theres any down casts available and there's actually some data.
+                    if any(df[is_pk]['direction_flag'] == 'u') and \
+                            index[-1] is 'd' and\
+                            len(df[is_pk][key].dropna()) > 0:
 
-                        if mean_do_diff > 0.5:
-                            df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 4
-                        if mean_do_diff > 0.2:
-                            df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 3
+                        std_do = df[is_pk].groupby(by='pressure')[key].agg(['std', 'count'])
+                        mean_std_do = std_do[std_do['count'] > 1]['std'].mean()
+
+                        if mean_std_do > 0.5:
+                            df.loc[is_pk, key + '_do_cap_flag'] = 4
+                        if mean_std_do > 0.2:
+                            df.loc[is_pk, key + '_do_cap_flag'] = 3
                         else:
-                            df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 1
+                            df.loc[is_pk, key + '_do_cap_flag'] = 1
                     else:
-                        df.loc[unique_cast_df.index, key + '_do_cap_flag'] = 9
+                        df.loc[is_pk, key + '_do_cap_flag'] = 9
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     df = bottom_hit_detection(df,
-                              flag_channel='sigma0_qartod_aggregate',
+                              flag_channel='sigma0_argo_density_inversion_test',
                               profile_group_variable='hakai_id',
                               vertical_variable='depth',
                               profile_direction_variable='direction_flag')
@@ -141,8 +146,10 @@ def tests_on_profiles(df,
             df = apply_qartod_flag([qartod_aggregate_column], [flag_value_column], df_to_convert=df)
 
     # Apply Density Flags to Salinity, Conductivity and Temperature data
-    df = apply_qartod_flag(['salinity_qartod_aggregate', 'temperature_qartod_aggregate'], ['sigma0_qartod_aggregate'],
-                           df_to_convert=df)
+    if 'sigma0_argo_density_inversion_test' in df.columns:
+        df = apply_qartod_flag(['salinity_qartod_aggregate', 'temperature_qartod_aggregate'],
+                               ['sigma0_argo_density_inversion_test'], df_to_convert=df)
+
     # Apply bottom hit flag to all qartod_aggregate flags
     df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(), ['bottom_hit_flag'],
                            df_to_convert=df)
