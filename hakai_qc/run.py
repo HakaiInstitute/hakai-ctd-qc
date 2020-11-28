@@ -116,6 +116,10 @@ def tests_on_profiles(df,
                 if any(fail_hakai_id):
                     df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = 4
 
+    # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
+    df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = 9
+    df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = 9
+
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     df = bottom_hit_detection(df,
