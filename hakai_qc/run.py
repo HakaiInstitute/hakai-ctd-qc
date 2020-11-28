@@ -99,30 +99,22 @@ def tests_on_profiles(df,
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
 
-                # DO CAP DETECTION
-                # Compare Dissolved Oxygen Sensor up and downcast, if the sensor cap is left on. Both are generally
-                # a lot different
-                if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
-                    # Compare up and downcast to see if there's a significant difference recorded for each depth.
-                    #  When the cap is left on the Rinko Sensor it's pretty obvious by comparing the up and downcast.
-                    is_pk = df['ctd_cast_pk'] == index[3]
-                    # Make sure that there's an up cast available to compare with and
-                    # Look if there's an up cast, theres any down casts available and there's actually some data.
-                    if any(df[is_pk]['direction_flag'] == 'u') and \
-                            index[-1] is 'd' and\
-                            len(df[is_pk][key].dropna()) > 0:
+            # DO CAP DETECTION
+            do_cap_suspect_threshold = .2
+            do_cap_fail_threshold = .5
 
-                        std_do = df[is_pk].groupby(by='pressure')[key].agg(['std', 'count'])
-                        mean_std_do = std_do[std_do['count'] > 1]['std'].mean()
+            if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
+                df[key+'_do_cap_flag'] = 9
+                profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(['var', 'count'])
+                profile_do_var = profile_do_compare[profile_do_compare['count'] > 1]['var'].groupby('hakai_id').agg(['mean','median'])
 
-                        if mean_std_do > 0.5:
-                            df.loc[is_pk, key + '_do_cap_flag'] = 4
-                        if mean_std_do > 0.2:
-                            df.loc[is_pk, key + '_do_cap_flag'] = 3
-                        else:
-                            df.loc[is_pk, key + '_do_cap_flag'] = 1
-                    else:
-                        df.loc[is_pk, key + '_do_cap_flag'] = 9
+                suspect_hakai_id = profile_do_var[profile_do_var['median'] > do_cap_suspect_threshold].index
+                fail_hakai_id = profile_do_var[profile_do_var['median'] > do_cap_fail_threshold].index
+
+                if any(suspect_hakai_id):
+                    df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = 3
+                if any(fail_hakai_id):
+                    df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = 4
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
