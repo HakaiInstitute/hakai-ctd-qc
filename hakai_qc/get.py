@@ -70,3 +70,49 @@ def config_as_dataframe(qc_config):
     qc_table = qc_table.set_index(['Variable', 'Module', 'Test', 'Input']).dropna()
     return qc_table
 
+
+def flag_result_plot(df,
+                      variables_to_plot,
+                      hakai_id_to_plot,
+                      y_axis_var='depth',
+                      flag_type='_qartod_aggregate'):
+
+    # Palette color for flag
+    color_dict = {1: 'seagreen', 2: 'gray', 3: 'darkorange', 4: 'red', 9: 'purple'}
+
+    # Define legend
+    legend_elements = [
+        mlines.Line2D([], [], color=color_dict[1], marker='s', markersize=10, linestyle='None', label='GOOD'),
+        mlines.Line2D([], [], color=color_dict[3], marker='s', markersize=10, linestyle='None', label='SUSPECT'),
+        mlines.Line2D([], [], color=color_dict[4], marker='s', markersize=10, linestyle='None', label='BAD'),
+        mlines.Line2D([], [], color='black', marker='.', markersize=10, linestyle='None', label='Down Cast'),
+        mlines.Line2D([], [], color='black', marker='x', markersize=7, linestyle='None', label='Up Cast')]
+
+    # Loop  through each profiles and variable and create plot
+    for hakai_id in hakai_id_to_plot:
+        print(hakai_id)
+        plt.figure()
+        fig, axs = plt.subplots(1, len(variables_to_plot),
+                                sharex=False, sharey=True)
+        fig.set_figwidth(4 * len(variables_to_plot))
+        fig.set_figheight(10)
+        fig.suptitle('Hakai ID: ' + hakai_id)
+
+        axs[0].invert_yaxis()
+
+        kk = 0
+        for variable in variables_to_plot:
+            g = sns.scatterplot(data=df[df['hakai_id'] == hakai_id],
+                                x=variable, y=y_axis_var,
+                                hue=variable + flag_type,
+                                palette=color_dict,
+                                style='direction_flag',
+                                linewidth=0, ax=axs[kk], legend=False)
+            kk = kk + 1
+        plt.subplots_adjust(wspace=0, hspace=0)
+
+        plt.legend(handles=legend_elements,
+                   bbox_to_anchor=(1, 1.02),
+                   loc='lower right', ncol=2, borderaxespad=0.)
+
+
