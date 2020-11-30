@@ -5,6 +5,10 @@ import json
 import hakai_qc
 import os
 
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+import seaborn as sns
+
 
 def hakai_stations():
     # Load Hakai Station List
