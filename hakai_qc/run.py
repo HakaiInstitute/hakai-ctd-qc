@@ -1,5 +1,6 @@
 import gsw
 import pandas as pd
+import numpy as np
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare
 
@@ -102,14 +103,29 @@ def tests_on_profiles(df,
             # DO CAP DETECTION
             do_cap_suspect_threshold = .2
             do_cap_fail_threshold = .5
+            ratio_above_treshold = .5
+            min_n_bins = 10
 
             if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
                 df[key+'_do_cap_flag'] = 9
-                profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(['var', 'count'])
-                profile_do_var = profile_do_compare[profile_do_compare['count'] > 1]['var'].groupby('hakai_id').agg(['mean','median'])
+                profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
+                    [np.ptp, 'count'])
 
-                suspect_hakai_id = profile_do_var[profile_do_var['median'] > do_cap_suspect_threshold].index
-                fail_hakai_id = profile_do_var[profile_do_var['median'] > do_cap_fail_threshold].index
+                profile_do_compare['is_suspect'] = profile_do_compare['ptp'] > do_cap_suspect_threshold
+                profile_do_compare['is_fail'] = profile_do_compare['ptp'] > do_cap_fail_threshold
+
+                profile_compare_results = profile_do_compare.groupby(by=['hakai_id',
+                                                                         'is_suspect',
+                                                                         'is_fail'])['ptp']\
+                    .agg(['median', 'count']).unstack(['is_suspect', 'is_fail'])
+                n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
+
+                suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
+                                                            .sum(axis=1)/n_bins_per_profile > ratio_above_treshold) &
+                                                           (n_bins_per_profile > min_n_bins)].index
+                fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True]/n_bins_per_profile
+                                                         > ratio_above_treshold) &
+                                                        (n_bins_per_profile > min_n_bins)].index
 
                 if any(suspect_hakai_id):
                     df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = 3
