@@ -21,7 +21,7 @@ def tests_on_profiles(df,
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
     flag_list = [-9.99E-29]
-    columns_to_flag = set(qc_config.keys())-set(['position'])
+    columns_to_flag = set(qc_config.keys()) - {'position'}
     for flag in flag_list:
         for column in columns_to_flag:
             if any(df[column] == flag):
