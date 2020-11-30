@@ -165,13 +165,13 @@ def tests_on_profiles(df,
         df = apply_qartod_flag(['salinity_qartod_aggregate', 'temperature_qartod_aggregate'],
                                ['sigma0_argo_density_inversion_test'], df_to_convert=df)
 
-    # Apply bottom hit flag to all qartod_aggregate flags
-    df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(), ['bottom_hit_flag'],
-                           df_to_convert=df)
+    # Apply bottom hit flag to all qartod_aggregate flags except position_qartod_aggregate flag
+    df = apply_qartod_flag(df.filter(like='qartod_aggregate').drop('position_qartod_aggregate', axis=1, errors='ignore')
+                           .columns.to_list(), ['bottom_hit_flag'],df_to_convert=df)
 
-    # Apply Pressure and Depth flag to all qartod_aggregate flags
-    df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(),
-                           ['pressure_qartod_aggregate', 'depth_qartod_aggregate'],
+    # Apply Pressure and Depth flag to all qartod_aggregate flags except position_qartod_aggregate flag
+    df = apply_qartod_flag(df.filter(like='qartod_aggregate').drop('position_qartod_aggregate', axis=1, errors='ignore')
+                           .columns.to_list(), ['pressure_qartod_aggregate', 'depth_qartod_aggregate'],
                            df_to_convert=df)
 
     # Apply Position Flag at all qartod_aggregate flags
