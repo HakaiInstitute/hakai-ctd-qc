@@ -156,7 +156,7 @@ def tests_on_profiles(df,
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Apply hakai_flag_value to all corresponding qartod_aggregate flag if available
     for flag_value_column in df.filter(like='_hakai_flag_value').columns.to_list():
-        qartod_aggregate_column = 'depth_hakai_flag_value'.replace('_hakai_flag_value', '') + '_qartod_aggregate'
+        qartod_aggregate_column = flag_value_column.replace('_hakai_flag_value', '') + '_qartod_aggregate'
         if qartod_aggregate_column in df.columns:
             df = apply_qartod_flag([qartod_aggregate_column], [flag_value_column], df_to_convert=df)
 
