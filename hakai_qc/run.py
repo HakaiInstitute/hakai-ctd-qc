@@ -103,10 +103,10 @@ def tests_on_profiles(df,
             # DO CAP DETECTION
             do_cap_suspect_threshold = .2
             do_cap_fail_threshold = .5
-            ratio_above_treshold = .5
+            ratio_above_threshold = .5
             min_n_bins = 10
 
-            if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
+            if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l'] and any(df['direction_flag'] == 'u'):
                 df[key+'_do_cap_flag'] = 9
                 profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
                     [np.ptp, 'count'])
