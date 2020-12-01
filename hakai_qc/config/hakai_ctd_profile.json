@@ -147,5 +147,13 @@
               "fail_threshold": 0.05
           }
       }
-  }
+  },
+  "flc":{
+      "qartod": {
+          "gross_range_test": {
+              "fail_span": [-.5, 150],
+              "suspect_span": [-.1, 80]
+          }
+      }
+  },
 }
