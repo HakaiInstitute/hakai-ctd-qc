@@ -153,7 +153,8 @@
           "gross_range_test": {
               "fail_span": [-0.5, 150],
               "suspect_span": [-0.1, 80]
-          }
+          },
+          "aggregate": {}
       }
   }
 }
