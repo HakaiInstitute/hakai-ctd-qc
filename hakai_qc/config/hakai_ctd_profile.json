@@ -18,7 +18,6 @@
           },
           "aggregate": {}
       }
-
   },
   "depth": {
       "qartod": {
@@ -80,8 +79,8 @@
               "suspect_span": [0, 1000]
           },
           "attenuated_signal_test": {
-              "suspect_threshold": 0.1,
-              "fail_threshold": 0.02,
+              "suspect_threshold": 0.01,
+              "fail_threshold": 0.001,
               "check_type": "range"
           },
           "aggregate": {}
