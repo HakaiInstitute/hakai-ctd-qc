@@ -171,3 +171,10 @@ def hakai_api_selected_variables():
                         'cdom_ppb', 'cdom_ppb_flag']
     return variables_to_get
 
+
+def fail_test_hakai_id():
+    hakai_ids = ['080217_2017-01-26T16:56:39.000Z', '080217_2017-01-15T17:57:21.667Z',
+                 '080217_2017-01-15T18:06:32.000Z', '080217_2016-11-26T20:23:06.500Z',
+                 '080217_2016-11-26T17:24:19.333Z']
+    return hakai_ids
+
