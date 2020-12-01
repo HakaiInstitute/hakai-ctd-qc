@@ -124,6 +124,9 @@ def flag_result_plot(df,
                    loc='lower right', ncol=2, borderaxespad=0.)
 
 
+import folium
+
+
 def flag_result_map(df,
                     flag_variable='position_qartod_aggregate',
                     groupby_var='hakai_id'):
@@ -133,23 +136,43 @@ def flag_result_map(df,
     # Start by defining the map
     m = folium.Map(
         location=center_map,
-        zoom_start=10, control_scale=True,
+        zoom_start=9, control_scale=True,
         tiles='Stamen Terrain')
+    # Create groups
+    fg = folium.FeatureGroup('QARTOD FLAG')
 
-    # Add each flagged profiles as a separate icon on the map
+    # Add each flagged profiles grouped by group variable (default: hakai_id) as a separate icon on the map
+    # SUSPECT PROFILES
+    f3 = folium.plugins.FeatureGroupSubGroup(fg, 'SUSPECT')
     for index, row in df[df[flag_variable] == 3].groupby(by=groupby_var):
-        folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[SUSPECT] hakai_id: ' + str(index),
-                      icon=folium.Icon(color='orange')).add_to(m)
+        f3.add_child(
+            folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[SUSPECT] hakai_id: ' + str(index),
+                          icon=folium.Icon(color='orange', icon='question-sign')))
+    # FAIL PROFILES
+    f4 = folium.plugins.FeatureGroupSubGroup(fg, 'FAIL')
     for index, row in df[df[flag_variable] == 4].groupby(by=groupby_var):
-        folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[FAIL] hakai_id: ' + str(index),
-                      icon=folium.Icon(color='red', icon='fail-sign')).add_to(m)
+        f4.add_child(
+            folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[FAIL] hakai_id: ' + str(index),
+                          icon=folium.Icon(color='red', icon='question-sign')))
+    # UNKNOWN
+    f9 = folium.plugins.FeatureGroupSubGroup(fg, 'UNKNOWN')
     for index, row in df[df[flag_variable] == 9].groupby(by=groupby_var):
-        folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[UNKNOWN] hakai_id: ' + str(index),
-                      icon=folium.Icon(color='purple', icon='question-sign')).add_to(m)
+        f9.add_child(
+            folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[UNKNOWN] hakai_id: ' + str(index),
+                          icon=folium.Icon(color='purple', icon='question-sign')))
 
     # All the ones that succeed can just be a fast marker cluster
-    plugins.FastMarkerCluster(df.groupby(by=groupby_var).first()[['latitude', 'longitude']].values).add_to(m)
+    f1 = folium.plugins.FeatureGroupSubGroup(fg, 'GOOD')
+    f1.add_child(folium.plugins.FastMarkerCluster(df[df['position_qartod_aggregate'] == 1]
+                                                  .groupby(by=groupby_var).first()
+                                                  [['latitude', 'longitude']].values))
 
+    m.add_child(fg)
+    m.add_child(f1)
+    m.add_child(f3)
+    m.add_child(f4)
+    m.add_child(f9)
+    folium.LayerControl().add_to(m)
     return m
 
 
