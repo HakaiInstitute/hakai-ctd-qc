@@ -43,8 +43,8 @@ def tests_on_profiles(df,
             # Set latitude longitude acceptable range for the station
             if station_info['Lat_DD'] and station_info['Long_DD']:
                 site_qc_config['position']['qartod']['location_test']['bbox'] = \
-                    utils.get_bbox_from_target_range(station_info,
-                                                     site_qc_config['position']['qartod']['location_test']['range'])
+                    utils.get_bbox_from_target_range(
+                        station_info, site_qc_config['position']['qartod']['location_test']['target_range'])
 
             # Set Maximum Acceptable Depth and Pressure Based on Site Name
             if station_info['Bot_depth'] or station_info['Bot_depth_GIS']:

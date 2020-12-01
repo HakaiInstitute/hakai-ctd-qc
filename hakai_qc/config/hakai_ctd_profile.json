@@ -3,7 +3,7 @@
       "qartod": {
           "location_test": {
               "bbox": [-180, -90, 180, 90],
-              "range": 3000
+              "target_range": 3000
           },
           "aggregate": {}
       }
