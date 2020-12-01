@@ -153,3 +153,21 @@ def flag_result_map(df,
     return m
 
 
+def hakai_api_selected_variables():
+    variables_to_get = ['ctd_file_pk', 'ctd_cast_pk', 'hakai_id', 'ctd_data_pk', 'filename',
+                        'device_model', 'device_sn',
+                        'work_area', 'cruise', 'station',
+                        'cast_number', 'latitude', 'longitude', 'start_dt',
+                        'bottom_dt', 'end_dt', 'duration', 'start_depth', 'bottom_depth', 'direction_flag',
+                        'measurement_dt', 'descent_rate', 'conductivity', 'conductivity_flag',
+                        'temperature', 'temperature_flag', 'depth', 'depth_flag', 'pressure',
+                        'pressure_flag', 'par', 'par_flag', 'flc', 'flc_flag', 'turbidity',
+                        'turbidity_flag', 'ph', 'ph_flag', 'salinity', 'salinity_flag',
+                        'spec_cond', 'spec_cond_flag', 'dissolved_oxygen_ml_l',
+                        'dissolved_oxygen_ml_l_flag', 'rinko_do_ml_l', 'rinko_do_ml_l_flag',
+                        'dissolved_oxygen_percent', 'dissolved_oxygen_percent_flag',
+                        'oxygen_voltage', 'oxygen_voltage_flag', 'c_star_at', 'c_star_at_flag',
+                        'sos_un', 'sos_un_flag', 'backscatter_beta', 'backscatter_beta_flag',
+                        'cdom_ppb', 'cdom_ppb_flag']
+    return variables_to_get
+
