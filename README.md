@@ -20,6 +20,7 @@ the following tests are completed:
     * Flag 3 if exceed by **5%** the station depth
     * Flag 4 if exceed by **10%** the station depth 
 * Latitude and longitude position given is within **3km** of the station location.
+* Latitude and/or longitude is unknown.
 
 ## IOOS QC tests
 The following section applies a series of general tests developed and available
@@ -94,9 +95,10 @@ negative trend over time during the deployment which is depth independent.
 To detect this issue, we compare both the up and down cast associated with a 
 profile and compute the difference in dissolved oxygen concentration recorded by each profile for a same pressure. 
 
-If the average dissolved oxygen concentration difference between the up and down cast is bigger than:
-* if &Delta;DO > 0.2 mL/L: flag as **SUSPECT** 
-* if &Delta;DO > 0.5 mL/L: flag as **FAIL**  
+If the dissolved oxygen concentration difference between the up and down cast exceed for more than 50% of the 
+profile:
+* &Delta;DO > 0.2 mL/L: flag as **SUSPECT** 
+* &Delta;DO > 0.5 mL/L: flag as **FAIL**  
   
 ### Bottom Hit Detection
 We use the density inversion flag to detect if an instrument hit bottom. This density inversion is likely caused by
