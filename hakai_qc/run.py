@@ -121,10 +121,10 @@ def tests_on_profiles(df,
                 n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
 
                 suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
-                                                            .sum(axis=1)/n_bins_per_profile > ratio_above_treshold) &
+                                                            .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
                                                            (n_bins_per_profile > min_n_bins)].index
                 fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True]/n_bins_per_profile
-                                                         > ratio_above_treshold) &
+                                                         > ratio_above_threshold) &
                                                         (n_bins_per_profile > min_n_bins)].index
 
                 if any(suspect_hakai_id):
