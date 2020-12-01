@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import seaborn as sns
 
+import folium
+import folium.folium as Map
+import folium.plugins as plugins
+
 
 def hakai_stations():
     # Load Hakai Station List
