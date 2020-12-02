@@ -20,13 +20,19 @@ def tests_on_profiles(df,
 
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
-    flag_list = [-9.99E-29]
+    flag_list = ['.isna', -9.99E-29]
     columns_to_flag = set(qc_config.keys()) - {'position'}
     for flag in flag_list:
         for column in columns_to_flag:
-            if any(df[column] == flag):
+            if flag is '.isna':
+                is_flagged = df[column].isna()
+            else:
+                is_flagged = df[column] == flag
+
+            if any(is_flagged):
                 df[column+'_hakai_flag_value'] = 1
-                df.loc[df[column] == flag, column + '_hakai_flag_value'] = 4
+                df.loc[is_flagged, column + '_hakai_flag_value'] = 9
+
     df = df.replace(flag_list, pd.NA)
 
     # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
