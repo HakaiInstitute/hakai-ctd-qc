@@ -33,19 +33,19 @@
   "dissolved_oxygen_ml_l": {
       "qartod": {
           "gross_range_test": {
-              "fail_span": [0, 12],
-              "suspect_span": [1, 10]
+              "fail_span": [0, 20],
+              "suspect_span": [1, 15]
           },
           "rate_of_change_test": {
-              "threshold": 1
+              "threshold": 3
           },
           "spike_test": {
               "suspect_threshold": 0.5,
               "fail_threshold": 1
           },
           "attenuated_signal_test": {
-              "suspect_threshold": 0.5,
-              "fail_threshold": 0.2,
+              "suspect_threshold": 0.1,
+              "fail_threshold": 0.01,
               "check_type": "range"
           },
           "aggregate": {}
@@ -54,19 +54,19 @@
   "rinko_do_ml_l": {
       "qartod": {
           "gross_range_test": {
-              "fail_span": [0, 12],
-              "suspect_span": [1, 10]
+              "fail_span": [0, 20],
+              "suspect_span": [1, 15]
           },
           "rate_of_change_test": {
-              "threshold": 1
+              "threshold": 3
           },
           "spike_test": {
               "suspect_threshold": 0.5,
               "fail_threshold": 1
           },
           "attenuated_signal_test": {
-              "suspect_threshold": 0.5,
-              "fail_threshold": 0.2,
+              "suspect_threshold": 0.1,
+              "fail_threshold": 0.01,
               "check_type": "range"
           },
           "aggregate": {}
