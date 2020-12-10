@@ -122,11 +122,14 @@
       "qartod": {
           "gross_range_test": {
               "fail_span": [0, 45],
-              "suspect_span": [5, 35]
+              "suspect_span": [2, 42]
           },
           "spike_test": {
               "suspect_threshold": 0.5,
               "fail_threshold": 1
+          },
+          "rate_of_change_test": {
+              "threshold": 5
           },
           "aggregate": {}
       }
@@ -137,15 +140,19 @@
               "fail_span": [-2, 100],
               "suspect_span": [-2, 40]
           },
+          "rate_of_change_test": {
+              "threshold": 5
+          },
           "aggregate": {}
       }
   },
   "sigma0": {
-      "argo": {
+      "qartod": {
           "density_inversion_test": {
-              "suspect_threshold": 0.005,
-              "fail_threshold": 0.05
-          }
+              "suspect_threshold": -0.005,
+              "fail_threshold": -0.03
+          },
+          "aggregate": {}
       }
   },
   "flc":{
