@@ -79,17 +79,19 @@ def tests_on_profiles(df,
                     print(3 * string_indent + str(test))
 
             for index, unique_cast_df in station_df.groupby(by=group_variables):
+                unique_cast_df = unique_cast_df.sort_values('pressure')
+
                 qc = QcConfig(config)
                 if key == 'position':
                     qc_results = qc.run(
-                        tinp=unique_cast_df['depth'],
+                        tinp=unique_cast_df['measurement_dt'],
                         zinp=unique_cast_df['depth'],
                         lon=unique_cast_df['longitude'],
                         lat=unique_cast_df['latitude'])
                 else:
                     qc_results = qc.run(
                         inp=unique_cast_df[key],
-                        tinp=unique_cast_df['pressure'],
+                        tinp=unique_cast_df['measurement_dt'],
                         zinp=unique_cast_df['depth'],
                         lon=unique_cast_df['longitude'],
                         lat=unique_cast_df['latitude'])
