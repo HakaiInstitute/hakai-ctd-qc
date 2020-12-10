@@ -145,7 +145,7 @@ def tests_on_profiles(df,
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     df = bottom_hit_detection(df,
-                              flag_channel='sigma0_argo_density_inversion_test',
+                              flag_channel='sigma0_qartod_aggregate',
                               profile_group_variable='hakai_id',
                               vertical_variable='depth',
                               profile_direction_variable='direction_flag')
@@ -167,9 +167,9 @@ def tests_on_profiles(df,
             df = apply_qartod_flag([qartod_aggregate_column], [flag_value_column], df_to_convert=df)
 
     # Apply Density Flags to Salinity, Conductivity and Temperature data
-    if 'sigma0_argo_density_inversion_test' in df.columns:
+    if 'density_qartod_aggregate' in df.columns:
         df = apply_qartod_flag(['salinity_qartod_aggregate', 'temperature_qartod_aggregate'],
-                               ['sigma0_argo_density_inversion_test'], df_to_convert=df)
+                               ['sigma0_qartod_aggregate'], df_to_convert=df)
 
     # Apply bottom hit flag to all qartod_aggregate flags except position_qartod_aggregate flag
     df = apply_qartod_flag(df.filter(like='qartod_aggregate').drop('position_qartod_aggregate', axis=1, errors='ignore')
