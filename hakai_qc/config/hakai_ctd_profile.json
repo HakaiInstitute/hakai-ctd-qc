@@ -111,9 +111,7 @@
               "suspect_threshold": 0.05,
               "fail_threshold": 0.02,
               "check_type": "std",
-              "test_period": 10,
-              "min_obs": 5,
-              "arg": {"is_profile": "True"}
+              "min_obs": 5
           },
           "aggregate": {}
       }
