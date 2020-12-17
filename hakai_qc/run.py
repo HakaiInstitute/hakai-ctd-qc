@@ -120,12 +120,13 @@ def tests_on_profiles(df,
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
 
-            # DO CAP DETECTION
-            do_cap_suspect_threshold = .2
-            do_cap_fail_threshold = .5
-            ratio_above_threshold = .5
-            min_n_bins = 10
+    # DO CAP DETECTION
     if any(df['direction_flag'] == 'u'):
+        do_cap_suspect_threshold = .2
+        do_cap_fail_threshold = .5
+        ratio_above_threshold = .5
+        min_n_bins = 10
+
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
             df[key+'_do_cap_flag'] = 9
             profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
