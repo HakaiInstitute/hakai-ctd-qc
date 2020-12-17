@@ -96,15 +96,21 @@ def tests_on_profiles(df,
                         lon=unique_cast_df['longitude'],
                         lat=unique_cast_df['latitude'])
 
-                # Add the aggregated test results to the data frame
-                if 'qartod' in qc_results:
-                    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']\
-                        .astype(int)
-                if 'argo' in qc_results:
-                    # Add every argo tests to the data frame
-                    for test in qc_results['argo'].keys():
-                        df.loc[unique_cast_df.index, key + '_argo_'+test] = qc_results['argo'][test] \
-                            .astype(int)
+                # Add flag results to Data Frame
+                for module, tests in qc_results.items():
+                    for test, flag in tests.items():
+                        df.loc[unique_cast_df.index,
+                               key + '_' + module + '_' + test] = flag
+
+                # # Add the aggregated test results to the data frame
+                # if 'qartod' in qc_results:
+                #    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']\
+                #        .astype(int)
+                # if 'argo' in qc_results:
+                #    # Add every argo tests to the data frame
+                #    for test in qc_results['argo'].keys():
+                #        df.loc[unique_cast_df.index, key + '_argo_'+test] = qc_results['argo'][test] \
+                #            .astype(int)
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
 
