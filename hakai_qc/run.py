@@ -120,37 +120,38 @@ def tests_on_profiles(df,
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
 
-            # DO CAP DETECTION
-            do_cap_suspect_threshold = .2
-            do_cap_fail_threshold = .5
-            ratio_above_threshold = .5
-            min_n_bins = 10
+    # DO CAP DETECTION
+    if any(df['direction_flag'] == 'u'):
+        do_cap_suspect_threshold = .2
+        do_cap_fail_threshold = .5
+        ratio_above_threshold = .5
+        min_n_bins = 10
 
-            if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l'] and any(df['direction_flag'] == 'u'):
-                df[key+'_do_cap_flag'] = 9
-                profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
-                    [np.ptp, 'count'])
+        for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
+            df[key+'_do_cap_flag'] = 9
+            profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
+                [np.ptp, 'count'])
 
-                profile_do_compare['is_suspect'] = profile_do_compare['ptp'] > do_cap_suspect_threshold
-                profile_do_compare['is_fail'] = profile_do_compare['ptp'] > do_cap_fail_threshold
+            profile_do_compare['is_suspect'] = profile_do_compare['ptp'] > do_cap_suspect_threshold
+            profile_do_compare['is_fail'] = profile_do_compare['ptp'] > do_cap_fail_threshold
 
-                profile_compare_results = profile_do_compare.groupby(by=['hakai_id',
-                                                                         'is_suspect',
-                                                                         'is_fail'])['ptp']\
-                    .agg(['median', 'count']).unstack(['is_suspect', 'is_fail'])
-                n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
+            profile_compare_results = profile_do_compare.groupby(by=['hakai_id',
+                                                                     'is_suspect',
+                                                                     'is_fail'])['ptp']\
+                .agg(['median', 'count']).unstack(['is_suspect', 'is_fail'])
+            n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
 
-                suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
-                                                            .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
-                                                           (n_bins_per_profile > min_n_bins)].index
-                fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True]/n_bins_per_profile
-                                                         > ratio_above_threshold) &
-                                                        (n_bins_per_profile > min_n_bins)].index
+            suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
+                                                        .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
+                                                       (n_bins_per_profile > min_n_bins)].index
+            fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True]/n_bins_per_profile
+                                                     > ratio_above_threshold) &
+                                                    (n_bins_per_profile > min_n_bins)].index
 
-                if any(suspect_hakai_id):
-                    df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = 3
-                if any(fail_hakai_id):
-                    df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = 4
+            if any(suspect_hakai_id):
+                df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = 3
+            if any(fail_hakai_id):
+                df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = 4
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
     df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = 9
