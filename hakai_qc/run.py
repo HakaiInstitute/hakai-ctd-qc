@@ -2,7 +2,7 @@ import gsw
 import pandas as pd
 import numpy as np
 from ioos_qc.config import QcConfig
-from ioos_qc.qartod import qartod_compare
+from ioos_qc.qartod import qartod_compare, QartodFlags
 
 from hakai_qc import utils
 
@@ -128,7 +128,7 @@ def tests_on_profiles(df,
         min_n_bins = 10
 
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
-            df[key+'_do_cap_flag'] = 9
+            df[key+'_do_cap_flag'] = QartodFlags.UNKNOWN
             profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
                 [np.ptp, 'count'])
 
@@ -149,13 +149,13 @@ def tests_on_profiles(df,
                                                     (n_bins_per_profile > min_n_bins)].index
 
             if any(suspect_hakai_id):
-                df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = 3
+                df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = QartodFlags.SUSPECT
             if any(fail_hakai_id):
-                df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = 4
+                df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = QartodFlags.FAIL
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
-    df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = 9
-    df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = 9
+    df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
+    df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
@@ -170,8 +170,9 @@ def tests_on_profiles(df,
     df['par_cummax'] = df.sort_values(by=['hakai_id', 'direction_flag', 'depth'], ascending=False).groupby(
         by=['hakai_id', 'direction_flag'])['par'].cummax()
 
-    df['par_shadow_flag'] = 1
-    df.loc[(df['par'] < df['par_cummax']) & (df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = 3
+    df['par_shadow_flag'] = QartodFlags.GOOD
+    df.loc[(df['par'] < df['par_cummax']) & (
+            df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = QartodFlags.SUSPECT
     df = apply_qartod_flag(['par_qartod_aggregate'], ['par_shadow_flag'], df)
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
@@ -218,11 +219,11 @@ def bottom_hit_detection(df,
 
     # For each profile (down and up cast), get the density flag value for the deepest record.
     #  If flagged [3,4], it has likely hit the bottom.
-    df['bottom_hit_flag'] = 1
+    df['bottom_hit_flag'] = QartodFlags.GOOD
 
     bottom_hit_id = df.sort_values(by=[profile_group_variable, profile_direction_variable, vertical_variable]) \
         .groupby(by=[profile_group_variable, profile_direction_variable]) \
-        .last()[flag_channel].isin([3, 4])
+        .last()[flag_channel].isin([QartodFlags.SUSPECT, QartodFlags.FAIL])
 
     # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
     for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_group_variable]:
@@ -231,7 +232,7 @@ def bottom_hit_detection(df,
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
             df.loc[df_bottom_hit[df_bottom_hit[vertical_variable] >
                                  df_bottom_hit[df_bottom_hit[flag_channel] == 1][vertical_variable].max()].index,
-                   'bottom_hit_flag'] = 4
+                   'bottom_hit_flag'] = QartodFlags.FAIL
     return df
 
 
