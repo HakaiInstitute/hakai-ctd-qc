@@ -2,7 +2,7 @@ import gsw
 import pandas as pd
 import numpy as np
 from ioos_qc.config import QcConfig
-from ioos_qc.qartod import qartod_compare
+from ioos_qc.qartod import qartod_compare, QartodFlags
 
 from hakai_qc import utils
 
@@ -47,10 +47,16 @@ def tests_on_profiles(df,
             station_info = hakai_stations.loc[station_name]
 
             # Set latitude longitude acceptable range for the station
-            if station_info['Lat_DD'] and station_info['Long_DD']:
-                site_qc_config['position']['qartod']['location_test']['bbox'] = \
-                    utils.get_bbox_from_target_range(
-                        station_info, site_qc_config['position']['qartod']['location_test']['target_range'])
+            # Use get_bbox_from_target_range utils tool
+            # if station_info['Lat_DD'] and station_info['Long_DD']:
+            #     site_qc_config['position']['qartod']['location_test']['bbox'] = \
+            #         utils.get_bbox_from_target_range(
+            #             station_info, site_qc_config['position']['qartod']['location_test']['target_range'])
+
+            if station_info['Lat_DD'] and station_info['Long_DD'] and \
+                    "target_range" in site_qc_config['position']['qartod']['location_test'].keys():
+                site_qc_config['position']['qartod']['location_test']['target_lat'] = [station_info['Lat_DD']]
+                site_qc_config['position']['qartod']['location_test']['target_lon'] = [station_info['Long_DD']]
 
             # Set Maximum Acceptable Depth and Pressure Based on Site Name
             if station_info['Bot_depth'] or station_info['Bot_depth_GIS']:
@@ -96,53 +102,60 @@ def tests_on_profiles(df,
                         lon=unique_cast_df['longitude'],
                         lat=unique_cast_df['latitude'])
 
-                # Add the aggregated test results to the data frame
-                if 'qartod' in qc_results:
-                    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']\
-                        .astype(int)
-                if 'argo' in qc_results:
-                    # Add every argo tests to the data frame
-                    for test in qc_results['argo'].keys():
-                        df.loc[unique_cast_df.index, key + '_argo_'+test] = qc_results['argo'][test] \
-                            .astype(int)
+                # Add flag results to Data Frame
+                for module, tests in qc_results.items():
+                    for test, flag in tests.items():
+                        df.loc[unique_cast_df.index,
+                               key + '_' + module + '_' + test] = flag
+
+                # # Add the aggregated test results to the data frame
+                # if 'qartod' in qc_results:
+                #    df.loc[unique_cast_df.index, key + '_qartod_aggregate'] = qc_results['qartod']['aggregate']\
+                #        .astype(int)
+                # if 'argo' in qc_results:
+                #    # Add every argo tests to the data frame
+                #    for test in qc_results['argo'].keys():
+                #        df.loc[unique_cast_df.index, key + '_argo_'+test] = qc_results['argo'][test] \
+                #            .astype(int)
                 # TODO add a text description of the tests results for each profiles which can populate the drop
                 #  comment: how many flagged 3, 4 or 9
 
-            # DO CAP DETECTION
-            do_cap_suspect_threshold = .2
-            do_cap_fail_threshold = .5
-            ratio_above_threshold = .5
-            min_n_bins = 10
+    # DO CAP DETECTION
+    if any(df['direction_flag'] == 'u'):
+        do_cap_suspect_threshold = .2
+        do_cap_fail_threshold = .5
+        ratio_above_threshold = .5
+        min_n_bins = 10
 
-            if key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l'] and any(df['direction_flag'] == 'u'):
-                df[key+'_do_cap_flag'] = 9
-                profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
-                    [np.ptp, 'count'])
+        for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
+            df[key+'_do_cap_flag'] = QartodFlags.UNKNOWN
+            profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
+                [np.ptp, 'count'])
 
-                profile_do_compare['is_suspect'] = profile_do_compare['ptp'] > do_cap_suspect_threshold
-                profile_do_compare['is_fail'] = profile_do_compare['ptp'] > do_cap_fail_threshold
+            profile_do_compare['is_suspect'] = profile_do_compare['ptp'] > do_cap_suspect_threshold
+            profile_do_compare['is_fail'] = profile_do_compare['ptp'] > do_cap_fail_threshold
 
-                profile_compare_results = profile_do_compare.groupby(by=['hakai_id',
-                                                                         'is_suspect',
-                                                                         'is_fail'])['ptp']\
-                    .agg(['median', 'count']).unstack(['is_suspect', 'is_fail'])
-                n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
+            profile_compare_results = profile_do_compare.groupby(by=['hakai_id',
+                                                                     'is_suspect',
+                                                                     'is_fail'])['ptp']\
+                .agg(['median', 'count']).unstack(['is_suspect', 'is_fail'])
+            n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
 
-                suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
-                                                            .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
-                                                           (n_bins_per_profile > min_n_bins)].index
-                fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True]/n_bins_per_profile
-                                                         > ratio_above_threshold) &
-                                                        (n_bins_per_profile > min_n_bins)].index
+            suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
+                                                        .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
+                                                       (n_bins_per_profile > min_n_bins)].index
+            fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True]/n_bins_per_profile
+                                                     > ratio_above_threshold) &
+                                                    (n_bins_per_profile > min_n_bins)].index
 
-                if any(suspect_hakai_id):
-                    df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = 3
-                if any(fail_hakai_id):
-                    df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = 4
+            if any(suspect_hakai_id):
+                df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = QartodFlags.SUSPECT
+            if any(fail_hakai_id):
+                df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = QartodFlags.FAIL
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
-    df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = 9
-    df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = 9
+    df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
+    df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
@@ -157,8 +170,9 @@ def tests_on_profiles(df,
     df['par_cummax'] = df.sort_values(by=['hakai_id', 'direction_flag', 'depth'], ascending=False).groupby(
         by=['hakai_id', 'direction_flag'])['par'].cummax()
 
-    df['par_shadow_flag'] = 1
-    df.loc[(df['par'] < df['par_cummax']) & (df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = 3
+    df['par_shadow_flag'] = QartodFlags.GOOD
+    df.loc[(df['par'] < df['par_cummax']) & (
+            df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = QartodFlags.SUSPECT
     df = apply_qartod_flag(['par_qartod_aggregate'], ['par_shadow_flag'], df)
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
@@ -205,11 +219,11 @@ def bottom_hit_detection(df,
 
     # For each profile (down and up cast), get the density flag value for the deepest record.
     #  If flagged [3,4], it has likely hit the bottom.
-    df['bottom_hit_flag'] = 1
+    df['bottom_hit_flag'] = QartodFlags.GOOD
 
     bottom_hit_id = df.sort_values(by=[profile_group_variable, profile_direction_variable, vertical_variable]) \
         .groupby(by=[profile_group_variable, profile_direction_variable]) \
-        .last()[flag_channel].isin([3, 4])
+        .last()[flag_channel].isin([QartodFlags.SUSPECT, QartodFlags.FAIL])
 
     # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
     for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_group_variable]:
@@ -218,7 +232,7 @@ def bottom_hit_detection(df,
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
             df.loc[df_bottom_hit[df_bottom_hit[vertical_variable] >
                                  df_bottom_hit[df_bottom_hit[flag_channel] == 1][vertical_variable].max()].index,
-                   'bottom_hit_flag'] = 4
+                   'bottom_hit_flag'] = QartodFlags.FAIL
     return df
 
 

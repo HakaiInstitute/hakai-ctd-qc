@@ -143,7 +143,15 @@
           },
           "aggregate": {}
       }
-  },
+   },
+   "conductivity": {
+        "qartod": {
+            "gross_range_test": {
+                "fail_span": [-0.1, 100],
+                "suspect_span": [0, 100]
+            }
+        }
+   },
   "sigma0": {
       "qartod": {
           "density_inversion_test": {
