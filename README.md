@@ -26,7 +26,7 @@ the following tests are completed:
 The following section applies a series of general tests developed and available
 within the [ioos_qc tool](https://github.com/ioos/ioos_qc). You can find a each tests available and its input parameters [here](https://ioos.github.io/ioos_qc/api/ioos_qc.html#submodules).
 We present here the different QARTOD tests described in the [Temperature and Salinity QARTOD Manual](https://cdn.ioos.noaa.gov/media/2017/12/qartod_temperature_salinity_manual.pdf) 
-and their implementation as of now:
+, the [Dissolved Oxygen QARTOD Manual](https://repository.oceanbestpractices.org/handle/11329/270) and their implementation as of now:
 
 1. **Required Tests**
     1. Timing/Gap Test *[Not available]*
@@ -37,7 +37,20 @@ and their implementation as of now:
     1. Location Test
         * See section above
     1. Gross Range Test
-        * As of now, it is applied to the follow parameters: Depth, Pressure, Salinity, Temperature, Dissolved_Oxygen_ml_l, Rinko_do_ml_l, Turbidity, PAR, Fluorescence.
+    
+    | Variable | Suspect Range | Fail Range |
+    |----------|:-------------:|:----------:|
+    |Depth (m) | [0, 12000]*   | [0, 12000]* |
+    |Pressure (dBar)| [0, 12000]*   | [0, 12000]* |
+    |Temperature (degC)| [-1.8, 40] | [-2 100] |
+    |Conductivity (mS/cm)| [0, 100] | [-0.1, 100]|
+    |Practical Salinity | [2, 42] | [0, 45] | 
+    |Dissolved Oxygen (mL/L)| [1, 15] | [0 20]|
+    |Turbidity (FTU)| [0, 1000] | [-0.1 10000]|
+    |PAR (umol m-2 s-1)| [0, 50000]|[-0.2, 100000]|
+    |Fluorescence (ug/L)| [-0.1, 80] |[-0.5 150]|
+    <sup>* *subject to site depth (see* </sup>
+    
     1. Climatological Test
         * Not Applied 
         * Could be implemented per station, particularly Hakai's primary stations.
@@ -59,7 +72,7 @@ and their implementation as of now:
         * This test is not yet available within the ioos_qc package. See below for Hakai's temporary implementation.
 
 *The [ioos_qc tool](https://github.com/ioos/ioos_qc) package is as of now only compatible with time series data type.
-We however did a temporary fix to make it usable with profile data. This is issue should be address in the near future.*
+We however did a temporary fix to make it usable with profile data. This issue should be addressed in the near future.*
 
 ## Potential Density Inversion Test
 We reproduce here a test similar to the Density Inversion Test applied by the ARGO program. 
