@@ -94,8 +94,8 @@
               "check_type": "range"
           },
           "spike_test": {
-              "suspect_threshold": 0.05,
-              "fail_threshold": 0.5
+              "suspect_threshold": 0.5,
+              "fail_threshold": 1
           },
           "aggregate": {}
       }
