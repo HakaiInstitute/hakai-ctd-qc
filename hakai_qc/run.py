@@ -128,6 +128,7 @@ def tests_on_profiles(df,
         min_n_bins = 10
 
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
+            print('Apply DO Cap Detection to '+key+' variable')
             df[key+'_do_cap_flag'] = QartodFlags.UNKNOWN
             profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
                 [np.ptp, 'count'])
@@ -154,11 +155,12 @@ def tests_on_profiles(df,
                 df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = QartodFlags.FAIL
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
-    df.loc[df['latitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
+    print('Flag Missing Position Records')
     df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
+    print('Flag Bottom Hit Data')
     df = bottom_hit_detection(df,
                               flag_channel='sigma0_qartod_aggregate',
                               profile_group_variable='hakai_id',
@@ -166,6 +168,7 @@ def tests_on_profiles(df,
                               profile_direction_variable='direction_flag')
 
     # Detect PAR Shadow
+    print('Flag PAR Shadow Data')
     min_par_for_shadow_detection = 5
     df['par_cummax'] = df.sort_values(by=['hakai_id', 'direction_flag', 'depth'], ascending=False).groupby(
         by=['hakai_id', 'direction_flag'])['par'].cummax()
