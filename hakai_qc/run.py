@@ -177,37 +177,29 @@ def tests_on_profiles(df,
     df['par_shadow_flag'] = QartodFlags.GOOD
     df.loc[(df['par'] < df['par_cummax']) & (
             df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = QartodFlags.SUSPECT
-    df = apply_qartod_flag(['par_qartod_aggregate'], ['par_shadow_flag'], df)
+    df.drop('par_cummax', axis=1, inplace=True)
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
-    # Apply hakai_flag_value to all corresponding qartod_aggregate flag if available
-    for flag_value_column in df.filter(like='_hakai_flag_value').columns.to_list():
-        qartod_aggregate_column = flag_value_column.replace('_hakai_flag_value', '') + '_qartod_aggregate'
-        if qartod_aggregate_column in df.columns:
-            df = apply_qartod_flag([qartod_aggregate_column], [flag_value_column], df_to_convert=df)
+    # Generate Hakai Flags
+    for var in qc_config.keys():
+        print('Apply flag results to '+var)
+        extra_flags = ''
 
-    # Apply Density Flags to Salinity, Conductivity and Temperature data
-    if 'density_qartod_aggregate' in df.columns:
-        df = apply_qartod_flag(['salinity_qartod_aggregate', 'temperature_qartod_aggregate'],
-                               ['sigma0_qartod_aggregate'], df_to_convert=df)
+        # Extra flags that apply to all variables
+        extra_flags = extra_flags + '|bottom_hit_flag'
+        extra_flags = extra_flags + '|position_qartod_location_test'
+        extra_flags = extra_flags + '|pressure_qartod_gross_range_test|depth_qartod_gross_range_test'
 
-    # Apply bottom hit flag to all qartod_aggregate flags except position_qartod_aggregate flag
-    df = apply_qartod_flag(df.filter(like='qartod_aggregate').drop('position_qartod_aggregate', axis=1, errors='ignore')
-                           .columns.to_list(), ['bottom_hit_flag'],df_to_convert=df)
+        # Add Density Inversion to selected variables
+        if var in ['temperature', 'salinity', 'conductivity']:
+            extra_flags = extra_flags+'|sigma0_qartod_density_inversion_test'
 
-    # Apply Pressure and Depth flag to all qartod_aggregate flags except position_qartod_aggregate flag
-    df = apply_qartod_flag(df.filter(like='qartod_aggregate').drop('position_qartod_aggregate', axis=1, errors='ignore')
-                           .columns.to_list(), ['pressure_qartod_aggregate', 'depth_qartod_aggregate'],
-                           df_to_convert=df)
+        # Add DO Cap Flag
+        if var in ['dissolved_oxygen_ml_l', 'rinko_ml_l']:
+            extra_flags = extra_flags + '|' + var + '_do_cap_flag'
 
-    # Apply Position Flag at all qartod_aggregate flags
-    df = apply_qartod_flag(df.filter(like='qartod_aggregate').columns.to_list(), ['position_qartod_aggregate'],
-                           df_to_convert=df)
-
-    # Apply DO Cap Flag to oxygen qartod_aggregate flags
-    df = apply_qartod_flag(['dissolved_oxygen_ml_l_qartod_aggregate'], ['dissolved_oxygen_ml_l_do_cap_flag'],
-                           df_to_convert=df)
-    df = apply_qartod_flag(['rinko_do_ml_l_qartod_aggregate'], ['rinko_do_ml_l_do_cap_flag'], df_to_convert=df)
+        # Create Hakai Flag Columns
+        df = get_hakai_flag_columns(df, var, extra_flags)
     return df
 
 
@@ -260,3 +252,26 @@ def apply_qartod_flag(apply_to, reference, df_to_convert=None):
 
     return updated_flags
 
+
+def get_hakai_flag_columns(df, var,
+                           extra_flag_list='',
+                           flag_values_to_consider=[2, 3, 4, 9]):
+
+    # Retrieve each flags column associated to a variable
+    var_flag_results = df.filter(regex=var + '_' + extra_flag_list)
+
+    # Ignore Hakai Original Flag Column # TODO This is temporary
+    if var+'_flag' in var_flag_results.columns:
+        var_flag_results.drop(var+'_flag', axis=1, inplace=True)
+
+    # Just consider flags associated with a flag value
+    var_flag_results_reduced = var_flag_results[var_flag_results.isin(flag_values_to_consider)].dropna(how='all', axis=0)
+
+    # Get Flag Description for failed flag
+    df[var + '_flag_description'] = pd.Series(var_flag_results_reduced.to_dict(orient='index')) \
+        .astype('str').str.replace('\'[\w\_]+\': nan,*\s*|\.0', '')
+    df[var + '_flag_description'].replace(pd.NA, '', inplace=True)
+
+    # Aggregate all flag columns together
+    df[var + '_qartod_flag'] = qartod_compare(var_flag_results.transpose().to_numpy())
+    return df
