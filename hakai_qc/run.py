@@ -156,7 +156,8 @@ def tests_on_profiles(df,
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
     print('Flag Missing Position Records')
-    df.loc[df['longitude'].isna(), 'position_qartod_aggregate'] = QartodFlags.UNKNOWN
+    df.loc[df['latitude'].isna(), 'position_unknown_location'] = QartodFlags.UNKNOWN
+    df.loc[df['longitude'].isna(), 'position_unknown_location'] = QartodFlags.UNKNOWN
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
