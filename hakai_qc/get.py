@@ -128,7 +128,7 @@ import folium
 
 
 def flag_result_map(df,
-                    flag_variable='position_qartod_aggregate',
+                    flag_variable='position_qartod_flag',
                     groupby_var='hakai_id'):
     # Start the map with center on the average lat/long
     center_map = df.groupby(groupby_var)[['latitude', 'longitude']].mean().mean().to_list()
@@ -163,7 +163,7 @@ def flag_result_map(df,
 
     # All the ones that succeed can just be a fast marker cluster
     f1 = folium.plugins.FeatureGroupSubGroup(fg, 'GOOD')
-    f1.add_child(folium.plugins.FastMarkerCluster(df[df['position_qartod_aggregate'] == 1]
+    f1.add_child(folium.plugins.FastMarkerCluster(df[df[flag_variable] == 1]
                                                   .groupby(by=groupby_var).first()
                                                   [['latitude', 'longitude']].values))
 
