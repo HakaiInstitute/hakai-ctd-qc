@@ -258,11 +258,7 @@ def get_hakai_flag_columns(df, var,
                            flag_values_to_consider=[2, 3, 4, 9]):
 
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=var + '_' + extra_flag_list)
-
-    # Ignore Hakai Original Flag Column # TODO This is temporary
-    if var+'_flag' in var_flag_results.columns:
-        var_flag_results.drop(var+'_flag', axis=1, inplace=True)
+    var_flag_results = df.filter(regex=var + '_' + extra_flag_list).drop(var+'_flag', axis=1, errors='ignore')
 
     # Just consider flags associated with a flag value
     var_flag_results_reduced = var_flag_results[var_flag_results.isin(flag_values_to_consider)].dropna(how='all', axis=0)
