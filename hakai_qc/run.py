@@ -163,7 +163,7 @@ def tests_on_profiles(df,
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     print('Flag Bottom Hit Data')
     df = bottom_hit_detection(df,
-                              flag_channel='sigma0_qartod_aggregate',
+                              flag_channel='sigma0_qartod_density_inversion_test',
                               profile_group_variable='hakai_id',
                               vertical_variable='depth',
                               profile_direction_variable='direction_flag')
