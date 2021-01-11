@@ -4,8 +4,7 @@
           "location_test": {
               "bbox": [-180, -90, 180, 90],
               "target_range": 3000
-          },
-          "aggregate": {}
+          }
       }
   },
   "pressure": {
@@ -15,8 +14,7 @@
               "fail_span": [0, 12000],
               "maximum_suspect_depth_ratio": 1.05,
               "maximum_fail_depth_ratio": 1.1
-          },
-          "aggregate": {}
+          }
       }
   },
   "depth": {
@@ -26,8 +24,7 @@
               "fail_span": [0, 12000],
               "maximum_suspect_depth_ratio": 1.05,
               "maximum_fail_depth_ratio": 1.1
-          },
-          "aggregate": {}
+          }
       }
   },
   "dissolved_oxygen_ml_l": {
@@ -47,8 +44,7 @@
               "suspect_threshold": 0.1,
               "fail_threshold": 0.01,
               "check_type": "range"
-          },
-          "aggregate": {}
+          }
       }
   },
   "rinko_do_ml_l": {
@@ -68,8 +64,7 @@
               "suspect_threshold": 0.1,
               "fail_threshold": 0.01,
               "check_type": "range"
-          },
-          "aggregate": {}
+          }
       }
   },
   "turbidity": {
@@ -82,8 +77,7 @@
               "suspect_threshold": 0.01,
               "fail_threshold": 0.001,
               "check_type": "range"
-          },
-          "aggregate": {}
+          }
       }
   },
   "c_star_at": {
@@ -96,8 +90,7 @@
           "spike_test": {
               "suspect_threshold": 0.5,
               "fail_threshold": 1
-          },
-          "aggregate": {}
+          }
       }
 
   },
@@ -112,8 +105,7 @@
               "fail_threshold": 0.02,
               "check_type": "std",
               "min_obs": 5
-          },
-          "aggregate": {}
+          }
       }
   },
   "salinity": {
@@ -128,8 +120,7 @@
           },
           "rate_of_change_test": {
               "threshold": 5
-          },
-          "aggregate": {}
+          }
       }
     },
     "temperature": {
@@ -140,8 +131,7 @@
           },
           "rate_of_change_test": {
               "threshold": 5
-          },
-          "aggregate": {}
+          }
       }
    },
    "conductivity": {
@@ -149,8 +139,7 @@
             "gross_range_test": {
                 "fail_span": [-0.1, 100],
                 "suspect_span": [0, 100]
-            },
-            "aggregate": {}
+            }
         }
    },
   "sigma0": {
@@ -158,8 +147,7 @@
           "density_inversion_test": {
               "suspect_threshold": -0.005,
               "fail_threshold": -0.03
-          },
-          "aggregate": {}
+          }
       }
   },
   "flc":{
@@ -167,8 +155,7 @@
           "gross_range_test": {
               "fail_span": [-0.5, 150],
               "suspect_span": [-0.1, 80]
-          },
-          "aggregate": {}
+          }
       }
   }
 }
