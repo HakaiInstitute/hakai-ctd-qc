@@ -130,7 +130,7 @@ def tests_on_profiles(df,
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
             print('Apply DO Cap Detection to '+key+' variable')
             df[key+'_do_cap_flag'] = QartodFlags.UNKNOWN
-            profile_do_compare = df.groupby(['hakai_id', 'pressure'])['dissolved_oxygen_ml_l'].agg(
+            profile_do_compare = df.groupby(['hakai_id', 'pressure'])[key].agg(
                 [np.ptp, 'count'])
 
             profile_do_compare['is_suspect'] = profile_do_compare['ptp'] > do_cap_suspect_threshold
