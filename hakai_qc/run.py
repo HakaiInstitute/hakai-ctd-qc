@@ -145,15 +145,17 @@ def tests_on_profiles(df,
             n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
 
             # Find Hakai ID that have their profile percentage above ratio_above_threshold
-            if ('count', True) in profile_compare_results:  # SUSPECT
+            if True in profile_compare_results['count']:  # SUSPECT
                 suspect_hakai_id = profile_compare_results.index[(profile_compare_results['count'][True]
                                                             .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
                                                            (n_bins_per_profile > min_n_bins)]
-            if ('count', True, True) in profile_compare_results:  # FAIL
+            if (True in profile_compare_results['count']) and (True in profile_compare_results['count'][True]) :  # FAIL
                 fail_hakai_id = profile_compare_results.index[(profile_compare_results['count'][True][True].sum(axis=1)
                                                         /n_bins_per_profile > ratio_above_threshold) &
                                                         (n_bins_per_profile > min_n_bins)]
-            if ('count', False, False, True) in profile_compare_results:  # UNKNOWN
+            if (False in profile_compare_results['count']) and \
+                (False in profile_compare_results['count'][False]) and\
+                (True in profile_compare_results['count'][False][False]):  # UNKNOWN
                 missing_hakai_id = profile_compare_results.index[(profile_compare_results['count'][False][False][True]
                                                                   /n_bins_per_profile > ratio_above_threshold) &
                                                                  (n_bins_per_profile > min_n_bins)]
