@@ -125,52 +125,55 @@ def tests_on_profiles(df,
         do_cap_suspect_threshold = .2
         do_cap_fail_threshold = .5
         ratio_above_threshold = .5
-        min_n_bins = 10
+        mininum_bins_per_profile = 10
 
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
             print('Apply DO Cap Detection to '+key+' variable')
-            profile_do_compare = df.groupby(['hakai_id', 'pressure'])[key].agg(
-                [np.ptp, 'count'])
+            # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
+            profile_bin_stats = df.groupby(by=['hakai_id', 'pressure'])[key].agg([np.ptp, 'count'])
 
-            profile_do_compare['is_unknown'] = (profile_do_compare['ptp'] == 0) \
-                                               & (profile_do_compare['count'] == 1)  # missing upcast or downcast
+            profile_bin_stats['is_missing'] = profile_bin_stats['ptp'].isnull() &\
+                                              (profile_bin_stats['count'] == 0)  # no value available
+            # Difference between values higher than thresholds
+            profile_bin_stats['is_suspect'] = (profile_bin_stats['ptp'] > do_cap_suspect_threshold) &\
+                                              (profile_bin_stats['count'] > 1)
+            profile_bin_stats['is_fail'] = (profile_bin_stats['ptp'] > do_cap_fail_threshold) &\
+                                           (profile_bin_stats['count'] > 1)
+            profile_bin_stats['is_unknown'] = profile_bin_stats['count'] == 1  # Only downcast or upcast available
 
-            profile_do_compare['is_suspect'] = (profile_do_compare['ptp'] > do_cap_suspect_threshold)\
-                                               & (profile_do_compare['count'] > 1)
-            profile_do_compare['is_fail'] = profile_do_compare['ptp'] > do_cap_fail_threshold
+            # Sum each flag per depth bin for each profiles per profile
+            profile_stats = profile_bin_stats.groupby(by=['hakai_id']).sum()
 
-            profile_compare_results = profile_do_compare.groupby(by=['hakai_id', 'is_suspect',
-                                                                     'is_fail', 'is_unknown'])['ptp']\
-                .agg(['median', 'count']).unstack(['is_suspect', 'is_fail', 'is_unknown'])
-            n_bins_per_profile = profile_compare_results['count'].sum(axis=1)
+            # Get the amount of the vertical bin available total and the amount with value in up and downcast
+            profile_stats['nBinsPerProfile'] = profile_bin_stats['ptp'].replace({pd.NA:-1}).groupby(by=['hakai_id']).count()
+            profile_stats['nGoodBinsPerProfile'] = profile_bin_stats[profile_bin_stats['ptp'] > 0]['ptp']\
+                .groupby(by=['hakai_id']).count()
 
-            # Find Hakai ID that have their profile percentage above ratio_above_threshold
-            if True in profile_compare_results['count']:  # SUSPECT
-                suspect_hakai_id = profile_compare_results.index[(profile_compare_results['count'][True]
-                                                            .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
-                                                           (n_bins_per_profile > min_n_bins)]
-            if (True in profile_compare_results['count']) and (True in profile_compare_results['count'][True]) :  # FAIL
-                fail_hakai_id = profile_compare_results.index[(profile_compare_results['count'][True][True].sum(axis=1)
-                                                        /n_bins_per_profile > ratio_above_threshold) &
-                                                        (n_bins_per_profile > min_n_bins)]
-            if (False in profile_compare_results['count']) and \
-                (False in profile_compare_results['count'][False]) and\
-                (True in profile_compare_results['count'][False][False]):  # UNKNOWN
-                missing_hakai_id = profile_compare_results.index[(profile_compare_results['count'][False][False][True]
-                                                                  /n_bins_per_profile > ratio_above_threshold) &
-                                                                 (n_bins_per_profile > min_n_bins)]
-            unknown_hakai_id = n_bins_per_profile.index[n_bins_per_profile < min_n_bins]  # MISSING
+            # Get Ratio of each flag generated vs the amount of bins available
+            for flag_test in ['is_unknown', 'is_suspect', 'is_fail', 'is_missing']:
+                profile_stats[flag_test+'_ratio'] = profile_stats[flag_test]/profile_stats['nGoodBinsPerProfile']
+
+            # Detect profiles for which test can be applied (missing up or downcast or not enough vertical bins)
+            unknown_profile_id = profile_stats.index[
+                (profile_stats['nGoodBinsPerProfile'] < mininum_bins_per_profile) | \
+                (profile_stats['nGoodBinsPerProfile'].isnull())]
+
+            # Get the list of index for each flag type
+            suspect_profile_id = profile_stats[(profile_stats['is_suspect_ratio'] > ratio_above_threshold)].index
+            fail_profile_id = profile_stats[(profile_stats['is_fail_ratio'] > ratio_above_threshold)].index
+            missing_profile_id = profile_stats[(profile_stats['nGoodBinsPerProfile'].isnull()) & \
+                                               (profile_stats['is_missing'] == profile_stats['nBinsPerProfile'])].index
 
             # Start with everything passing
             df[key+'_do_cap_flag'] = QartodFlags.GOOD
-            if any(suspect_hakai_id):
-                df.loc[df['hakai_id'].isin(suspect_hakai_id), key + '_do_cap_flag'] = QartodFlags.SUSPECT
-            if any(fail_hakai_id):
-                df.loc[df['hakai_id'].isin(fail_hakai_id), key + '_do_cap_flag'] = QartodFlags.FAIL
-            if any(unknown_hakai_id):
-                df.loc[df['hakai_id'].isin(unknown_hakai_id), key + '_do_cap_flag'] = QartodFlags.UNKNOWN
-            if any(missing_hakai_id):
-                df.loc[df['hakai_id'].isin(missing_hakai_id), key + '_do_cap_flag'] = QartodFlags.MISSING
+            if any(suspect_profile_id):
+                df.loc[df['hakai_id'].isin(suspect_profile_id), key + '_do_cap_flag'] = QartodFlags.SUSPECT
+            if any(fail_profile_id):
+                df.loc[df['hakai_id'].isin(fail_profile_id), key + '_do_cap_flag'] = QartodFlags.FAIL
+            if any(unknown_profile_id):
+                df.loc[df['hakai_id'].isin(unknown_profile_id), key + '_do_cap_flag'] = QartodFlags.UNKNOWN
+            if any(missing_profile_id):
+                df.loc[df['hakai_id'].isin(missing_profile_id), key + '_do_cap_flag'] = QartodFlags.MISSING
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
     print('Flag Missing Position Records')
