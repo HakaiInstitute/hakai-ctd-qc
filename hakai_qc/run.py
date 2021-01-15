@@ -146,18 +146,18 @@ def tests_on_profiles(df,
 
             # Find Hakai ID that have their profile percentage above ratio_above_threshold
             if ('count', True) in profile_compare_results:  # SUSPECT
-                suspect_hakai_id = profile_compare_results[(profile_compare_results['count'][True]
+                suspect_hakai_id = profile_compare_results.index[(profile_compare_results['count'][True]
                                                             .sum(axis=1)/n_bins_per_profile > ratio_above_threshold) &
-                                                           (n_bins_per_profile > min_n_bins)].index
+                                                           (n_bins_per_profile > min_n_bins)]
             if ('count', True, True) in profile_compare_results:  # FAIL
-                fail_hakai_id = profile_compare_results[(profile_compare_results['count'][True][True].sum(axis=1)
+                fail_hakai_id = profile_compare_results.index[(profile_compare_results['count'][True][True].sum(axis=1)
                                                         /n_bins_per_profile > ratio_above_threshold) &
-                                                        (n_bins_per_profile > min_n_bins)].index
+                                                        (n_bins_per_profile > min_n_bins)]
             if ('count', False, False, True) in profile_compare_results:  # UNKNOWN
-                unknown_hakai_id = profile_compare_results[(profile_compare_results['count'][False][False][True]
-                                                           /n_bins_per_profile > ratio_above_threshold)
-                                                           & (n_bins_per_profile > min_n_bins)].index
-            missing_hakai_id = (n_bins_per_profile < min_n_bins).index.values.tolist() # MISSING
+                missing_hakai_id = profile_compare_results.index[(profile_compare_results['count'][False][False][True]
+                                                                  /n_bins_per_profile > ratio_above_threshold) &
+                                                                 (n_bins_per_profile > min_n_bins)]
+            unknown_hakai_id = n_bins_per_profile.index[n_bins_per_profile < min_n_bins]  # MISSING
 
             # Start with everything passing
             df[key+'_do_cap_flag'] = QartodFlags.GOOD
