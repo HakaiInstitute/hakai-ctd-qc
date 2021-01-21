@@ -122,11 +122,6 @@ def tests_on_profiles(df,
 
     # DO CAP DETECTION
     if any(df['direction_flag'] == 'u'):
-        # do_cap_suspect_threshold = .2
-        # do_cap_fail_threshold = .5
-        # ratio_above_threshold = .5
-        # mininum_bins_per_profile = 10
-
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
             do_cap_test(df, key)
 
