@@ -10,8 +10,13 @@ from hakai_qc import utils
 def tests_on_profiles(df,
                       hakai_stations,
                       qc_config,
-                      group_variables=['device_model', 'device_sn', 'ctd_file_pk', 'ctd_cast_pk', 'direction_flag']
+                      group_variables=['device_model', 'device_sn', 'ctd_file_pk', 'ctd_cast_pk', 'direction_flag'],
+                      tinp='measurement_dt',
+                      zinp='depth',
+                      lon='longitude',
+                      lat='latitude'
                       ):
+    # This is just the indent to use when printing the executed tests.
     string_indent = 2*' '
 
     # Loop through each  variables and profiles and apply QARTOD tests
@@ -90,17 +95,17 @@ def tests_on_profiles(df,
                 qc = QcConfig(config)
                 if key == 'position':
                     qc_results = qc.run(
-                        tinp=unique_cast_df['measurement_dt'],
-                        zinp=unique_cast_df['depth'],
-                        lon=unique_cast_df['longitude'],
-                        lat=unique_cast_df['latitude'])
+                        tinp=unique_cast_df[tinp],
+                        zinp=unique_cast_df[zinp],
+                        lon=unique_cast_df[lon],
+                        lat=unique_cast_df[lat])
                 else:
                     qc_results = qc.run(
                         inp=unique_cast_df[key],
-                        tinp=unique_cast_df['measurement_dt'],
-                        zinp=unique_cast_df['depth'],
-                        lon=unique_cast_df['longitude'],
-                        lat=unique_cast_df['latitude'])
+                        tinp=unique_cast_df[tinp],
+                        zinp=unique_cast_df[zinp],
+                        lon=unique_cast_df[lon],
+                        lat=unique_cast_df[lat])
 
                 # Add flag results to Data Frame
                 for module, tests in qc_results.items():
