@@ -35,8 +35,8 @@ def tests_on_profiles(df,
                 is_flagged = df[column] == flag
 
             if any(is_flagged):
-                df[column+'_hakai_flag_value'] = 1
-                df.loc[is_flagged, column + '_hakai_flag_value'] = 9
+                df[column+'_hakai_flag_value'] = QartodFlags.GOOD
+                df.loc[is_flagged, column + '_hakai_flag_value'] = QartodFlags.MISSING
 
     df = df.replace(flag_list, pd.NA)
 
