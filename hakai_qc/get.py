@@ -5,14 +5,6 @@ import json
 import hakai_qc
 import os
 
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
-import seaborn as sns
-
-import folium
-import folium.folium as Map
-import folium.plugins as plugins
-
 
 def hakai_stations():
     # Load Hakai Station List
@@ -77,103 +69,6 @@ def config_as_dataframe(qc_config):
 
     qc_table = qc_table.set_index(['Variable', 'Module', 'Test', 'Input']).dropna()
     return qc_table
-
-
-def flag_result_plot(df,
-                      variables_to_plot,
-                      hakai_id_to_plot,
-                      y_axis_var='depth',
-                      flag_type='_qartod_aggregate'):
-
-    # Palette color for flag
-    color_dict = {1: 'seagreen', 2: 'gray', 3: 'darkorange', 4: 'red', 9: 'purple'}
-
-    # Define legend
-    legend_elements = [
-        mlines.Line2D([], [], color=color_dict[1], marker='s', markersize=10, linestyle='None', label='GOOD'),
-        mlines.Line2D([], [], color=color_dict[3], marker='s', markersize=10, linestyle='None', label='SUSPECT'),
-        mlines.Line2D([], [], color=color_dict[4], marker='s', markersize=10, linestyle='None', label='BAD'),
-        mlines.Line2D([], [], color='black', marker='.', markersize=10, linestyle='None', label='Down Cast'),
-        mlines.Line2D([], [], color='black', marker='x', markersize=7, linestyle='None', label='Up Cast')]
-
-    # Loop  through each profiles and variable and create plot
-    for hakai_id in hakai_id_to_plot:
-        print(hakai_id)
-        plt.figure()
-        fig, axs = plt.subplots(1, len(variables_to_plot),
-                                sharex=False, sharey=True)
-        fig.set_figwidth(4 * len(variables_to_plot))
-        fig.set_figheight(10)
-        fig.suptitle('Hakai ID: ' + hakai_id)
-
-        axs[0].invert_yaxis()
-
-        kk = 0
-        for variable in variables_to_plot:
-            g = sns.scatterplot(data=df[df['hakai_id'] == hakai_id],
-                                x=variable, y=y_axis_var,
-                                hue=variable + flag_type,
-                                palette=color_dict,
-                                style='direction_flag',
-                                linewidth=0, ax=axs[kk], legend=False)
-            kk = kk + 1
-        plt.subplots_adjust(wspace=0, hspace=0)
-
-        plt.legend(handles=legend_elements,
-                   bbox_to_anchor=(1, 1.02),
-                   loc='lower right', ncol=2, borderaxespad=0.)
-
-
-import folium
-
-
-def flag_result_map(df,
-                    flag_variable='position_qartod_flag',
-                    groupby_var='hakai_id'):
-    # Start the map with center on the average lat/long
-    center_map = df.groupby(groupby_var)[['latitude', 'longitude']].mean().mean().to_list()
-
-    # Start by defining the map
-    m = folium.Map(
-        location=center_map,
-        zoom_start=9, control_scale=True,
-        tiles='Stamen Terrain')
-    # Create groups
-    fg = folium.FeatureGroup('QARTOD FLAG')
-
-    # Add each flagged profiles grouped by group variable (default: hakai_id) as a separate icon on the map
-    # SUSPECT PROFILES
-    f3 = folium.plugins.FeatureGroupSubGroup(fg, 'SUSPECT')
-    for index, row in df[df[flag_variable] == 3].groupby(by=groupby_var):
-        f3.add_child(
-            folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[SUSPECT] hakai_id: ' + str(index),
-                          icon=folium.Icon(color='orange', icon='question-sign')))
-    # FAIL PROFILES
-    f4 = folium.plugins.FeatureGroupSubGroup(fg, 'FAIL')
-    for index, row in df[df[flag_variable] == 4].groupby(by=groupby_var):
-        f4.add_child(
-            folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[FAIL] hakai_id: ' + str(index),
-                          icon=folium.Icon(color='red', icon='question-sign')))
-    # UNKNOWN
-    f9 = folium.plugins.FeatureGroupSubGroup(fg, 'UNKNOWN')
-    for index, row in df[df[flag_variable] == 9].groupby(by=groupby_var):
-        f9.add_child(
-            folium.Marker(row[['latitude', 'longitude']].mean().tolist(), popup='[UNKNOWN] hakai_id: ' + str(index),
-                          icon=folium.Icon(color='purple', icon='question-sign')))
-
-    # All the ones that succeed can just be a fast marker cluster
-    f1 = folium.plugins.FeatureGroupSubGroup(fg, 'GOOD')
-    f1.add_child(folium.plugins.FastMarkerCluster(df[df[flag_variable] == 1]
-                                                  .groupby(by=groupby_var).first()
-                                                  [['latitude', 'longitude']].values))
-
-    m.add_child(fg)
-    m.add_child(f1)
-    m.add_child(f3)
-    m.add_child(f4)
-    m.add_child(f9)
-    folium.LayerControl().add_to(m)
-    return m
 
 
 def hakai_api_selected_variables():
