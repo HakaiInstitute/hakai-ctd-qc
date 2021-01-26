@@ -1,9 +1,13 @@
 import pandas as pd
-import pkg_resources
-from hakai_api import Client
+import xarray as xr
+from datetime import datetime as dt
 import json
-import hakai_qc
+
 import os
+import pkg_resources
+
+from hakai_api import Client
+import hakai_qc
 
 
 def hakai_stations():
@@ -96,3 +100,135 @@ def fail_test_hakai_id():
                  '080217_2016-11-26T17:24:19.333Z']
     return hakai_ids
 
+
+def research_profile_netcdf(hakai_id,
+                            path_out,
+                            creator_attributes={},
+                            extra_global_attributes={},
+                            extra_variable_attributes={},
+                            profile_id='hakai_id',
+                            timeseries_id='station',
+                            depth_var='depth',
+                            file_name_append='_Research'
+                            ):
+
+    # Define the general global attributes associated to all hakai profile data and the more specific ones associated
+    # with each profile and data submission.
+    general_global_attributes = {
+        'institution': 'Hakai Institute',
+        'project': 'Hakai Oceanography',
+        'summary': 'text describing that specific data',
+        'comment': '',
+        'infoUrl': 'hakai.org',
+        'keywords': "conductivity,temperature,salinity,depth,pressure,dissolved oxygen",
+        'acknowledgment': 'Hakai Field Techniciens, research and IT groups',
+        'naming_authority': 'Hakai Instititute',
+        'standard_name_vocabulary': 'CF 1.3',
+        'license': 'unknown',
+        'geospatial_lat_units': 'degrees_north',
+        'geospatial_lon_units': 'degrees_east'
+    }
+
+    specific_global_attribute = {
+        'title': 'Hakai Research CTD Profile: ' + hakai_id,
+        'created_date': str(dt.utcnow()),
+        'id': hakai_id,
+    }
+
+    # Retrieve data for the specified hakai_id
+    # Let's define the endpoints we'll use to get the data from the Hakai Database
+    endpoint_list = {'ctd_data': 'ctd/views/file/cast/data',
+                     'metadata': 'ctd/views/file/cast'}
+
+    # Create list of variables to use as coordindates
+    coordinate_list = [timeseries_id, profile_id, depth_var]
+
+    def _get_hakai_ctd_full_data(endpoint, filterUrl, get_columns_info=False):
+        # Get Oauth
+        client = Client()
+        # Make a data request for sampling stations
+        url = '%s/%s?%s' % (client.api_root, endpoint, filterUrl)
+        response = client.get(url)
+        df = pd.DataFrame(response.json())
+
+        if get_columns_info:
+            url = url + '&meta'
+            response = client.get(url)
+            columns_info = pd.DataFrame(response.json())
+        else:
+            columns_info = []
+
+        return df, columns_info
+
+    # Retrieve data to be save
+    data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
+                                                'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
+                                               get_columns_info=True)
+    cast, cast_meta = _get_hakai_ctd_full_data(endpoint_list['metadata'],
+                                                'hakai_id=' + hakai_id)
+
+    # Make some data conversion to compatible with ERDDAP NetCDF Format
+    def convert_dt_columns(df):
+        time_var_list = df.dropna(axis=1, how='all').filter(regex='_dt$|time_').columns
+        for var in time_var_list:
+            df[var] = pd.to_datetime(df[var])
+        return df
+
+    # Convert time variables to datetime objects
+    data = convert_dt_columns(data)
+    cast = convert_dt_columns(cast)
+
+    # Sort vertical variables and profile specific variables
+    profile_variables = set(data.columns).intersection(set(cast.columns)) - set(coordinate_list)
+    vertical_variables = set(data.columns) - profile_variables - set(coordinate_list)
+    extra_variables = set(cast.columns) - set(profile_variables) - set(coordinate_list)
+
+    # Create Xarray DataArray for each types and merge them together after
+    ds_vertical = hakai_qc.transform.dataframe_to_erddap_xarray(
+        data.set_index(coordinate_list)[vertical_variables].dropna(axis=1, how='all'),
+        profile_id=profile_id, timeseries_id=timeseries_id)
+    ds_profile = hakai_qc.transform.dataframe_to_erddap_xarray(
+        cast.set_index([timeseries_id, profile_id])[extra_variables.union(profile_variables)].dropna(axis=1, how='all'),
+        profile_id=profile_id, timeseries_id=timeseries_id)
+
+    # Merge the profile_id and vertical data combine both attrs with profile overwriting the vertical ones.
+    ds = xr.merge([ds_profile, ds_vertical], join='outer')
+    ds.attrs = ds_vertical.attrs
+    ds.attrs.update(ds_profile.attrs)
+
+    # Add Global attribute documentation
+    ds.attrs['comments'] = str(cast['comments'][0])
+    ds.attrs['processing_level'] = str(cast['processing_stage'][0])
+    ds.attrs['history'] = str({'vendor_metadata': str(cast['vendor_metadata'][0]),
+                               'processing_log': str(cast['process_log'][0])})
+
+    # Add user defined and variable specific global attributes
+    ds.attrs.update(general_global_attributes)
+    ds.attrs.update(specific_global_attribute)
+    ds.attrs.update(creator_attributes)
+    ds.attrs.update(extra_global_attributes)
+
+    # Add Hakai Database variable attributes
+    map_hakai_database = {'display_column': 'long_name', 'variable_units': 'units'}
+    not_empty_var = data_meta.loc[['display_column', 'variable_units']].dropna(axis=1)
+    for var in not_empty_var:
+        if var in ds:
+            for key in not_empty_var.index.values:
+                ds[var].attrs[map_hakai_database[key]] = not_empty_var[var][key]
+
+    # Add provided variable attributes
+    for var in extra_variable_attributes:
+        ds[var].attrs.update(extra_variable_attributes[var])
+
+    # Define output path and file
+    if (ds['direction_flag']==b'd').all():  # If all downcast
+        file_name_append = file_name_append + '_downcast'
+    if (ds['direction_flag'] == b'u').all():  # If all downcast
+        file_name_append = file_name_append + '_upcast'
+    hakai_id_str = hakai_id.replace(':', '').replace('.', '')
+
+    file_output_path = os.path.join(path_out, hakai_id_str + file_name_append + '.nc')
+
+    # Save to NetCDF
+    ds.to_netcdf(file_output_path)
+    return
