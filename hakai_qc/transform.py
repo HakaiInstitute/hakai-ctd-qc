@@ -43,7 +43,6 @@ def dataframe_to_erddap_xarray(df,
         if var in ds:
             ds[var].encoding['units'] = 'seconds since 1970-01-01T00:00:00'
 
-
     # Add Global Attributes
     ds.attrs.update(global_attributes)
 
@@ -64,21 +63,21 @@ def dataframe_to_erddap_xarray(df,
         print('No geometry exist with: timeseries_id, profile_id, and trajectory_id defined.')
     elif profile_id and trajectory_id:
         ds.attrs['cdm_data_type'] = 'TrajectoryProfile'
-        ds.attrs['cdm_profile_variables'] = ','.join(profile_id)
-        ds.attrs['cdm_trajectory_variables'] = ','.join(trajectory_id)
+        ds.attrs['cdm_profile_variables'] = profile_id
+        ds.attrs['cdm_trajectory_variables'] = trajectory_id
     elif timeseries_id and profile_id:
         ds.attrs['cdm_data_type'] = 'TimeSeriesProfile'
-        ds.attrs['cdm_profile_variables'] = ','.join(profile_id)
-        ds.attrs['cdm_timeseries_variables'] = ','.join(timeseries_id)
+        ds.attrs['cdm_profile_variables'] = profile_id
+        ds.attrs['cdm_timeseries_variables'] = timeseries_id
     elif profile_id:
         ds.attrs['cdm_data_type'] = 'Trajectory'
-        ds.attrs['cdm_trajectory_variables'] = ','.join(trajectory_id)
+        ds.attrs['cdm_trajectory_variables'] = trajectory_id
     elif timeseries_id:
         ds.attrs['cdm_data_type'] = 'TimeSeries'
-        ds.attrs['cdm_timeseries_variables'] = ','.join(timeseries_id)
+        ds.attrs['cdm_timeseries_variables'] = timeseries_id
     elif profile_id:
         ds.attrs['cdm_data_type'] = 'Profile'
-        ds.attrs['cdm_profile_variables'] = ','.join(profile_id)
+        ds.attrs['cdm_profile_variables'] = profile_id
     else:
         ds.attrs['cdm_data_type'] = 'Point'
 
