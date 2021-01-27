@@ -201,6 +201,9 @@ def research_profile_netcdf(hakai_id,
     ds.attrs['processing_level'] = str(cast['processing_stage'][0])
     ds.attrs['history'] = str({'vendor_metadata': str(cast['vendor_metadata'][0]),
                                'processing_log': str(cast['process_log'][0])})
+    ds.attrs['instrument'] = str(cast['device_model'][0]+
+                                 ' SN'+cast['device_sn'][0]+
+                                 ' Firmware'+cast['device_firmware'][0])
 
     # Add user defined and variable specific global attributes
     ds.attrs.update(general_global_attributes)
