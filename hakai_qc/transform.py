@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def dataframe_to_erddap_xarray(df,
@@ -6,7 +7,7 @@ def dataframe_to_erddap_xarray(df,
                                depth_var='depth',
                                lat='latitude',
                                lon='longitude',
-                               station_id=None,
+                               timeseries_id=None,
                                profile_id=None,
                                trajectory_id=None,
                                global_attributes={},
@@ -42,6 +43,7 @@ def dataframe_to_erddap_xarray(df,
         if var in ds:
             ds[var].encoding['units'] = 'seconds since 1970-01-01T00:00:00'
 
+
     # Add Global Attributes
     ds.attrs.update(global_attributes)
 
@@ -50,36 +52,43 @@ def dataframe_to_erddap_xarray(df,
         ds[var].attrs.update(variable_attributes[var])
 
     # Add CF Roles
-    if station_id:
-        ds[station_id].attrs['cf_role'] = 'station_id'
+    if timeseries_id:
+        ds[timeseries_id].attrs['cf_role'] = 'timeseries_id'
     if profile_id:
         ds[profile_id].attrs['cf_role'] = 'profile_id'
     if trajectory_id:
         ds[trajectory_id].attrs['cf_role'] = 'trajectory_id'
 
     # Define feature type
-    if station_id and profile_id and trajectory_id:
-        print('No geometry exist with: station_id, profile_id, and trajectory_id defined.')
+    if timeseries_id and profile_id and trajectory_id:
+        print('No geometry exist with: timeseries_id, profile_id, and trajectory_id defined.')
     elif profile_id and trajectory_id:
-        ds.attrs['featureType'] = 'trajectoryProfile'
-    elif station_id and profile_id:
-        ds.attrs['featureType'] = 'timeSeriesProfile'
+        ds.attrs['cdm_data_type'] = 'TrajectoryProfile'
+        ds.attrs['cdm_profile_variables'] = ','.join(profile_id)
+        ds.attrs['cdm_trajectory_variables'] = ','.join(trajectory_id)
+    elif timeseries_id and profile_id:
+        ds.attrs['cdm_data_type'] = 'TimeSeriesProfile'
+        ds.attrs['cdm_profile_variables'] = ','.join(profile_id)
+        ds.attrs['cdm_timeseries_variables'] = ','.join(timeseries_id)
     elif profile_id:
-        ds.attrs['featureType'] = 'trajectory'
-    elif station_id:
-        ds.attrs['featureType'] = 'timeSeries'
+        ds.attrs['cdm_data_type'] = 'Trajectory'
+        ds.attrs['cdm_trajectory_variables'] = ','.join(trajectory_id)
+    elif timeseries_id:
+        ds.attrs['cdm_data_type'] = 'TimeSeries'
+        ds.attrs['cdm_timeseries_variables'] = ','.join(timeseries_id)
     elif profile_id:
-        ds.attrs['featureType'] = 'profile'
+        ds.attrs['cdm_data_type'] = 'Profile'
+        ds.attrs['cdm_profile_variables'] = ','.join(profile_id)
     else:
-        ds.attrs['featureType'] = 'point'
+        ds.attrs['cdm_data_type'] = 'Point'
 
     # Define spatial and time coverage attributes
-    converage_attributes = get_spatial_converage_attributes(ds,
+    coverage_attributes = get_spatial_converage_attributes(ds,
                                                             time=time_var,
                                                             lat=lat,
                                                             lon=lon,
                                                             depth=depth_var)
-    ds.attrs.update(converage_attributes)
+    ds.attrs.update(coverage_attributes)
 
     return ds
 
@@ -94,24 +103,26 @@ def get_spatial_converage_attributes(ds,
     # time
     if time in ds:
         time_spatial_converage.update({
-            'time_converage_start': ds['measurement_dt'].min(),
-            'time_converage_end': ds['measurement_dt'].max(),
-            'time_converage_duration': ds['measurement_dt'].max() - ds['measurement_dt'].min()
+            'time_coverage_start': str(ds['measurement_dt'].min().values),
+            'time_coverage_end': str(ds['measurement_dt'].max().values),
+            'time_coverage_duration': str((ds['measurement_dt'].max() -ds['measurement_dt'].min())
+                                          .values/np.timedelta64(1, 's'))+' seconds'
         })
 
     # lat/long
     if lat in ds and lon in ds:
         time_spatial_converage.update({
-            'geospatial_lat_min': ds[lat].min(),
-            'geospatial_lat_max': ds[lat].max(),
-            'geospatial_lon_min': ds[lon].min(),
-            'geospatial_lon_max': ds[lon].max()
+            'geospatial_lat_min': ds[lat].min().values,
+            'geospatial_lat_max': ds[lat].max().values,
+            'geospatial_lon_min': ds[lon].min().values,
+            'geospatial_lon_max': ds[lon].max().values
         })
+
     # depth coverage
     if depth in ds:
         time_spatial_converage.update({
-            'geospatial_vertical_min': ds[depth].min(),
-            'geospatial_vertical_max': ds[depth].max()
+            'geospatial_vertical_min': ds[depth].min().values,
+            'geospatial_vertical_max': ds[depth].max().values
         })
 
     return time_spatial_converage

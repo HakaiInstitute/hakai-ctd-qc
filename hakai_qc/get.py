@@ -171,7 +171,7 @@ def research_profile_netcdf(hakai_id,
     def convert_dt_columns(df):
         time_var_list = df.dropna(axis=1, how='all').filter(regex='_dt$|time_').columns
         for var in time_var_list:
-            df[var] = pd.to_datetime(df[var])
+            df[var] = pd.to_datetime(df[var], utc=True)
         return df
 
     # Convert time variables to datetime objects
