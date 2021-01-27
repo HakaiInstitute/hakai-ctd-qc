@@ -230,8 +230,14 @@ def research_profile_netcdf(hakai_id,
         file_name_append = file_name_append + '_upcast'
     hakai_id_str = hakai_id.replace(':', '').replace('.', '')
 
-    file_output_path = os.path.join(path_out, hakai_id_str + file_name_append + '.nc')
+    # Sort variable order based on the order from the hakai data table followed by the cast table
+    cast_list = cast.columns
+    data_var_list = data.columns
+    cast_var_order = list(cast_list[cast_list.isin(list(ds.keys()))])
+    data_var_order = list(data_var_list[data_var_list.isin(list(ds.keys()))])
+    var_list = list(dict.fromkeys(cast_var_order + data_var_order))
 
     # Save to NetCDF
-    ds.to_netcdf(file_output_path)
+    file_output_path = os.path.join(path_out, hakai_id_str + file_name_append + '.nc')
+    ds[var_list].to_netcdf(file_output_path)
     return
