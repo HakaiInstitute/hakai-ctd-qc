@@ -83,35 +83,30 @@ def dataframe_to_erddap_xarray(df,
         ds.attrs['cdm_data_type'] = 'Point'
 
     # Define spatial and time coverage attributes
-    coverage_attributes = get_spatial_converage_attributes(ds,
-                                                            time=time_var,
-                                                            lat=lat,
-                                                            lon=lon,
-                                                            depth=depth_var)
-    ds.attrs.update(coverage_attributes)
+    ds.attrs.update(get_spatial_coverage_attributes(ds, time=time_var, lat=lat, lon=lon, depth=depth_var))
 
     return ds
 
 
-def get_spatial_converage_attributes(ds,
-                                     time='time',
-                                     lat='latitude',
-                                     lon='longitude',
-                                     depth='depth',
-                                     ):
-    time_spatial_converage = {}
+def get_spatial_coverage_attributes(ds,
+                                    time='time',
+                                    lat='latitude',
+                                    lon='longitude',
+                                    depth='depth',
+                                    ):
+    time_spatial_coverage = {}
     # time
     if time in ds:
-        time_spatial_converage.update({
+        time_spatial_coverage.update({
             'time_coverage_start': str(ds['measurement_dt'].min().values),
             'time_coverage_end': str(ds['measurement_dt'].max().values),
-            'time_coverage_duration': str((ds['measurement_dt'].max() -ds['measurement_dt'].min())
-                                          .values/np.timedelta64(1, 's'))+' seconds'
+            'time_coverage_duration': str((ds['measurement_dt'].max() - ds['measurement_dt'].min())
+                                          .values / np.timedelta64(1, 's')) + ' seconds'
         })
 
     # lat/long
     if lat in ds and lon in ds:
-        time_spatial_converage.update({
+        time_spatial_coverage.update({
             'geospatial_lat_min': ds[lat].min().values,
             'geospatial_lat_max': ds[lat].max().values,
             'geospatial_lon_min': ds[lon].min().values,
@@ -120,9 +115,9 @@ def get_spatial_converage_attributes(ds,
 
     # depth coverage
     if depth in ds:
-        time_spatial_converage.update({
+        time_spatial_coverage.update({
             'geospatial_vertical_min': ds[depth].min().values,
             'geospatial_vertical_max': ds[depth].max().values
         })
 
-    return time_spatial_converage
+    return time_spatial_coverage
