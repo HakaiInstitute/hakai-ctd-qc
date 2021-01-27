@@ -131,7 +131,7 @@ def research_profile_netcdf(hakai_id,
 
     specific_global_attribute = {
         'title': 'Hakai Research CTD Profile: ' + hakai_id,
-        'created_date': str(dt.utcnow()),
+        'date_created': str(dt.utcnow().isoformat()),
         'id': hakai_id,
     }
 
