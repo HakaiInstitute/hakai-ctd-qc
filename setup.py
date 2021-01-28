@@ -15,7 +15,7 @@ setup(name='hakai_qc',
           'ioos_qc',
           'gsw',
           'pyproj',
-          'pandas',
+          'pandas', 'numpy',
           'hakai_api',
           'matplotlib', 'seaborn',
           'plotly', 'folium', 'ipywidgets'
