@@ -8,7 +8,9 @@ from hakai_qc import hakai_tests
 def tests_on_profiles(df,
                       hakai_stations,
                       qc_config,
-                      group_variables=['device_model', 'device_sn', 'ctd_file_pk', 'ctd_cast_pk', 'direction_flag'],
+                      timeseries_id='station',
+                      profile_id='hakai_id',
+                      direction_flag='direction_flag',
                       tinp='measurement_dt',
                       zinp='depth',
                       lon='longitude',
@@ -16,6 +18,9 @@ def tests_on_profiles(df,
                       ):
     # This is just the indent to use when printing the executed tests.
     string_indent = 2 * ' '
+
+    # Regroup profiles by profile_id and direction and sort them along zinp
+    df = df.sort_values(by=[profile_id, direction_flag, zinp])
 
     # Loop through each  variables and profiles and apply QARTOD tests
     maximum_suspect_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_suspect_depth_ratio']
@@ -26,7 +31,7 @@ def tests_on_profiles(df,
     df = hakai_tests.bad_value_test(df, set(qc_config.keys()) - {'position'})
 
     # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
-    for station_name, station_df in df.dropna(axis=0, subset=['depth', 'pressure']).groupby(by='station'):
+    for station_name, station_df in df.dropna(axis=0, subset=['depth', 'pressure']).groupby(by=timeseries_id):
         print('QAQC ' + str(station_name))
         site_qc_config = qc_config
 
@@ -74,8 +79,8 @@ def tests_on_profiles(df,
                 for test in config[test_type].items():
                     print(3 * string_indent + str(test))
 
-            for index, unique_cast_df in station_df.groupby(by=group_variables):
-                unique_cast_df = unique_cast_df.sort_values('pressure')
+            for index, unique_cast_df in station_df.groupby(by=[profile_id, direction_flag]):
+                unique_cast_df = unique_cast_df.sort_values(zinp)
 
                 qc = QcConfig(config)
                 if key == 'position':
