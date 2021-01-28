@@ -28,25 +28,32 @@ def hakai_stations():
     return hakai_stations_list
 
 
-def hakai_ctd_data(filterUrl):
+def hakai_ctd_data(filter_url,
+                   hakai_ctd_endpoint='ctd/views/file/cast/data',
+                   output_format='dataframe'):
     """
     hakai_ctd_data(filterUrl) method used the Hakai Python API Client to query Processed CTD data from the Hakai
     database based on the filter provided. The data is then converted to a Pandas data frame.
     """
-    if filterUrl is None:
+    if filter_url is None:
         print('You don''t want to download all the data!')
     # Get Hakai Data
     # Get Data from Hakai API
     client = Client()  # Follow stdout prompts to get an API token
 
-    # CTD data endpoint
-    hakai_ctd_endpoint = 'ctd/views/file/cast/data'
-
     # Make a data request for sampling stations
-    url = '%s/%s?%s' % (client.api_root, hakai_ctd_endpoint, filterUrl)
+    url = '%s/%s?%s' % (client.api_root, hakai_ctd_endpoint, filter_url)
     response = client.get(url)
-    df = pd.DataFrame(response.json())
-    return df, url
+
+    # Sort the different possible inputs
+    if output_format == 'dataframe':
+        output = pd.DataFrame(response.json())
+    elif output_format == 'json':
+        output = response.json()
+    else:
+        output = response
+
+    return output, url
 
 
 def json_config(config_file):
