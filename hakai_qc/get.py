@@ -110,9 +110,9 @@ def fail_test_hakai_id():
 
 def research_profile_netcdf(hakai_id,
                             path_out,
-                            creator_attributes={},
-                            extra_global_attributes={},
-                            extra_variable_attributes={},
+                            creator_attributes=None,
+                            extra_global_attributes=None,
+                            extra_variable_attributes=None,
                             profile_id='hakai_id',
                             timeseries_id='station',
                             depth_var='depth',
@@ -213,10 +213,13 @@ def research_profile_netcdf(hakai_id,
                                  ' Firmware'+cast['device_firmware'][0])
 
     # Add user defined and variable specific global attributes
+
     ds.attrs.update(general_global_attributes)
     ds.attrs.update(specific_global_attribute)
-    ds.attrs.update(creator_attributes)
-    ds.attrs.update(extra_global_attributes)
+    if creator_attributes is not None:
+        ds.attrs.update(creator_attributes)
+    if extra_global_attributes is not None:
+        ds.attrs.update(extra_global_attributes)
 
     # Add Hakai Database variable attributes
     map_hakai_database = {'display_column': 'long_name', 'variable_units': 'units'}
@@ -227,8 +230,9 @@ def research_profile_netcdf(hakai_id,
                 ds[var].attrs[map_hakai_database[key]] = not_empty_var[var][key]
 
     # Add provided variable attributes
-    for var in extra_variable_attributes:
-        ds[var].attrs.update(extra_variable_attributes[var])
+    if extra_variable_attributes is not None:
+        for var in extra_variable_attributes:
+            ds[var].attrs.update(extra_variable_attributes[var])
 
     # Define output path and file
     if (ds['direction_flag']==b'd').all():  # If all downcast
