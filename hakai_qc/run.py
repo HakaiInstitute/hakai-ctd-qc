@@ -2,7 +2,7 @@ import gsw
 import pandas as pd
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
-from hakai_qc import hakai_tests
+from hakai_qc import hakai_tests, get, utils
 
 
 def tests_on_profiles(df,
@@ -152,6 +152,47 @@ def tests_on_profiles(df,
         # Create Hakai Flag Columns
         df = get_hakai_flag_columns(df, var, extra_flags)
     return df
+
+
+def update_hakai_ctd_profile_data(hakai_id=None,
+                                  json_input=None
+                                  ):
+    # Define dataframe
+    df = pd.DataFrame()
+
+    if hakai_id is not None:
+        print('Retrieve Hakai_ID: '+hakai_id)
+        # Retrieve data through the API
+        # Get Hakai CTD Data Download through the API
+        variable_lists = get.hakai_api_selected_variables()
+
+        # Let's just get the data from QU39
+        filterUrl = 'hakai_id=' + hakai_id + '&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
+        df, url = get.hakai_ctd_data(filterUrl)
+
+    elif json_input is not None:
+        # Hakai API JSON string to a pandas dataframe
+        df = pd.DataFrame(json_input.json())
+    else:
+        assert RuntimeError, 'update_hakai_ctd_profile_data is missing either a hakai_id or json string input.'
+    # Save the list of initial variables
+    initial_variable_list = df.columns
+
+    # Get Derived Variables
+    df = utils.derived_ocean_variables(df)
+
+    # Load default test parameters used right now!
+    qc_config = get.json_config('hakai_ctd_profile.json')
+
+    # Get Reference stations ( this should be changed to get it form the database or added to the data table
+    hakai_stations = get.hakai_stations()
+
+    # Run all of the tests on each available profile
+    df = tests_on_profiles(df, hakai_stations, qc_config)
+
+    # Isolate the Hakai Flags columns and output to a json string
+    json_out = df[initial_variable_list].to_json()
+    return json_out
 
 
 def apply_qartod_flag(apply_to, reference, df_to_convert=None):
