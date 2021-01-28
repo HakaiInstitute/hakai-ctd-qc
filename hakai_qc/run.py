@@ -186,19 +186,25 @@ def apply_qartod_flag(apply_to, reference, df_to_convert=None):
 
 def get_hakai_flag_columns(df, var,
                            extra_flag_list='',
-                           flag_values_to_consider=[2, 3, 4, 9]):
+                           flag_values_to_consider=[2, 3, 4, 9],
+                           level_1_flag_suffix='_qartod_flag',
+                           level_2_flag_suffix='_flag_description'):
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=var + '_' + extra_flag_list).drop(var + '_flag', axis=1, errors='ignore')
+    var_flag_results = df.filter(regex=var + '_' + extra_flag_list)
+
+    # Drop Hakai already existing flags, this will be dropped once we get the right flag columns
+    #  available on the database side
+    var_flag_results = var_flag_results.drop(var + '_flag', axis=1, errors='ignore')
 
     # Just consider flags associated with a flag value
     var_flag_results_reduced = var_flag_results[var_flag_results.isin(flag_values_to_consider)].dropna(how='all',
                                                                                                        axis=0)
 
     # Get Flag Description for failed flag
-    df[var + '_flag_description'] = pd.Series(var_flag_results_reduced.to_dict(orient='index')) \
+    df[var + level_2_flag_suffix] = pd.Series(var_flag_results_reduced.to_dict(orient='index')) \
         .astype('str').str.replace(r'\'[\w\_]+\': nan,*\s*|\.0', '')
-    df[var + '_flag_description'].replace(pd.NA, '', inplace=True)
+    df[var + level_2_flag_suffix].replace(pd.NA, '', inplace=True)
 
     # Aggregate all flag columns together
-    df[var + '_qartod_flag'] = qartod_compare(var_flag_results.transpose().to_numpy())
+    df[var + level_1_flag_suffix] = qartod_compare(var_flag_results.transpose().to_numpy())
     return df
