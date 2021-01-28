@@ -17,7 +17,7 @@ def tests_on_profiles(df,
                       lat='latitude'
                       ):
     # This is just the indent to use when printing the executed tests.
-    string_indent = 2*' '
+    string_indent = 2 * ' '
 
     # Loop through each  variables and profiles and apply QARTOD tests
     maximum_suspect_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_suspect_depth_ratio']
@@ -35,7 +35,7 @@ def tests_on_profiles(df,
                 is_flagged = df[column] == flag
 
             if any(is_flagged):
-                df[column+'_hakai_flag_value'] = QartodFlags.GOOD
+                df[column + '_hakai_flag_value'] = QartodFlags.GOOD
                 df.loc[is_flagged, column + '_hakai_flag_value'] = QartodFlags.MISSING
 
     df = df.replace(flag_list, pd.NA)
@@ -83,7 +83,7 @@ def tests_on_profiles(df,
         # Run the rest of the tests one profile at the time
         for key, config in qc_config.items():
             # Print to follow what's happening
-            print(string_indent+key)
+            print(string_indent + key)
             for test_type in config.keys():
                 print(2 * string_indent + test_type)
                 for test in config[test_type].items():
@@ -153,7 +153,7 @@ def tests_on_profiles(df,
 
         # Add Density Inversion to selected variables
         if var in ['temperature', 'salinity', 'conductivity']:
-            extra_flags = extra_flags+'|sigma0_qartod_density_inversion_test'
+            extra_flags = extra_flags + '|sigma0_qartod_density_inversion_test'
 
         # Add DO Cap Flag
         if var in ['dissolved_oxygen_ml_l', 'rinko_ml_l']:
@@ -188,16 +188,16 @@ def apply_qartod_flag(apply_to, reference, df_to_convert=None):
 def get_hakai_flag_columns(df, var,
                            extra_flag_list='',
                            flag_values_to_consider=[2, 3, 4, 9]):
-
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=var + '_' + extra_flag_list).drop(var+'_flag', axis=1, errors='ignore')
+    var_flag_results = df.filter(regex=var + '_' + extra_flag_list).drop(var + '_flag', axis=1, errors='ignore')
 
     # Just consider flags associated with a flag value
-    var_flag_results_reduced = var_flag_results[var_flag_results.isin(flag_values_to_consider)].dropna(how='all', axis=0)
+    var_flag_results_reduced = var_flag_results[var_flag_results.isin(flag_values_to_consider)].dropna(how='all',
+                                                                                                       axis=0)
 
     # Get Flag Description for failed flag
     df[var + '_flag_description'] = pd.Series(var_flag_results_reduced.to_dict(orient='index')) \
-        .astype('str').str.replace('\'[\w\_]+\': nan,*\s*|\.0', '')
+        .astype('str').str.replace(r'\'[\w\_]+\': nan,*\s*|\.0', '')
     df[var + '_flag_description'].replace(pd.NA, '', inplace=True)
 
     # Aggregate all flag columns together
