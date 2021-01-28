@@ -34,8 +34,6 @@ def do_cap_test(df,
     OUTPUT:
     The test will generate an extra column [var]_do_cap_test with QARTOD flag.
     """
-
-    print('DO Cap Detection to ' + var + ' variable')
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
     profile_bin_stats = df.groupby(by=[profile_id, depth_var])[var].agg([np.ptp, 'count'])
 
@@ -89,7 +87,8 @@ def bottom_hit_detection(df,
                          flag_channel,
                          profile_group_variable='hakai_id',
                          vertical_variable='depth',
-                         profile_direction_variable='direction_flag'):
+                         profile_direction_variable='direction_flag',
+                         flag_column_name='bottom_hit_test'):
     """
     Method that flag consecutive data near the bottom of a profile that was flagged SUSPECT=3 or FAIl=4. Output a
     'bottom_hit_flag' channel.
@@ -110,7 +109,7 @@ def bottom_hit_detection(df,
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
             df.loc[df_bottom_hit[df_bottom_hit[vertical_variable] >
                                  df_bottom_hit[df_bottom_hit[flag_channel] == 1][vertical_variable].max()].index,
-                   'bottom_hit_flag'] = QartodFlags.FAIL
+                   flag_column_name] = QartodFlags.FAIL
     return df
 
 
@@ -120,7 +119,8 @@ def par_shadow_test(df,
                     flag_name='par_shadow_flag',
                     profile_id='hakai_id',
                     direction_flag='direction_flag',
-                    depth_var='depth'
+                    depth_var='depth',
+                    flag_column_name='par_shadow_test'
                     ):
     """
     The PAR shadow test assume that PAR values should always be increasing with shallower depths. The tool first
@@ -135,6 +135,6 @@ def par_shadow_test(df,
 
     df[flag_name] = QartodFlags.GOOD
     df.loc[(df[par_variable] < df['par_cummax']) & (
-            df['par_cummax'] > min_par_for_shadow_detection), 'par_shadow_flag'] = QartodFlags.SUSPECT
+            df['par_cummax'] > min_par_for_shadow_detection), flag_column_name] = QartodFlags.SUSPECT
     df.drop('par_cummax', axis=1, inplace=True)
     return df

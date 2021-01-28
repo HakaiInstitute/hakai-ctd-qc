@@ -147,7 +147,7 @@ def tests_on_profiles(df,
         extra_flags = ''
 
         # Extra flags that apply to all variables
-        extra_flags = extra_flags + '|bottom_hit_flag'
+        extra_flags = extra_flags + '|bottom_hit_test'
         extra_flags = extra_flags + '|position_qartod_location_test'
         extra_flags = extra_flags + '|pressure_qartod_gross_range_test|depth_qartod_gross_range_test'
 
@@ -157,7 +157,7 @@ def tests_on_profiles(df,
 
         # Add DO Cap Flag
         if var in ['dissolved_oxygen_ml_l', 'rinko_ml_l']:
-            extra_flags = extra_flags + '|' + var + '_do_cap_flag'
+            extra_flags = extra_flags + '|' + var + '_do_cap_test'
 
         # Create Hakai Flag Columns
         df = get_hakai_flag_columns(df, var, extra_flags)
@@ -178,7 +178,6 @@ def apply_qartod_flag(apply_to, reference, df_to_convert=None):
             df_to_convert[item] = qartod_compare(qartod_vectors)
 
         updated_flags = df_to_convert
-
     else:
         updated_flags = qartod_compare([apply_to, reference])
 
