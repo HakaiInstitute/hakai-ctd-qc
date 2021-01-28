@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
-from hakai_qc import test
-from hakai_qc import utils
+from hakai_qc import hakai_tests, utils
 
 
 def tests_on_profiles(df,
@@ -120,7 +119,8 @@ def tests_on_profiles(df,
     # DO CAP DETECTION
     if any(df['direction_flag'] == 'u'):
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
-            test.do_cap_test(df, key)
+            print('DO Cap Detection to ' + key + ' variable')
+            hakai_tests.do_cap_test(df, key)
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
     print('Flag Missing Position Records')
@@ -130,15 +130,15 @@ def tests_on_profiles(df,
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     print('Flag Bottom Hit Data')
-    df = test.bottom_hit_detection(df,
-                                   flag_channel='sigma0_qartod_density_inversion_test',
-                                   profile_group_variable='hakai_id',
-                                   vertical_variable='depth',
-                                   profile_direction_variable='direction_flag')
+    df = hakai_tests.bottom_hit_detection(df,
+                                          flag_channel='sigma0_qartod_density_inversion_test',
+                                          profile_group_variable='hakai_id',
+                                          vertical_variable='depth',
+                                          profile_direction_variable='direction_flag')
 
     # Detect PAR Shadow
     print('Flag PAR Shadow Data')
-    df = test.par_shadow_test(df)
+    df = hakai_tests.par_shadow_test(df)
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
