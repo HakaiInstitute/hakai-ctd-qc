@@ -117,8 +117,8 @@ def tests_on_profiles(df,
     print('Flag Bottom Hit Data')
     df = hakai_tests.bottom_hit_detection(df,
                                           flag_channel='sigma0_qartod_density_inversion_test',
-                                          profile_group_variable='hakai_id',
-                                          vertical_variable='depth',
+                                          profile_id='hakai_id',
+                                          depth_variable='depth',
                                           profile_direction_variable='direction_flag')
 
     # Detect PAR Shadow

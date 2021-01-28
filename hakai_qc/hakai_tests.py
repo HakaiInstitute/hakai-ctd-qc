@@ -85,8 +85,8 @@ def do_cap_test(df,
 
 def bottom_hit_detection(df,
                          flag_channel,
-                         profile_group_variable='hakai_id',
-                         vertical_variable='depth',
+                         profile_id='hakai_id',
+                         depth_variable='depth',
                          profile_direction_variable='direction_flag',
                          flag_column_name='bottom_hit_test'):
     """
@@ -98,17 +98,17 @@ def bottom_hit_detection(df,
     #  If flagged [3,4], it has likely hit the bottom.
     df['bottom_hit_flag'] = QartodFlags.GOOD
 
-    bottom_hit_id = df.sort_values(by=[profile_group_variable, profile_direction_variable, vertical_variable]) \
-        .groupby(by=[profile_group_variable, profile_direction_variable]) \
+    bottom_hit_id = df.sort_values(by=[profile_id, profile_direction_variable, depth_variable]) \
+        .groupby(by=[profile_id, profile_direction_variable]) \
         .last()[flag_channel].isin([QartodFlags.SUSPECT, QartodFlags.FAIL])
 
     # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
-    for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_group_variable]:
-        for index, df_bottom_hit in df[df[profile_group_variable] == hakai_id].groupby(by=[profile_group_variable,
-                                                                                           profile_direction_variable]):
+    for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_id]:
+        for index, df_bottom_hit in df[df[profile_id] == hakai_id].groupby(by=[profile_id,
+                                                                               profile_direction_variable]):
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
-            df.loc[df_bottom_hit[df_bottom_hit[vertical_variable] >
-                                 df_bottom_hit[df_bottom_hit[flag_channel] == 1][vertical_variable].max()].index,
+            df.loc[df_bottom_hit[df_bottom_hit[depth_variable] >
+                                 df_bottom_hit[df_bottom_hit[flag_channel] == 1][depth_variable].max()].index,
                    flag_column_name] = QartodFlags.FAIL
     return df
 
