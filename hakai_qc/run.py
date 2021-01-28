@@ -1,9 +1,8 @@
 import gsw
 import pandas as pd
-import numpy as np
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
-from hakai_qc import hakai_tests, utils
+from hakai_qc import hakai_tests
 
 
 def tests_on_profiles(df,
@@ -24,20 +23,7 @@ def tests_on_profiles(df,
 
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
-    flag_list = ['.isna', -9.99E-29]
-    columns_to_flag = set(qc_config.keys()) - {'position'}
-    for flag in flag_list:
-        for column in columns_to_flag:
-            if flag is '.isna':
-                is_flagged = df[column].isna()
-            else:
-                is_flagged = df[column] == flag
-
-            if any(is_flagged):
-                df[column + '_hakai_flag_value'] = QartodFlags.GOOD
-                df.loc[is_flagged, column + '_hakai_flag_value'] = QartodFlags.MISSING
-
-    df = df.replace(flag_list, pd.NA)
+    df = hakai_tests.bad_value_test(df, set(qc_config.keys()) - {'position'})
 
     # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
     for station_name, station_df in df.dropna(axis=0, subset=['depth', 'pressure']).groupby(by='station'):
@@ -112,10 +98,9 @@ def tests_on_profiles(df,
                         df.loc[unique_cast_df.index,
                                key + '_' + module + '_' + test] = flag
 
-    ## HAKAI SPECIFIC TESTS
+    # HAKAI SPECIFIC TESTS #
     # This section regroup different non QARTOD tests which are specific to Hakai profile dataset. Most of the them
     # uses the pandas dataframe to transform the data and apply divers tests.
-
     # DO CAP DETECTION
     if any(df['direction_flag'] == 'u'):
         for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:

@@ -138,3 +138,32 @@ def par_shadow_test(df,
             df['par_cummax'] > min_par_for_shadow_detection), flag_column_name] = QartodFlags.SUSPECT
     df.drop('par_cummax', axis=1, inplace=True)
     return df
+
+
+def bad_value_test(df,
+                   columns_to_review,
+                   flag_list=None,
+                   flag_column_suffix='_hakai_bad_value_test'):
+    """
+    Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
+    Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
+    """
+    # Default Hakai Bad data
+    if flag_list is None:
+        flag_list = ['.isna', -9.99E-29]
+
+    for flag in flag_list:
+        for column in columns_to_review:
+            # Identify already identified as empty values
+            if flag is '.isna':
+                is_flagged = df[column].isna()
+            else:
+                is_flagged = df[column] == flag
+
+            if any(is_flagged):
+                df[column + flag_column_suffix] = QartodFlags.GOOD
+                df.loc[is_flagged, column + flag_column_suffix] = QartodFlags.MISSING
+
+    # Replace bad data in dataframe to an empty value
+    df = df.replace(flag_list, pd.NA)
+    return df
