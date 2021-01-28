@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
-
+from hakai_qc import test
 from hakai_qc import utils
 
 
