@@ -10,7 +10,7 @@ def do_cap_test(df,
                 suspect_threshold=.2,
                 fail_threshold=0.5,
                 ratio_above_threshold=0.5,
-                mininum_bins_per_profile=10,
+                minimum_bins_per_profile=10,
                 flag_name='_do_cap_test'
                 ):
     """
@@ -61,7 +61,7 @@ def do_cap_test(df,
 
     # Detect profiles for which test can be applied (missing up or downcast or not enough vertical bins)
     unknown_profile_id = profile_stats.index[
-        (profile_stats['nGoodBinsPerProfile'] < mininum_bins_per_profile) |
+        (profile_stats['nGoodBinsPerProfile'] < minimum_bins_per_profile) |
         (profile_stats['nGoodBinsPerProfile'].isnull())]
 
     # Get the list of index for each flag type
