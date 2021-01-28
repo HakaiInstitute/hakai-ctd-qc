@@ -10,8 +10,8 @@ def dataframe_to_erddap_xarray(df,
                                timeseries_id=None,
                                profile_id=None,
                                trajectory_id=None,
-                               global_attributes={},
-                               variable_attributes={}
+                               global_attributes: dict = None,
+                               variable_attributes: dict = None
                                ):
     # Retrieve datetime and datetimetz variables in the dataframe
     datetime_variables = df.select_dtypes('datetime').columns
@@ -44,11 +44,13 @@ def dataframe_to_erddap_xarray(df,
             ds[var].encoding['units'] = 'seconds since 1970-01-01T00:00:00'
 
     # Add Global Attributes
-    ds.attrs.update(global_attributes)
+    if global_attributes is not None:
+        ds.attrs.update(global_attributes)
 
     # Add Variable Attributes
-    for var in variable_attributes:
-        ds[var].attrs.update(variable_attributes[var])
+    if variable_attributes is not None:
+        for var in variable_attributes:
+            ds[var].attrs.update(variable_attributes[var])
 
     # Add CF Roles
     if timeseries_id:
