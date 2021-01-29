@@ -155,26 +155,35 @@ def tests_on_profiles(df,
 
 
 def update_hakai_ctd_profile_data(hakai_id=None,
-                                  json_input=None
+                                  json=None
                                   ):
     # Define dataframe
     df = pd.DataFrame()
 
     if hakai_id is not None:
-        print('Retrieve Hakai_ID: '+hakai_id)
+        print('Retrieve Hakai_ID: '+str(hakai_id))
         # Retrieve data through the API
         # Get Hakai CTD Data Download through the API
         variable_lists = get.hakai_api_selected_variables()
 
+        if type(hakai_id) is list:
+            hakai_id_str = ','.join(hakai_id)
+        else:
+            hakai_id_str = hakai_id
+
         # Let's just get the data from QU39
-        filterUrl = 'hakai_id=' + hakai_id + '&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
+        filterUrl = 'hakai_id=' + hakai_id_str + '&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
         df, url = get.hakai_ctd_data(filterUrl)
 
-    elif json_input is not None:
+    elif json is not None:
         # Hakai API JSON string to a pandas dataframe
-        df = pd.DataFrame(json_input.json())
+        df = pd.DataFrame(json)
     else:
         assert RuntimeError, 'update_hakai_ctd_profile_data is missing either a hakai_id or json string input.'
+
+    if len(df) == 0:
+        assert RuntimeError, 'No Data is available for this specific input'
+
     # Save the list of initial variables
     initial_variable_list = df.columns
 
