@@ -155,7 +155,7 @@ def tests_on_profiles(df,
 
 
 def update_hakai_ctd_profile_data(hakai_id=None,
-                                  json=None
+                                  json_input=None
                                   ):
     # Define dataframe
     df = pd.DataFrame()
@@ -175,9 +175,9 @@ def update_hakai_ctd_profile_data(hakai_id=None,
         filterUrl = 'hakai_id=' + hakai_id_str + '&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
         df, url = get.hakai_ctd_data(filterUrl)
 
-    elif json is not None:
+    elif json_input is not None:
         # Hakai API JSON string to a pandas dataframe
-        df = pd.DataFrame(json)
+        df = pd.DataFrame(json_input)
     else:
         assert RuntimeError, 'update_hakai_ctd_profile_data is missing either a hakai_id or json string input.'
 
