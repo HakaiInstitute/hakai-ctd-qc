@@ -124,7 +124,6 @@ def bottom_hit_detection(df,
 def par_shadow_test(df,
                     min_par_for_shadow_detection=5,
                     par_variable='par',
-                    flag_name='par_shadow_flag',
                     profile_id='hakai_id',
                     direction_flag='direction_flag',
                     depth_var='depth',
@@ -141,7 +140,7 @@ def par_shadow_test(df,
     df['par_cummax'] = df.sort_values(by=[profile_id, direction_flag, depth_var], ascending=False).groupby(
         by=[profile_id, direction_flag])[par_variable].cummax()
 
-    df[flag_name] = QartodFlags.GOOD
+    df[flag_column_name] = QartodFlags.GOOD
     df.loc[(df[par_variable] < df['par_cummax']) & (
             df['par_cummax'] > min_par_for_shadow_detection), flag_column_name] = QartodFlags.SUSPECT
     df.drop('par_cummax', axis=1, inplace=True)
