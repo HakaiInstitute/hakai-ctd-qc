@@ -36,10 +36,10 @@ def do_cap_test(df,
     """
     # Handle empty inputs or with no upcast data.
     if df[var].isna().all():
-        df[var + flag_name] = pd.NA
+        df[var + flag_name] = QartodFlags.MISSING
         return
     elif all(df.groupby(by=[profile_id, depth_var])[var].count() <= 1):
-        df[var+flag_name] = 2
+        df[var+flag_name] = QartodFlags.UNKNOWN
         return
 
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
