@@ -3,6 +3,7 @@ import pandas as pd
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
 from hakai_qc import hakai_tests, get, utils
+import json
 
 
 def tests_on_profiles(df,
@@ -200,7 +201,10 @@ def update_hakai_ctd_profile_data(hakai_id=None,
     df = tests_on_profiles(df, hakai_stations, qc_config)
 
     # Isolate the Hakai Flags columns and output to a json string
-    json_out = df[initial_variable_list].to_json()
+    json_out = df[initial_variable_list].to_json(orient='records')
+    # Pandas JSON also output empty values, to avoid those empty values, use the code below instead.
+    # json_out = json.dump([row.dropna().to_dict() for index, row in df.drop('Unnamed: 0', axis=1).iterrows()],
+    #                    f, indent=2)
     return json_out
 
 
