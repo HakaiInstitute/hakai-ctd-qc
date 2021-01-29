@@ -173,7 +173,7 @@ def update_hakai_ctd_profile_data(hakai_id=None,
             hakai_id_str = hakai_id
 
         # Let's just get the data from QU39
-        filterUrl = 'hakai_id=' + hakai_id_str + '&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
+        filterUrl = 'hakai_id={' + hakai_id_str + '}&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
         df, url = get.hakai_ctd_data(filterUrl)
 
     elif json_input is not None:
