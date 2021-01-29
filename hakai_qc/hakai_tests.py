@@ -34,6 +34,14 @@ def do_cap_test(df,
     OUTPUT:
     The test will generate an extra column [var]_do_cap_test with QARTOD flag.
     """
+    # Handle empty inputs or with no upcast data.
+    if df[var].isna().all():
+        df[var + flag_name] = pd.NA
+        return
+    elif all(df.groupby(by=[profile_id, depth_var])[var].count() <= 1):
+        df[var+flag_name] = 9
+        return
+
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
     profile_bin_stats = df.groupby(by=[profile_id, depth_var])[var].agg([np.ptp, 'count'])
 
