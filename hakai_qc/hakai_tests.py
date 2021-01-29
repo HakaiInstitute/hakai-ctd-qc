@@ -38,8 +38,15 @@ def do_cap_test(df,
     if df[var].isna().all():
         df[var + flag_name] = QartodFlags.MISSING
         return
-    elif all(df.groupby(by=[profile_id, depth_var])[var].count() <= 1):
-        df[var+flag_name] = QartodFlags.UNKNOWN
+    elif all(df.groupby(by=[profile_id, depth_var])[var].count() <= 1):  # All the profiles are bad or unknown
+        # Find the maximum count of matching pressure bin per profile_id
+        hakai_id_matching_depth = df.groupby(by=[profile_id, depth_var])[var].count().groupby(by=profile_id).max()
+        if not hakai_id_matching_depth.isin([0, 1]).all():
+            assert RuntimeWarning, 'matching pressure bin count is different than 0 or 1'
+        for unknown_id in hakai_id_matching_depth[hakai_id_matching_depth == 1].index.to_list():
+            df.loc[df[profile_id] == unknown_id, var+flag_name] = QartodFlags.UNKNOWN
+        for missing_id in hakai_id_matching_depth[hakai_id_matching_depth == 0].index.to_list():
+            df.loc[df[profile_id] == missing_id, var+flag_name] = QartodFlags.MISSING
         return
 
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
