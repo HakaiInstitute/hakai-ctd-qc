@@ -104,7 +104,7 @@ def bottom_hit_detection(df,
 
     # For each profile (down and up cast), get the density flag value for the deepest record.
     #  If flagged [3,4], it has likely hit the bottom.
-    df['bottom_hit_flag'] = QartodFlags.GOOD
+    df[flag_column_name] = QartodFlags.GOOD
 
     bottom_hit_id = df.sort_values(by=[profile_id, profile_direction_variable, depth_variable]) \
         .groupby(by=[profile_id, profile_direction_variable]) \
