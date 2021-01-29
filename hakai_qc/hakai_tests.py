@@ -39,7 +39,7 @@ def do_cap_test(df,
         df[var + flag_name] = pd.NA
         return
     elif all(df.groupby(by=[profile_id, depth_var])[var].count() <= 1):
-        df[var+flag_name] = 9
+        df[var+flag_name] = 2
         return
 
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
