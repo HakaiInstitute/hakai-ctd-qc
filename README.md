@@ -133,3 +133,36 @@ In normal conditions, we should expect PAR to follow an exponential decay with d
 this mean that a PAR profile should always be increasing as it goes closer to the surface. 
 To ignore any noise effected related to lower value, we set minimum value from which the algorithm is applied. 
 
+# How to use the package
+## Installation
+To install the package locally for testing or on the Hakai Servers. 
+
+Install the Hakai Python API Client:
+ ```python
+pip install git+https://github.com/HakaiInstitute/hakai-api-client-python.git
+```
+
+Install the main branch of the Hakai Institute ioos_qc fork and main branch:
+```python
+pip install git+https://github.com/HakaiInstitute/ioos_qc@colab-compatible
+```
+
+And finally the hakai-profile-qaqc main branch:
+```python
+pip install git+https://github.com/HakaiInstitute/hakai-profile-qaqc.git@main
+```
+
+## Running the tool locally or on a server
+To apply the test on some specific data you can use the following method you can ask the tool to run on some specific 
+hakai_id by using the following command:
+ ```python
+json_string_out = hakai_qc.run.update_hakai_ctd_profile_data(hakai_id=['hakai_id1','hakai_id2'])
+```
+ You can also retrieve yourself some data through the hakai api and input them into the tool as a json list format:
+ ```python
+json_string_out = hakai_qc.run.update_hakai_ctd_profile_data(json_input=JSON_STRING_INPUT)
+```
+
+In both cases, the tool will ouptut a JSON string with downloaded data and the resulting flags.
+
+ 
