@@ -181,3 +181,9 @@ def bad_value_test(df,
     # Replace bad data in dataframe to an empty value
     df = df.replace(flag_list, pd.NA)
     return df
+
+
+def grey_list(df,
+              flag_column_suffix='_grey_list_test'):
+
+    return df
