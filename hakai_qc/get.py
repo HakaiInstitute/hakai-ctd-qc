@@ -129,8 +129,8 @@ def research_profile_netcdf(hakai_id,
         'comment': '',
         'infoUrl': 'hakai.org',
         'keywords': "conductivity,temperature,salinity,depth,pressure,dissolved oxygen",
-        'acknowledgment': 'Hakai Field Techniciens, research and IT groups',
-        'naming_authority': 'Hakai Instititute',
+        'acknowledgment': 'Hakai Field Technicians, research and IT groups',
+        'naming_authority': 'Hakai Institute',
         'standard_name_vocabulary': 'CF 1.3',
         'license': 'unknown',
         'geospatial_lat_units': 'degrees_north',
@@ -148,7 +148,7 @@ def research_profile_netcdf(hakai_id,
     endpoint_list = {'ctd_data': 'ctd/views/file/cast/data',
                      'metadata': 'ctd/views/file/cast'}
 
-    # Create list of variables to use as coordindates
+    # Create list of variables to use as coordinates
     coordinate_list = [timeseries_id, profile_id, depth_var]
 
     def _get_hakai_ctd_full_data(endpoint, filterUrl, get_columns_info=False):
@@ -170,10 +170,10 @@ def research_profile_netcdf(hakai_id,
 
     # Retrieve data to be save
     data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
-                                                'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
+                                               'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
                                                get_columns_info=True)
     cast, cast_meta = _get_hakai_ctd_full_data(endpoint_list['metadata'],
-                                                'hakai_id=' + hakai_id)
+                                               'hakai_id=' + hakai_id)
 
     # Make some data conversion to compatible with ERDDAP NetCDF Format
     def convert_dt_columns(df):
@@ -236,7 +236,7 @@ def research_profile_netcdf(hakai_id,
             ds[var].attrs.update(extra_variable_attributes[var])
 
     # Define output path and file
-    if (ds['direction_flag']==b'd').all():  # If all downcast
+    if (ds['direction_flag'] == b'd').all():  # If all downcast
         file_name_append = file_name_append + '_downcast'
     if (ds['direction_flag'] == b'u').all():  # If all downcast
         file_name_append = file_name_append + '_upcast'
