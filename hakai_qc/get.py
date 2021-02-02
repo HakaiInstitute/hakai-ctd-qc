@@ -29,7 +29,7 @@ def hakai_stations():
 
 
 def hakai_ctd_data(filter_url,
-                   hakai_ctd_endpoint='ctd/views/file/cast/data',
+                   endpoint='ctd/views/file/cast/data',
                    output_format='dataframe'):
     """
     hakai_ctd_data(filterUrl) method used the Hakai Python API Client to query Processed CTD data from the Hakai
@@ -37,12 +37,13 @@ def hakai_ctd_data(filter_url,
     """
     if filter_url is None:
         print('You don''t want to download all the data!')
+
     # Get Hakai Data
     # Get Data from Hakai API
     client = Client()  # Follow stdout prompts to get an API token
 
     # Make a data request for sampling stations
-    url = '%s/%s?%s' % (client.api_root, hakai_ctd_endpoint, filter_url)
+    url = '%s/%s?%s' % (client.api_root, endpoint, filter_url)
     response = client.get(url)
 
     # Sort the different possible inputs
