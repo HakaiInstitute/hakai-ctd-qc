@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from ioos_qc.qartod import QartodFlags
 
+from hakai_qc import get
 
 def do_cap_test(df,
                 var,
