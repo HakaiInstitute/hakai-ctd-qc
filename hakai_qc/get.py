@@ -176,15 +176,15 @@ def research_profile_netcdf(hakai_id,
                                                'hakai_id=' + hakai_id)
 
     # Make some data conversion to compatible with ERDDAP NetCDF Format
-    def convert_dt_columns(df):
+    def _convert_dt_columns(df):
         time_var_list = df.dropna(axis=1, how='all').filter(regex='_dt$|time_').columns
         for var in time_var_list:
             df[var] = pd.to_datetime(df[var], utc=True)
         return df
 
     # Convert time variables to datetime objects
-    data = convert_dt_columns(data)
-    cast = convert_dt_columns(cast)
+    data = _convert_dt_columns(data)
+    cast = _convert_dt_columns(cast)
 
     # Sort vertical variables and profile specific variables
     profile_variables = set(data.columns).intersection(set(cast.columns)) - set(coordinate_list)
