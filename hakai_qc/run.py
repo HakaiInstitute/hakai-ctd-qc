@@ -155,6 +155,7 @@ def tests_on_profiles(df,
 
     # Apply Hakai Grey List
     # Grey List should overwrite the QARTOD Flags
+    print('Apply Hakai Grey List')
     df = hakai_tests.grey_list(df)
 
     return df
