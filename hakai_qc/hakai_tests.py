@@ -286,7 +286,7 @@ def grey_list(df,
 
             # Append to description Flag Comment and name
             grey_flag_description = 'Grey-List[Flag: ' + str(row['flag_type']) + ']: ' + str(
-                row['comments']) + ' (Flagged by:' + row['flagged_by: '] + ')'
+                row['comments']) + ' (Flagged by: ' + str(row['flagged_by']) + ')'
             for column in flag_descriptor_columns:
                 df.loc[df_to_flag.index, column] = df.loc[df_to_flag.index, column].astype(str) + grey_flag_description
 
