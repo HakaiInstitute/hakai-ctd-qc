@@ -43,6 +43,7 @@ def test_results_bar_plot(df,
     fig = px.bar(df_result, x='Count', y='Test', orientation='h', color='Flag',
                  color_discrete_sequence=['green', 'yellow', 'orange', 'red', 'purple'])
     fig.update_layout(autosize=False, width=950, height=1000)
+    fig.update_yaxes(dtick=1)
     return fig
 
 
