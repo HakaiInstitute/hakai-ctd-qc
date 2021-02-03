@@ -184,6 +184,62 @@ def bad_value_test(df,
 
 
 def grey_list(df,
-              flag_column_suffix='_grey_list_test'):
+              level1_flag_suffix='_qartod_flag',
+              level2_flag_suffix='_flag_description',
+              time='measuremrent_dt'):
+    endpoint = 'eims/views/output/ctd_flags'
+    df_grey_list, url = hakai_qc.get.hakai_ctd_data('', endpoint=endpoint)
+
+    # Convert time columns to datetime
+    df_grey_list['start_range'] = pd.to_datetime(df_grey_list['start_range'])
+    df_grey_list['end_range'] = pd.to_datetime(df_grey_list['end_range'])
+
+    # Fill missing columns
+    if 'hakai_id' not in df_grey_list.columns:
+        df_grey_list['hakai_id'] = ''
+    if 'query' not in df_grey_list.columns:
+        df_grey_list['query'] = ''
+
+    for index, row in df_grey_list.iterrows():
+
+        # Detect matching records
+        # Time Axis range to flag
+        if row['start_range'] and row['end_range'] and row['device_sn']:
+            matching_time_flag = (df[time] >= row['start_range']) \
+                                 & (df[time] <= row['end_range']) \
+                                 & (df['device_sn'] == row['device_sn'])
+        else:
+            matching_time_flag = None
+
+        # Define query for selecting data
+        query = []
+        if row['hakai_id']:
+            query.append('hakai_id in ' + str(row['hakai_id'].split(',')))
+
+        # Vertical range to be flag
+        if row['query']:
+            query.append(row['query'])
+
+        # Filter data based on time range and query
+        if matching_time_flag:
+            df_to_flag = df[matching_time_flag].query(' & '.join(query))
+        elif query:
+            df_to_flag = df.query(' & '.join(query))
+        else:
+            warning(AssertionError, 'No matching possible')
+
+        # Retrieve Columns to add flag to
+        variable_list = row['data_type'].split(',')
+        qartod_columns = [var + 'level1_flag_suffix' for var in variable_list]
+        flag_descriptor_columns = [var + 'level2_flag_suffix' for var in variable_list]
+
+        # Overwrite QARTOD Flag
+        df[qartod_columns] = row['flag_type']
+
+        # Append to description Flag Comment and name
+        grey_flag_description = 'GreyListFlag[' + str(row['flag_type']) + ']: ' + str(
+            row['comments']) + ' (Flagged by:' + row['flagged_by'] + ')'
+        for column in flag_descriptor_columns:
+            df_to_flag[column] = df_to_flag[column].astype(str) + grey_flag_description
 
     return df
