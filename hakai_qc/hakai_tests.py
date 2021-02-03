@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
 from ioos_qc.qartod import QartodFlags
+import warnings
 
-from hakai_qc import get
+from . import get
+
 
 def do_cap_test(df,
                 var,
@@ -187,27 +189,50 @@ def bad_value_test(df,
 def grey_list(df,
               level1_flag_suffix='_qartod_flag',
               level2_flag_suffix='_flag_description',
-              time='measuremrent_dt'):
-    endpoint = 'eims/views/output/ctd_flags'
-    df_grey_list, url = hakai_qc.get.hakai_ctd_data('', endpoint=endpoint)
+              grey_list_suffix = '_grey_list_test',
+              time='measurement_dt'):
 
-    # Convert time columns to datetime
+    temporary_time_variable = 'temp_time'
+    # Retrieve the grey list data from the Hakai Database
+    endpoint = 'eims/views/output/ctd_flags'
+    df_grey_list, url = get.hakai_ctd_data('', endpoint=endpoint)
+
+    ####################
+    # TODO this section is temporary until the hakai view is formated appropriately
+    # If time variable is not a datetime object convert it to it
+    if time not in df.select_dtypes('datetimetz').columns:
+        df[temporary_time_variable] = pd.to_datetime((df[time]))
+    else:
+        df[temporary_time_variable] = df[time]
+
+    # Map Hakai flag by QARTOD equivalent
+    hakai_flag_to_qartod = {'(?i)AV': QartodFlags.GOOD,
+                            '(?i)SVC': QartodFlags.SUSPECT,
+                            '(?i)SVD': QartodFlags.FAIL}
+    df_grey_list.replace(hakai_flag_to_qartod, regex=True, inplace=True)
+    ####################
+
+    # Convert grey list time columns to datetime objects
     df_grey_list['start_range'] = pd.to_datetime(df_grey_list['start_range'])
     df_grey_list['end_range'] = pd.to_datetime(df_grey_list['end_range'])
 
-    # Fill missing columns
+    # Fill missing columns # TODO remove once the database grey list has to those columns
     if 'hakai_id' not in df_grey_list.columns:
         df_grey_list['hakai_id'] = ''
     if 'query' not in df_grey_list.columns:
         df_grey_list['query'] = ''
 
+    # Loop through each lines
+    # Since the grey list is a manual input it will likely be small amount and looping through
+    # each should be good enough for now. We may have to filter the grey list based on the input in the future
+    # if the grey list becomes significant.
     for index, row in df_grey_list.iterrows():
 
         # Detect matching records
         # Time Axis range to flag
         if row['start_range'] and row['end_range'] and row['device_sn']:
-            matching_time_flag = (df[time] >= row['start_range']) \
-                                 & (df[time] <= row['end_range']) \
+            matching_time_flag = (df[temporary_time_variable] >= row['start_range']) \
+                                 & (df[temporary_time_variable] <= row['end_range']) \
                                  & (df['device_sn'] == row['device_sn'])
         else:
             matching_time_flag = None
@@ -216,31 +241,55 @@ def grey_list(df,
         query = []
         if row['hakai_id']:
             query.append('hakai_id in ' + str(row['hakai_id'].split(',')))
+        if row['device_sn']:
+            query.append('device_sn in ' + str(row['device_sn'].split(',')))
 
         # Vertical range to be flag
         if row['query']:
             query.append(row['query'])
 
         # Filter data based on time range and query
-        if matching_time_flag:
+        if matching_time_flag.any() and query:
             df_to_flag = df[matching_time_flag].query(' & '.join(query))
         elif query:
             df_to_flag = df.query(' & '.join(query))
         else:
-            warning(AssertionError, 'No matching possible')
+            df_to_flag = pd.DataFrame()
 
-        # Retrieve Columns to add flag to
-        variable_list = row['data_type'].split(',')
-        qartod_columns = [var + 'level1_flag_suffix' for var in variable_list]
-        flag_descriptor_columns = [var + 'level2_flag_suffix' for var in variable_list]
+        # If some data needs to be flagged
+        if len(df_to_flag) > 0:
+            # Retrieve Columns to add flag to
+            variable_list = row['data_type'].split(',')
 
-        # Overwrite QARTOD Flag
-        df[qartod_columns] = row['flag_type']
+            # Review if the columns exist
+            unknown_variables = set(variable_list)-set(df.columns)
+            if unknown_variables:
+                warnings.warn(str(list(unknown_variables))+' are not available and will be ignored', category=RuntimeWarning)
+                variable_list = list(set(variable_list)-unknown_variables)
 
-        # Append to description Flag Comment and name
-        grey_flag_description = 'GreyListFlag[' + str(row['flag_type']) + ']: ' + str(
-            row['comments']) + ' (Flagged by:' + row['flagged_by'] + ')'
-        for column in flag_descriptor_columns:
-            df_to_flag[column] = df_to_flag[column].astype(str) + grey_flag_description
+            # Retrieve flag columns
+            grey_list_test_columns = [var + grey_list_suffix for var in variable_list]
+            qartod_columns = [var + level1_flag_suffix for var in variable_list]
+            flag_descriptor_columns = [var + level2_flag_suffix for var in variable_list]
 
+            # Add a grey list test column is missing
+            missing_grey_list_flag = set(grey_list_test_columns) - set(df.columns)
+            if missing_grey_list_flag:
+                for var in missing_grey_list_flag:
+                    df[var] = QartodFlags.GOOD
+
+            # Add a grey list test variable for helping review
+            df.loc[df_to_flag.index, grey_list_test_columns] = row['flag_type']
+
+            # Overwrite Hakai QARTOD Flag
+            df.loc[df_to_flag.index, qartod_columns] = row['flag_type']
+
+            # Append to description Flag Comment and name
+            grey_flag_description = 'Grey-List[Flag: ' + str(row['flag_type']) + ']: ' + str(
+                row['comments']) + ' (Flagged by:' + row['flagged_by: '] + ')'
+            for column in flag_descriptor_columns:
+                df.loc[df_to_flag.index, column] = df.loc[df_to_flag.index, column].astype(str) + grey_flag_description
+
+    # Remove the temporary time variable
+    df = df.drop(temporary_time_variable, axis=1)
     return df
