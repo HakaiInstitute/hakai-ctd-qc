@@ -241,8 +241,6 @@ def grey_list(df,
         query = []
         if row['hakai_id']:
             query.append('hakai_id in ' + str(row['hakai_id'].split(',')))
-        if row['device_sn']:
-            query.append('device_sn in ' + str(row['device_sn'].split(',')))
 
         # Vertical range to be flag
         if row['query']:
