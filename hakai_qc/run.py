@@ -152,6 +152,11 @@ def tests_on_profiles(df,
 
         # Create Hakai Flag Columns
         df = get_hakai_flag_columns(df, var, extra_flags)
+
+    # Apply Hakai Grey List
+    # Grey List should overwrite the QARTOD Flags
+    df = hakai_tests.grey_list(df)
+
     return df
 
 

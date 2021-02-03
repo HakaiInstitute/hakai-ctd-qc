@@ -214,7 +214,6 @@ def research_profile_netcdf(hakai_id,
                                  ' Firmware'+cast['device_firmware'][0])
 
     # Add user defined and variable specific global attributes
-
     ds.attrs.update(general_global_attributes)
     ds.attrs.update(specific_global_attribute)
     if creator_attributes is not None:
