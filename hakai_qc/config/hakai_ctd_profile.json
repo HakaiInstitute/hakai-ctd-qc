@@ -47,6 +47,26 @@
           }
       }
   },
+  "dissolved_oxygen_percent": {
+      "qartod": {
+          "gross_range_test": {
+              "fail_span": [-1, 150],
+              "suspect_span": [0, 140]
+          },
+          "rate_of_change_test": {
+              "threshold": 30
+          },
+          "spike_test": {
+              "suspect_threshold": 20,
+              "fail_threshold": 40
+          },
+          "attenuated_signal_test": {
+              "suspect_threshold": 0.1,
+              "fail_threshold": 0.01,
+              "check_type": "range"
+          }
+      }
+  },
   "rinko_do_ml_l": {
       "qartod": {
           "gross_range_test": {
