@@ -210,17 +210,17 @@ def grey_list(df,
                             '(?i)SVC': QartodFlags.SUSPECT,
                             '(?i)SVD': QartodFlags.FAIL}
     df_grey_list.replace(hakai_flag_to_qartod, regex=True, inplace=True)
-    ####################
-
-    # Convert grey list time columns to datetime objects
-    df_grey_list['start_range'] = pd.to_datetime(df_grey_list['start_range'])
-    df_grey_list['end_range'] = pd.to_datetime(df_grey_list['end_range'])
 
     # Fill missing columns # TODO remove once the database grey list has to those columns
     if 'hakai_id' not in df_grey_list.columns:
         df_grey_list['hakai_id'] = ''
     if 'query' not in df_grey_list.columns:
         df_grey_list['query'] = ''
+    ####################
+
+    # Convert grey list time columns to datetime objects
+    df_grey_list['start_range'] = pd.to_datetime(df_grey_list['start_range'])
+    df_grey_list['end_range'] = pd.to_datetime(df_grey_list['end_range'])
 
     # Loop through each lines
     # Since the grey list is a manual input it will likely be small amount and looping through
