@@ -247,8 +247,8 @@ def grey_list(df,
             query.append(row['query'])
 
         # Filter data based on time range and query
-        if matching_time_flag.any() and query:
-            df_to_flag = df[matching_time_flag].query(' & '.join(query))
+        if matching_time_flag.any():
+            df_to_flag = df[matching_time_flag]
         elif query:
             df_to_flag = df.query(' & '.join(query))
         else:
@@ -262,7 +262,8 @@ def grey_list(df,
             # Review if the columns exist
             unknown_variables = set(variable_list)-set(df.columns)
             if unknown_variables:
-                warnings.warn(str(list(unknown_variables))+' are not available and will be ignored', category=RuntimeWarning)
+                warnings.warn(str(list(unknown_variables))+' are not available and will be ignored',
+                              category=RuntimeWarning)
                 variable_list = list(set(variable_list)-unknown_variables)
 
             # Retrieve flag columns
