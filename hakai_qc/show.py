@@ -77,71 +77,74 @@ def interactive_profile_viewer(df,
             hakai_id_list = df_selected[df_selected[flag_type].isin(considered_flag)]['hakai_id'].unique()
         print(str(len(hakai_id_list)) + ' profiles are available')
 
-        @interact
-        def plot_profile(hakai_id=hakai_id_list,
-                         ocean_variables=widgets.SelectMultiple(options=variable_list - {'depth', 'pressure'},
-                                                                value=['temperature', 'salinity',
-                                                                       'dissolved_oxygen_ml_l'],
-                                                                description='Ocean Variable',
-                                                                disabled=False),
-                         y_axis=widgets.Dropdown(options=variable_list, value='depth', description='Y Axis Variable',
-                                                 disabled=False),
-                         downcast=widgets.Checkbox(value=True, description='Downcast',
-                                                   disabled=False),
-                         upcast=widgets.Checkbox(value=True, description='Upcast',
-                                                 disabled=False),
-                         par_log_scale=widgets.Checkbox(value=True, description='PAR Log Scale',
-                                                        disabled=False)):
+        if len(hakai_id_list)>0:
+            @interact
+            def plot_profile(hakai_id=hakai_id_list,
+                             ocean_variables=widgets.SelectMultiple(options=variable_list - {'depth', 'pressure'},
+                                                                    value=['temperature', 'salinity',
+                                                                           'dissolved_oxygen_ml_l'],
+                                                                    description='Ocean Variable',
+                                                                    disabled=False),
+                             y_axis=widgets.Dropdown(options=variable_list, value='depth', description='Y Axis Variable',
+                                                     disabled=False),
+                             downcast=widgets.Checkbox(value=True, description='Downcast',
+                                                       disabled=False),
+                             upcast=widgets.Checkbox(value=True, description='Upcast',
+                                                     disabled=False),
+                             par_log_scale=widgets.Checkbox(value=True, description='PAR Log Scale',
+                                                            disabled=False)):
 
-            cast_direction = []
-            if downcast:
-                cast_direction.append('d')
-            if upcast:
-                cast_direction.append('u')
+                cast_direction = []
+                if downcast:
+                    cast_direction.append('d')
+                if upcast:
+                    cast_direction.append('u')
 
-            # Get hakai_id data
-            df_temp = df[df['hakai_id'] == hakai_id].sort_values(['direction_flag', 'depth'])
+                # Get hakai_id data
+                df_temp = df[df['hakai_id'] == hakai_id].sort_values(['direction_flag', 'depth'])
 
-            # Create Subplots
-            fig = make_subplots(rows=1, cols=len(ocean_variables), shared_yaxes=True,
-                                horizontal_spacing=0.01)
-            kk = 1
-            for var in ocean_variables:
-                for direction_flag in cast_direction:
-                    for flag, color in qartod_color.items():
-                        df_flag = df_temp[
-                            (df_temp[var + '_qartod_flag'] == flag) & (df_temp['direction_flag'] == direction_flag)]
+                # Create Subplots
+                fig = make_subplots(rows=1, cols=len(ocean_variables), shared_yaxes=True,
+                                    horizontal_spacing=0.01)
+                kk = 1
+                for var in ocean_variables:
+                    for direction_flag in cast_direction:
+                        for flag, color in qartod_color.items():
+                            df_flag = df_temp[
+                                (df_temp[var + '_qartod_flag'] == flag) & (df_temp['direction_flag'] == direction_flag)]
 
-                        if len(df_flag):
-                            if direction_flag is 'u':
-                                marker_dict = dict(color=color, symbol='x')
-                            else:
-                                marker_dict = dict(color=color)
+                            if len(df_flag):
+                                if direction_flag is 'u':
+                                    marker_dict = dict(color=color, symbol='x')
+                                else:
+                                    marker_dict = dict(color=color)
 
-                            fig.add_trace(
-                                go.Scatter(x=df_flag[var],
-                                           y=df_flag[y_axis],
-                                           mode='markers',
-                                           marker=marker_dict,  # df_temp[var+'_qartod_flag'],
-                                           text=df_flag[var + '_flag_description'],
-                                           name=var + ' ' + dir[direction_flag] + ' FLAG:' + str(flag)),
-                                row=1, col=kk)
+                                fig.add_trace(
+                                    go.Scatter(x=df_flag[var],
+                                               y=df_flag[y_axis],
+                                               mode='markers',
+                                               marker=marker_dict,  # df_temp[var+'_qartod_flag'],
+                                               text=df_flag[var + '_flag_description'],
+                                               name=var + ' ' + dir[direction_flag] + ' FLAG:' + str(flag)),
+                                    row=1, col=kk)
 
-                if var in ['par'] and par_log_scale:  # Make PAR x axis log
-                    fig.update_xaxes(type="log", row=1, col=kk)
-                fig.update_xaxes(title=var, row=1, col=kk)
-                kk = kk + 1
+                    if var in ['par'] and par_log_scale:  # Make PAR x axis log
+                        fig.update_xaxes(type="log", row=1, col=kk)
+                    fig.update_xaxes(title=var, row=1, col=kk)
+                    kk = kk + 1
 
-            # Add stuff around each figures
-            fig.update_yaxes(title_text=y_axis, row=1, col=1)
-            fig.update_yaxes(autorange="reversed", linecolor='black', mirror=True, ticks='outside', showline=True)
-            fig.update_xaxes(mirror=True, ticks='outside', showline=True, tickangle=45, linecolor='black')
-            fig.update_layout(height=800, width=2000, showlegend=True,
-                              title_text='Hakai ID: ' + hakai_id + ' Site: ' + df_temp['station'].unique()[0])
-            print(hakai_id)
-            return fig.show()
+                # Add stuff around each figures
+                fig.update_yaxes(title_text=y_axis, row=1, col=1)
+                fig.update_yaxes(autorange="reversed", linecolor='black', mirror=True, ticks='outside', showline=True)
+                fig.update_xaxes(mirror=True, ticks='outside', showline=True, tickangle=45, linecolor='black')
+                fig.update_layout(height=800, width=2000, showlegend=True,
+                                  title_text='Hakai ID: ' + hakai_id + ' Site: ' + df_temp['station'].unique()[0])
+                print(hakai_id)
+                return fig.show()
 
-        return
+            return
+        else:
+            print('No Profile Available')
     return
 
 
