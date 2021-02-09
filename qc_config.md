@@ -1,0 +1,139 @@
+#  IOOS QC TESTS 
+## position
+### qartod
+* location_test
+   * bbox: [-180, -90, 180, 90]
+   * target_range: 3000
+## pressure
+### qartod
+* gross_range_test
+   * suspect_span: [0, 12000]
+   * fail_span: [0, 12000]
+   * maximum_suspect_depth_ratio: 1.05
+   * maximum_fail_depth_ratio: 1.1
+## depth
+### qartod
+* gross_range_test
+   * suspect_span: [0, 12000]
+   * fail_span: [0, 12000]
+   * maximum_suspect_depth_ratio: 1.05
+   * maximum_fail_depth_ratio: 1.1
+## dissolved_oxygen_ml_l
+### qartod
+* gross_range_test
+   * fail_span: [0, 20]
+   * suspect_span: [1, 15]
+* rate_of_change_test
+   * threshold: 3
+* spike_test
+   * suspect_threshold: 0.5
+   * fail_threshold: 1
+* attenuated_signal_test
+   * suspect_threshold: 0.1
+   * fail_threshold: 0.01
+   * check_type: range
+## dissolved_oxygen_percent
+### qartod
+* gross_range_test
+   * fail_span: [-1, 150]
+   * suspect_span: [0, 140]
+* rate_of_change_test
+   * threshold: 30
+* spike_test
+   * suspect_threshold: 20
+   * fail_threshold: 40
+* attenuated_signal_test
+   * suspect_threshold: 0.1
+   * fail_threshold: 0.01
+   * check_type: range
+## rinko_do_ml_l
+### qartod
+* gross_range_test
+   * fail_span: [0, 20]
+   * suspect_span: [1, 15]
+* rate_of_change_test
+   * threshold: 3
+* spike_test
+   * suspect_threshold: 0.5
+   * fail_threshold: 1
+* attenuated_signal_test
+   * suspect_threshold: 0.1
+   * fail_threshold: 0.01
+   * check_type: range
+## turbidity
+### qartod
+* gross_range_test
+   * fail_span: [-0.1, 10000]
+   * suspect_span: [0, 1000]
+* attenuated_signal_test
+   * suspect_threshold: 0.01
+   * fail_threshold: 0.001
+   * check_type: range
+## c_star_at
+### qartod
+* attenuated_signal_test
+   * suspect_threshold: 0.002
+   * fail_threshold: 0.0001
+   * check_type: range
+* spike_test
+   * suspect_threshold: 0.5
+   * fail_threshold: 1
+## par
+### qartod
+* gross_range_test
+   * fail_span: [-1, 100000]
+   * suspect_span: [-0.5, 50000]
+* attenuated_signal_test
+   * suspect_threshold: 0.05
+   * fail_threshold: 0.02
+   * check_type: std
+   * min_obs: 5
+## salinity
+### qartod
+* gross_range_test
+   * fail_span: [0, 45]
+   * suspect_span: [2, 42]
+* spike_test
+   * suspect_threshold: 0.5
+   * fail_threshold: 1
+* rate_of_change_test
+   * threshold: 5
+## temperature
+### qartod
+* gross_range_test
+   * fail_span: [-2, 100]
+   * suspect_span: [-2, 40]
+* rate_of_change_test
+   * threshold: 5
+## conductivity
+### qartod
+* gross_range_test
+   * fail_span: [-0.1, 100]
+   * suspect_span: [0, 100]
+## sigma0
+### qartod
+* density_inversion_test
+   * suspect_threshold: -0.005
+   * fail_threshold: -0.03
+## flc
+### qartod
+* gross_range_test
+   * fail_span: [-0.5, 150]
+   * suspect_span: [-0.1, 80]
+#  Hakai QC TESTS 
+## do_cap_test
+   * variable: ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']
+   * bin_size: 1
+   * suspect_threshold: 0.2
+   * fail_threshold: 0.5
+   * ratio_above_threshold: 0.5
+   * minimum_bins_per_profile: 10
+## bottom_hit_detection
+   * variable: sigma0_qartod_density_inversion_test
+   * profile_direction_variable: direction_flag
+## par_shadow_test
+   * variable: par
+   * min_par_for_shadow_detection: 5
+## bad_value_test
+   * variable: all
+   * flag_list: ['.isna', -9.99e-29]
