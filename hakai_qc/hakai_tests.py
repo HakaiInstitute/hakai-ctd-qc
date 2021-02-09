@@ -112,7 +112,7 @@ def do_cap_test(df,
 
 
 def bottom_hit_detection(df,
-                         flag_channel,
+                         variable,
                          profile_id='hakai_id',
                          depth_variable='depth',
                          profile_direction_variable='direction_flag',
@@ -128,7 +128,7 @@ def bottom_hit_detection(df,
 
     bottom_hit_id = df.sort_values(by=[profile_id, profile_direction_variable, depth_variable]) \
         .groupby(by=[profile_id, profile_direction_variable]) \
-        .last()[flag_channel].isin([QartodFlags.SUSPECT, QartodFlags.FAIL])
+        .last()[variable].isin([QartodFlags.SUSPECT, QartodFlags.FAIL])
 
     # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
     for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_id]:
@@ -136,14 +136,14 @@ def bottom_hit_detection(df,
                                                                                profile_direction_variable]):
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
             df.loc[df_bottom_hit[df_bottom_hit[depth_variable] >
-                                 df_bottom_hit[df_bottom_hit[flag_channel] == 1][depth_variable].max()].index,
+                                 df_bottom_hit[df_bottom_hit[variable] == 1][depth_variable].max()].index,
                    flag_column_name] = QartodFlags.FAIL
     return df
 
 
 def par_shadow_test(df,
+                    variable='par',
                     min_par_for_shadow_detection=5,
-                    par_variable='par',
                     profile_id='hakai_id',
                     direction_flag='direction_flag',
                     depth_var='depth',
@@ -158,17 +158,17 @@ def par_shadow_test(df,
     # Detect PAR Shadow
     print('Flag PAR Shadow Data')
     df['par_cummax'] = df.sort_values(by=[profile_id, direction_flag, depth_var], ascending=False).groupby(
-        by=[profile_id, direction_flag])[par_variable].cummax()
+        by=[profile_id, direction_flag])[variable].cummax()
 
     df[flag_column_name] = QartodFlags.GOOD
-    df.loc[(df[par_variable] < df['par_cummax']) & (
+    df.loc[(df[variable] < df['par_cummax']) & (
             df['par_cummax'] > min_par_for_shadow_detection), flag_column_name] = QartodFlags.SUSPECT
     df.drop('par_cummax', axis=1, inplace=True)
     return df
 
 
 def bad_value_test(df,
-                   columns_to_review,
+                   variable,
                    flag_list=None,
                    flag_column_suffix='_hakai_bad_value_test'):
     """
@@ -180,7 +180,7 @@ def bad_value_test(df,
         flag_list = ['.isna', -9.99E-29]
 
     for flag in flag_list:
-        for column in columns_to_review:
+        for column in variable:
             # Identify already identified as empty values
             if flag is '.isna':
                 is_flagged = df[column].isna()
@@ -199,7 +199,7 @@ def bad_value_test(df,
 def grey_list(df,
               level1_flag_suffix='_qartod_flag',
               level2_flag_suffix='_flag_description',
-              grey_list_suffix = '_grey_list_test',
+              grey_list_suffix='_grey_list_test',
               time='measurement_dt'):
 
     temporary_time_variable = 'temp_time'

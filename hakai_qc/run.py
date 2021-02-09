@@ -27,9 +27,21 @@ def tests_on_profiles(df,
     maximum_suspect_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_suspect_depth_ratio']
     maximum_fail_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_fail_depth_ratio']
 
+    # Retrieve hakai tests parameters if provided in the config file
+    if 'hakai' in qc_config:
+        hakai_tests_config = qc_config.pop('hakai')
+    else:
+        hakai_tests_config = {}
+
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
-    df = hakai_tests.bad_value_test(df, set(qc_config.keys()) - {'position'})
+    if 'bad_value_test' in hakai_tests_config:
+        if hakai_tests_config['bad_value_test']['variable'] == 'all':
+            columns_to_review = set(qc_config.keys()) - {'position'}
+        else:
+            columns_to_review = hakai_tests_config['bad_value_test']['columns_to_review']
+        df = hakai_tests.bad_value_test(df, columns_to_review,
+                                        flag_list=hakai_tests_config['bad_value_test']['flag_list'])
 
     # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
     for station_name, station_df in df.dropna(axis=0, subset=['depth', 'pressure']).groupby(by=timeseries_id):
@@ -108,10 +120,20 @@ def tests_on_profiles(df,
     # This section regroup different non QARTOD tests which are specific to Hakai profile dataset. Most of the them
     # uses the pandas dataframe to transform the data and apply divers tests.
     # DO CAP DETECTION
-    if any(df['direction_flag'] == 'u'):
-        for key in ['dissolved_oxygen_ml_l', 'rinko_do_ml_l']:
+    if any(df['direction_flag'] == 'u') and ('do_cap_test' in hakai_tests_config):
+        for key in hakai_tests_config['do_cap_test']['variable']:
             print('DO Cap Detection to ' + key + ' variable')
-            hakai_tests.do_cap_test(df, key)
+            hakai_tests.do_cap_test(df, key,
+                                    profile_id=profile_id,
+                                    depth_var=zinp,
+                                    direction_flag=direction_flag,
+                                    bin_size=hakai_tests_config['do_cap_test']['bin_size'],
+                                    suspect_threshold=hakai_tests_config['do_cap_test']['suspect_threshold'],
+                                    fail_threshold=hakai_tests_config['do_cap_test']['fail_threshold'],
+                                    ratio_above_threshold=hakai_tests_config['do_cap_test']['ratio_above_threshold'],
+                                    minimum_bins_per_profile=hakai_tests_config['do_cap_test'][
+                                        'minimum_bins_per_profile']
+                                    )
 
     # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
     print('Flag Missing Position Records')
@@ -120,16 +142,26 @@ def tests_on_profiles(df,
 
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
-    print('Flag Bottom Hit Data')
-    df = hakai_tests.bottom_hit_detection(df,
-                                          flag_channel='sigma0_qartod_density_inversion_test',
-                                          profile_id='hakai_id',
-                                          depth_variable='depth',
-                                          profile_direction_variable='direction_flag')
+    if 'bottom_hit_detection' in hakai_tests_config:
+        print('Flag Bottom Hit Data')
+        df = hakai_tests.bottom_hit_detection(df,
+                                              variable=hakai_tests_config['bottom_hit_detection']['variable'],
+                                              profile_id=profile_id,
+                                              depth_variable=zinp,
+                                              profile_direction_variable=direction_flag
+                                              )
 
     # Detect PAR Shadow
-    print('Flag PAR Shadow Data')
-    df = hakai_tests.par_shadow_test(df)
+    if 'par_shadow_test' in hakai_tests_config:
+        print('Flag PAR Shadow Data')
+        df = hakai_tests.par_shadow_test(df,
+                                         variable=hakai_tests_config['par_shadow_test']['variable'],
+                                         min_par_for_shadow_detection=hakai_tests_config['par_shadow_test'][
+                                             'min_par_for_shadow_detection'],
+                                         profile_id=profile_id,
+                                         direction_flag=direction_flag,
+                                         depth_var=zinp,
+                                         )
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
@@ -168,7 +200,7 @@ def update_hakai_ctd_profile_data(hakai_id=None,
     df = pd.DataFrame()
 
     if hakai_id is not None:
-        print('Retrieve Hakai_ID: '+str(hakai_id))
+        print('Retrieve Hakai_ID: ' + str(hakai_id))
         # Retrieve data through the API
         # Get Hakai CTD Data Download through the API
         variable_lists = get.hakai_api_selected_variables()
