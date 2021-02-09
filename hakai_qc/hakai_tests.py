@@ -8,8 +8,10 @@ from . import get
 
 def do_cap_test(df,
                 var,
-                profile_id='hakai_id',
-                depth_var='pressure',
+                profile_id,
+                direction_flag,
+                depth_var,
+                bin_size=1,
                 suspect_threshold=.2,
                 fail_threshold=0.5,
                 ratio_above_threshold=0.5,
@@ -26,6 +28,8 @@ def do_cap_test(df,
     df: dataframe
     var: variable to review up/down cast values
     depth_var: variable describing the vertical coordinate
+    direction_flag: variable describing the direction of the profile
+    bin_size: vertical bin size to apply the test to
     suspect_threshold: suspect threshold value for detection |X_nu - X_nd|
     fail_threshold: suspect threshold value for detection |X_nu - X_nd|
     ratio_above_threshold: minimum threshold of fraction of suspect/fail binned value to consider to flag profile
@@ -52,8 +56,14 @@ def do_cap_test(df,
             df.loc[df[profile_id] == missing_id, var+flag_name] = QartodFlags.MISSING
         return
 
+    # Assign each record to a specific bin id
+    df['bin_id'] = (df[depth_var] / bin_size).round()
+
+    # Group average record associated to each profile,direction and bin_id
+    df_grouped = df.groupby([profile_id, direction_flag, 'bin_id']).mean()
+
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
-    profile_bin_stats = df.groupby(by=[profile_id, depth_var])[var].agg([np.ptp, 'count'])
+    profile_bin_stats = df_grouped.groupby(by=[profile_id, depth_var])[var].agg([np.ptp, 'count'])
 
     profile_bin_stats['is_missing'] = profile_bin_stats['ptp'].isnull() & \
                                       (profile_bin_stats['count'] == 0)  # no value available
