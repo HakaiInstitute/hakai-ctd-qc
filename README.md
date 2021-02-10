@@ -1,7 +1,7 @@
 # hakai-profile-qaqc
 Series of tests applied to the Hakai CTD profile data based on the QARTOD tests and other Hakai specific ones.  
 A full list of the different tests applied now is available in the 
-[**Hakai Institute Profile QC Tests List**]((doc/table_qc_config.md)
+[**Hakai Institute Profile QC Tests List**](doc/table_qc_config.md)
 
 It also possible to run the different tests on your own through a online Jupyter Notebook:
 https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/review-hakai-tests.ipynb
