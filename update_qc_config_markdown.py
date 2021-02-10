@@ -8,7 +8,9 @@ if 'hakai' in qc_config:
 
 def dict_to_md(dictionary):
     multiline = re.sub(r', \'', '<br>**', str(dictionary))
-    return re.sub(r'\'', '**', multiline)
+    multiline = re.sub(r'\':', '**:', multiline)
+    multiline = re.sub(r'{\'', '{**', multiline)
+    return multiline
 
 # Sort IOOS qc
 qc_table = pd.DataFrame()
