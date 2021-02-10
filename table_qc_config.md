@@ -1,0 +1,31 @@
+| Variable                 | Test                   | Module   | Inputs                                                                                                                                  |
+|:-------------------------|:-----------------------|:---------|:----------------------------------------------------------------------------------------------------------------------------------------|
+| position                 | location_test          | qartod   | **bbox**: [-180, -90, 180, 90]<br>**target_range**: 3000                                                                                |
+| pressure                 | gross_range_test       | qartod   | **suspect_span**: [0, 12000]<br>**fail_span**: [0, 12000]<br>**maximum_suspect_depth_ratio**: 1.05<br>**maximum_fail_depth_ratio**: 1.1 |
+| depth                    | gross_range_test       | qartod   | **suspect_span**: [0, 12000]<br>**fail_span**: [0, 12000]<br>**maximum_suspect_depth_ratio**: 1.05<br>**maximum_fail_depth_ratio**: 1.1 |
+| dissolved_oxygen_ml_l    | attenuated_signal_test | qartod   | **suspect_threshold**: 0.1<br>**fail_threshold**: 0.01<br>**check_type**: **range**                                                     |
+| dissolved_oxygen_ml_l    | gross_range_test       | qartod   | **fail_span**: [0, 20]<br>**suspect_span**: [1, 15]                                                                                     |
+| dissolved_oxygen_ml_l    | rate_of_change_test    | qartod   | **threshold**: 3                                                                                                                        |
+| dissolved_oxygen_ml_l    | spike_test             | qartod   | **suspect_threshold**: 0.5<br>**fail_threshold**: 1                                                                                     |
+| dissolved_oxygen_percent | attenuated_signal_test | qartod   | **suspect_threshold**: 0.1<br>**fail_threshold**: 0.01<br>**check_type**: **range**                                                     |
+| dissolved_oxygen_percent | gross_range_test       | qartod   | **fail_span**: [-1, 150]<br>**suspect_span**: [0, 140]                                                                                  |
+| dissolved_oxygen_percent | rate_of_change_test    | qartod   | **threshold**: 30                                                                                                                       |
+| dissolved_oxygen_percent | spike_test             | qartod   | **suspect_threshold**: 20<br>**fail_threshold**: 40                                                                                     |
+| rinko_do_ml_l            | attenuated_signal_test | qartod   | **suspect_threshold**: 0.1<br>**fail_threshold**: 0.01<br>**check_type**: **range**                                                     |
+| rinko_do_ml_l            | gross_range_test       | qartod   | **fail_span**: [0, 20]<br>**suspect_span**: [1, 15]                                                                                     |
+| rinko_do_ml_l            | rate_of_change_test    | qartod   | **threshold**: 3                                                                                                                        |
+| rinko_do_ml_l            | spike_test             | qartod   | **suspect_threshold**: 0.5<br>**fail_threshold**: 1                                                                                     |
+| turbidity                | attenuated_signal_test | qartod   | **suspect_threshold**: 0.01<br>**fail_threshold**: 0.001<br>**check_type**: **range**                                                   |
+| turbidity                | gross_range_test       | qartod   | **fail_span**: [-0.1, 10000]<br>**suspect_span**: [0, 1000]                                                                             |
+| c_star_at                | attenuated_signal_test | qartod   | **suspect_threshold**: 0.002<br>**fail_threshold**: 0.0001<br>**check_type**: **range**                                                 |
+| c_star_at                | spike_test             | qartod   | **suspect_threshold**: 0.5<br>**fail_threshold**: 1                                                                                     |
+| par                      | attenuated_signal_test | qartod   | **suspect_threshold**: 0.05<br>**fail_threshold**: 0.02<br>**check_type**: **std**<br>**min_obs**: 5                                    |
+| par                      | gross_range_test       | qartod   | **fail_span**: [-1, 100000]<br>**suspect_span**: [-0.5, 50000]                                                                          |
+| salinity                 | gross_range_test       | qartod   | **fail_span**: [0, 45]<br>**suspect_span**: [2, 42]                                                                                     |
+| salinity                 | rate_of_change_test    | qartod   | **threshold**: 5                                                                                                                        |
+| salinity                 | spike_test             | qartod   | **suspect_threshold**: 0.5<br>**fail_threshold**: 1                                                                                     |
+| temperature              | gross_range_test       | qartod   | **fail_span**: [-2, 100]<br>**suspect_span**: [-2, 40]                                                                                  |
+| temperature              | rate_of_change_test    | qartod   | **threshold**: 5                                                                                                                        |
+| conductivity             | gross_range_test       | qartod   | **fail_span**: [-0.1, 100]<br>**suspect_span**: [0, 100]                                                                                |
+| sigma0                   | density_inversion_test | qartod   | **suspect_threshold**: -0.005<br>**fail_threshold**: -0.03                                                                              |
+| flc                      | gross_range_test       | qartod   | **fail_span**: [-0.5, 150]<br>**suspect_span**: [-0.1, 80]                                                                              |
