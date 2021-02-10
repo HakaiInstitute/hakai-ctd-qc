@@ -49,7 +49,10 @@ def test_results_bar_plot(df,
 
 def interactive_profile_viewer(df,
                                variable_list,
-                               test_list):
+                               test_list,
+                               var_to_plot=None):
+    if var_to_plot is None:
+        var_to_plot = variable_list
 
     qartod_color = {1: 'green', 2: 'yellow', 3: 'orange', 4: 'red', 9: 'purple', '1': 'green', '2': 'yellow',
                     '3': 'orange', '4': 'red', '9': 'purple'}
@@ -81,8 +84,7 @@ def interactive_profile_viewer(df,
             @interact
             def plot_profile(hakai_id=hakai_id_list,
                              ocean_variables=widgets.SelectMultiple(options=variable_list - {'depth', 'pressure'},
-                                                                    value=['temperature', 'salinity',
-                                                                           'dissolved_oxygen_ml_l'],
+                                                                    value=var_to_plot,
                                                                     description='Ocean Variable',
                                                                     disabled=False),
                              y_axis=widgets.Dropdown(options=variable_list, value='depth', description='Y Axis Variable',
