@@ -11,7 +11,8 @@ which follow the definitions presented below:
 ![Alt text](QARTOD_Flag_Convetion_Table.png?raw=true "QARTOD Flag Convention")
 
 # Summary of the tests applied
-We present here a brief summary of the different tests applied. 
+We present here a brief summary of the different tests applied. For a more accurate description of the tests and 
+thresholds used, please review the [**Hakai Institute Profile QC Tests List**](doc/table_qc_config.md).
 
 ## Location test
 If it is associated to a [Hakai Station](https://hakai.maps.arcgis.com/apps/webappviewer/index.html?id=38e1b1da8d16466bbe5d7c7a713d2678), 
@@ -36,21 +37,8 @@ We present here the different QARTOD tests described in the [Temperature and Sal
         * This is completed by the Hakai Portal.
     1. Location Test
         * See section above
-    1. Gross Range Test
-    
-        | Variable | Suspect Range | Fail Range |
-        |----------|:-------------:|:----------:|
-        |Depth (m) | [0, 12000]*   | [0, 12000]* |
-        |Pressure (dBar)| [0, 12000]*   | [0, 12000]* |
-        |Temperature (degC)| [-1.8, 40] | [-2, 100] |
-        |Conductivity (mS/cm)| [0, 100] | [-0.1, 100]|
-        |Practical Salinity | [2, 42] | [0, 45] | 
-        |Dissolved Oxygen (mL/L)| [1, 15] | [0, 20]|
-        |Turbidity (FTU)| [0, 1000] | [-0.1, 10000]|
-        |PAR (umol m-2 s-1)| [0, 50000]|[-0.2, 100000]|
-        |Fluorescence (ug/L)| [-0.1, 80] |[-0.5, 150]|
-        <sup>* *subject to site depth (see* </sup>
-    
+    1. Gross Range Test 
+        * Applied for most parameters.
     1. Climatological Test
         * Not Applied 
         * Could be implemented per station, particularly Hakai's primary stations.
@@ -58,23 +46,29 @@ We present here the different QARTOD tests described in the [Temperature and Sal
 1. **Strongly Recommended**
     1. Spike Test
         * Applied only the Dissolved Oxygen Variables as of now to detect and flag communication issues observed in the past.
+        * Spike test actually implemented within IOOS_QC gives some debatable results.
+         Hakai will potentially suggest an alternative method of spike detection.
     1. Rate of Change Test
-        * Applied only the Dissolved Oxygen Variables
-    1. Flag Line Test
+        * Applied only the Dissolved Oxygen Variables. 
+        * As of now the rate of change test within  IOOS_QC test is using a time rate, ideally it would be better to
+        use a rate based on the depth. Hakai will suggest changes to IOOS_QC rate_of_change_test to be compatible with 
+        the different axis.
+    1. Flat Line Test
 
 1. **Suggested**
     1. Multi-Variate Test *[Not available]*
     1. Attenuated Signal Test
         * Used to detect if there any real data associated to a PAR, Transmissometer or Turbidity sensor.
+        * Could easily be added to all other parameters.
     1. Neighbor Test *[Not available]*
     1. TS Curve/Space Test *[Not available]*
-    1. Density Inversion Test. *[Not available]*
+    1. Density Inversion Test. *[Added to IOOS_qc by Hakai!]*
         * This test is not yet available within the ioos_qc package. See below for Hakai's temporary implementation.
 
 *The [ioos_qc tool](https://github.com/ioos/ioos_qc) package is as of now only compatible with time series data type.
 We however did a temporary fix to make it usable with profile data. This issue should be addressed in the near future.*
 
-## Potential Density Inversion Test
+## Potential Density Inversion Test (Now integrated in IOOS_QC)
 We reproduce here a test similar to the Density Inversion Test applied by the ARGO program. 
 *Potential density with a 0 dBar reference pressure* is derived from the Temperature, Practical Salinity and Pressure values 
 with the **gsw.sigma0** method of the [TEOS-10 Python Package](https://github.com/TEOS-10/GSW-Python),

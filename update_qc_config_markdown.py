@@ -28,7 +28,7 @@ qc_table['Parameters'] = qc_table['Parameters'].astype(str).apply(dict_to_md)
 description_text = 'The following tables below present the standard parameters used by the Hakai Institute ' \
                    'to QC their CTD profile data.\n \n'
 
-with open('table_qc_config.md', 'w') as f:
+with open('doc/table_qc_config.md', 'w') as f:
     # Add description Text
     f.write(description_text)
     # IOOS_QC tests
