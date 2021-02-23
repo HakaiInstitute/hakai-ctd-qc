@@ -28,7 +28,7 @@ def tests_on_profiles(df,
     maximum_fail_depth_ratio = qc_config['depth']['qartod']['gross_range_test']['maximum_fail_depth_ratio']
 
     # Retrieve hakai tests parameters if provided in the config file
-    if 'hakai' in qc_config:
+    if 'hakai_tests' in qc_config:
         hakai_tests_config = qc_config.pop('hakai_tests')
         hakai_tests_config = hakai_tests_config.pop('hakai')
     else:
