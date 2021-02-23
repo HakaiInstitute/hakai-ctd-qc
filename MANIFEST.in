@@ -1,2 +1,2 @@
 include hakai_qc/HakaiStationLocations.csv
-recursive-include hakai/config *
+recursive-include hakai_qc/config *
