@@ -29,7 +29,8 @@ def tests_on_profiles(df,
 
     # Retrieve hakai tests parameters if provided in the config file
     if 'hakai' in qc_config:
-        hakai_tests_config = qc_config.pop('hakai')
+        hakai_tests_config = qc_config.pop('hakai_tests')
+        hakai_tests_config = hakai_tests_config.pop('hakai')
     else:
         hakai_tests_config = {}
 

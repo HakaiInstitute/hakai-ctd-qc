@@ -5,6 +5,8 @@ import re
 qc_config = json_config('hakai_ctd_profile.json')
 if 'hakai' in qc_config:
     hakai_config = qc_config.pop('hakai')
+else:
+    hakai_config =None
 
 def dict_to_md(dictionary):
     multiline = re.sub(r', \'', '<br>**', str(dictionary))
@@ -39,11 +41,12 @@ with open('doc/table_qc_config.md', 'w') as f:
 
     # Hakai Specific tests which have a slight different format
     # TODO Modify Hakai tests config to be similar to ioos_qc ones
-    f.write('# HAKAI Tests \n')
-    f.write('|Variable | Test| Parameters|\n')
-    f.write('| :----| :----| :----|\n')
-    for key in hakai_config.keys():
-        if 'variable' in hakai_config[key]:
-            var = hakai_config[key].pop('variable')
-        f.write('|'+str(var)+'|'+key+'|'+dict_to_md(hakai_config[key])+'|\n')
+    if hakai_config:
+        f.write('# HAKAI Tests \n')
+        f.write('|Variable | Test| Parameters|\n')
+        f.write('| :----| :----| :----|\n')
+        for key in hakai_config.keys():
+            if 'variable' in hakai_config[key]:
+                var = hakai_config[key].pop('variable')
+            f.write('|'+str(var)+'|'+key+'|'+dict_to_md(hakai_config[key])+'|\n')
 

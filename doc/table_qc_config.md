@@ -1,5 +1,13 @@
 The following tables below present the standard parameters used by the Hakai Institute to QC their CTD profile data.
  
+# HAKAI Tests 
+| Variable    | Test                 | Parameters                                                                                                                                                                                                      |
+|:------------|:---------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| hakai_tests | bad_value_test       | {**variable**: 'all'<br>**flag_list**: ['.isna', -9.99e-29]}                                                                                                                                                    |
+| hakai_tests | bottom_hit_detection | {**variable**: 'sigma0_qartod_density_inversion_test'<br>**profile_direction_variable**: 'direction_flag'}                                                                                                      |
+| hakai_tests | do_cap_test          | {**variable**: ['dissolved_oxygen_ml_l'<br>**rinko_do_ml_l']<br>**bin_size**: 1<br>**suspect_threshold**: 0.2<br>**fail_threshold**: 0.5<br>**ratio_above_threshold**: 0.5<br>**minimum_bins_per_profile**: 10} |
+| hakai_tests | par_shadow_test      | {**variable**: 'par'<br>**min_par_for_shadow_detection**: 5}                                                                                                                                                    |
+
 # QARTOD Tests 
 | Variable                 | Test                   | Parameters                                                                                                                                |
 |:-------------------------|:-----------------------|:------------------------------------------------------------------------------------------------------------------------------------------|
@@ -33,10 +41,3 @@ The following tables below present the standard parameters used by the Hakai Ins
 | sigma0                   | density_inversion_test | {**suspect_threshold**: -0.005<br>**fail_threshold**: -0.03}                                                                              |
 | flc                      | gross_range_test       | {**fail_span**: [-0.5, 150]<br>**suspect_span**: [-0.1, 80]}                                                                              |
 
-# HAKAI Tests 
-|Variable | Test| Parameters|
-| :----| :----| :----|
-|['dissolved_oxygen_ml_l', 'rinko_do_ml_l']|do_cap_test|{**bin_size**: 1<br>**suspect_threshold**: 0.2<br>**fail_threshold**: 0.5<br>**ratio_above_threshold**: 0.5<br>**minimum_bins_per_profile**: 10}|
-|sigma0_qartod_density_inversion_test|bottom_hit_detection|{**profile_direction_variable**: 'direction_flag'}|
-|par|par_shadow_test|{**min_par_for_shadow_detection**: 5}|
-|all|bad_value_test|{**flag_list**: ['.isna', -9.99e-29]}|
