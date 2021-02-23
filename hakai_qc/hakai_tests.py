@@ -63,7 +63,7 @@ def do_cap_test(df,
     df_grouped = df.groupby([profile_id, direction_flag, 'bin_id']).mean()
 
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
-    profile_bin_stats = df_grouped.groupby(by=[profile_id, depth_var])[var].agg([np.ptp, 'count'])
+    profile_bin_stats = df_grouped.groupby(by=[profile_id, 'bin_id'])[var].agg([np.ptp, 'count'])
 
     profile_bin_stats['is_missing'] = profile_bin_stats['ptp'].isnull() & \
                                       (profile_bin_stats['count'] == 0)  # no value available
