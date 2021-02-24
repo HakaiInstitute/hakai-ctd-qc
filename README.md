@@ -3,10 +3,10 @@ Series of tests applied to the Hakai CTD profile data based on the QARTOD tests 
 A full list of the different tests applied now is available in the 
 [**Hakai Institute Profile QC Tests List**](doc/table_qc_config.md)
 
-It also possible to run the different tests on your own through a online Jupyter Notebook:
+It is also possible to run the different tests on your own through an online Jupyter Notebook:
 https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/review-hakai-tests.ipynb
 
-To generate Source File data for the Hakai Research Dataset, you can use the jupyter notebook here:
+To generate the source files for the Hakai Research Dataset, you can use the following jupyter notebook here:
 https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/generate-research-ncfiles.ipynb
 
 # QARTOD FLAG CONVENTION
