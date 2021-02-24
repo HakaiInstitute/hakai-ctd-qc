@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from ioos_qc.qartod import QartodFlags
 import warnings
-
+import pkg_resources
 from . import get
 
 
@@ -207,10 +207,12 @@ def grey_list(df,
     # endpoint = 'eims/views/output/ctd_flags'
     # df_grey_list, url = get.hakai_ctd_data('', endpoint=endpoint)
 
-    # Retrieve Grey List from Hakai-Profile-Dataset-Grey-List.csv file
+    # Retrieve Grey List from Hakai-Profile-Dataset-Grey-List.csv file saved within the package
     grey_var_format = {'device_model': str, 'device_sn': str, 'hakai_id': str, 'query': str, 'data_type': str,
                        'flag_type': int}
-    df_grey_list = pd.read_csv('HakaiProfileDatasetGreyList.csv', dtype=grey_var_format,
+    grey_list_path = "HakaiProfileDatasetGreyList.csv"
+    grey_list_path = pkg_resources.resource_filename(__name__, grey_list_path)
+    df_grey_list = pd.read_csv(grey_list_path, dtype=grey_var_format,
                                parse_dates=['start_datetime_range', 'end_datetime_range'])
     df_grey_list = df_grey_list.replace({pd.NA: None})
 
