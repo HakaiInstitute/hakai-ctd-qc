@@ -210,7 +210,7 @@ def grey_list(df,
     # Retrieve Grey List from Hakai-Profile-Dataset-Grey-List.csv file
     grey_var_format = {'device_model': str, 'device_sn': str, 'hakai_id': str, 'query': str, 'data_type': str,
                        'flag_type': int}
-    df_grey_list = pd.read_csv('../HakaiProfileDatasetGreyList.csv', dtype=grey_var_format,
+    df_grey_list = pd.read_csv('HakaiProfileDatasetGreyList.csv', dtype=grey_var_format,
                                parse_dates=['start_datetime_range', 'end_datetime_range'])
     df_grey_list = df_grey_list.replace({pd.NA: None})
 
