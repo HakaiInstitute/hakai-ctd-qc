@@ -181,10 +181,7 @@
   "hakai_tests": {
       "hakai": {
           "do_cap_test": {
-              "variable": [
-                  "dissolved_oxygen_ml_l" ,
-                  "rinko_do_ml_l"
-              ] ,
+              "variable": ["dissolved_oxygen_ml_l" , "rinko_do_ml_l"] ,
               "bin_size": 1 ,
               "suspect_threshold": 0.2 ,
               "fail_threshold": 0.5 ,
@@ -201,10 +198,7 @@
           } ,
           "bad_value_test": {
               "variable": "all" ,
-              "flag_list": [
-                  ".isna" ,
-                  -9.99E-29
-              ]
+              "flag_list": [".isna" , -9.99E-29]
           }
       }
   }
