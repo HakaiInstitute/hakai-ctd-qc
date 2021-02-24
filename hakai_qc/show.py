@@ -52,7 +52,7 @@ def interactive_profile_viewer(df,
                                test_list,
                                var_to_plot=None):
     if var_to_plot is None:
-        var_to_plot = variable_list
+        var_to_plot = tuple(set(variable_list)-{'depth', 'pressure'})
 
     qartod_color = {1: 'green', 2: 'yellow', 3: 'orange', 4: 'red', 9: 'purple', '1': 'green', '2': 'yellow',
                     '3': 'orange', '4': 'red', '9': 'purple'}
@@ -80,7 +80,7 @@ def interactive_profile_viewer(df,
             hakai_id_list = df_selected[df_selected[flag_type].isin(considered_flag)]['hakai_id'].unique()
         print(str(len(hakai_id_list)) + ' profiles are available')
 
-        if len(hakai_id_list)>0:
+        if len(hakai_id_list) > 0:
             @interact
             def plot_profile(hakai_id=hakai_id_list,
                              ocean_variables=widgets.SelectMultiple(options=variable_list - {'depth', 'pressure'},
