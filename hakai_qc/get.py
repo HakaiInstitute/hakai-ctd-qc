@@ -5,7 +5,7 @@ import json
 
 import os
 import pkg_resources
-
+import re
 from hakai_api import Client
 import hakai_qc
 
@@ -111,14 +111,15 @@ def fail_test_hakai_id():
 
 def research_profile_netcdf(hakai_id,
                             path_out,
+                            variable_list=None,
                             creator_attributes=None,
                             extra_global_attributes=None,
                             extra_variable_attributes=None,
                             profile_id='hakai_id',
                             timeseries_id='station',
                             depth_var='depth',
-                            file_name_append='_Research'
-                            ):
+                            file_name_append='_Research',
+                            mandatory_output_variables=('measurement_dt','direction_flag','cast_comments')):
 
     # Define the general global attributes associated to all hakai profile data and the more specific ones associated
     # with each profile and data submission.
@@ -190,6 +191,11 @@ def research_profile_netcdf(hakai_id,
     profile_variables = set(data.columns).intersection(set(cast.columns)) - set(coordinate_list)
     vertical_variables = set(data.columns) - profile_variables - set(coordinate_list)
     extra_variables = set(cast.columns) - set(profile_variables) - set(coordinate_list)
+
+    # Filter Vertical Variables to just the accepted ones
+    if variable_list is not None:
+        vertical_variables = set(var for var in vertical_variables if re.match('^'+'|^'.join(variable_list), var))\
+            .union(mandatory_output_variables)
 
     # Create Xarray DataArray for each types and merge them together after
     ds_vertical = hakai_qc.transform.dataframe_to_erddap_xarray(

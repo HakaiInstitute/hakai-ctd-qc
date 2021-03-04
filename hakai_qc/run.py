@@ -1,5 +1,6 @@
 import gsw
 import pandas as pd
+import re
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
 from hakai_qc import hakai_tests, get, utils
@@ -291,3 +292,26 @@ def get_hakai_flag_columns(df, var,
     # Aggregate all flag columns together
     df[var + level_1_flag_suffix] = qartod_compare(var_flag_results.transpose().to_numpy())
     return df
+
+
+def update_research_dataset(path_out=r'',
+                            creator_name=None):
+    ctd_qc_log_endpoint = 'eims/views/output/ctd_qc'
+    df_qc, query_url = get.hakai_ctd_data('limit=-1', endpoint=ctd_qc_log_endpoint)
+
+    # Filter QC log by keeping only the lines that have inputs
+    df_qc = df_qc.loc[df_qc.filter(like='_flag').dropna(axis=0, how='all').index].set_index('hakai_id')
+
+    # Generate NetCDFs
+    for hakai_id, row in df_qc.iterrows():
+        # Retrieve flag columns that starts with AV, drop trailing _flag
+        var_to_save = row.filter(like='_flag').str.startswith('AV').dropna()
+        var_to_save = var_to_save[var_to_save].rename(index=lambda x: re.sub('_flag$', '', x))
+
+        if len(var_to_save.index) > 0:
+            print('Save ' + hakai_id)
+            # TODO add a step to identify reviewer and add reviewer review to history
+            # TODO add an input to add a creator attribute.
+            # TODO should we overwrite already existing files overwritten
+            get.research_profile_netcdf(hakai_id, path_out,
+                                        variable_list=var_to_save.index.tolist())
