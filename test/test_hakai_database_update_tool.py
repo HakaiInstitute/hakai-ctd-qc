@@ -3,7 +3,8 @@ from hakai_api import Client
 
 # Use hakai_id list method
 hakai_id_list = ['080217_2017-01-08T18:03:05.167Z', '01907674_2016-10-12T16:23:36Z', '080217_2015-09-10T23:07:01.167Z',
-                 '080217_2016-11-26T17:24:19.333Z']
+                 '080217_2016-11-26T17:24:19.333Z','018066_2014-06-22T19:42:33.667Z']
+# '018066_2014-06-22T19:42:33.667Z' no PAR Data
 # 080217_2015-09-10T23:07:01.167Z has a broken do and fluo sensor test for grey list
 # 080217_2016-11-26T17:24:19.333Z has a bad DO profile
 
