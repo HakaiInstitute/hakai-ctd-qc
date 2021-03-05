@@ -196,8 +196,10 @@ def tests_on_profiles(df,
 
 
 def update_hakai_ctd_profile_data(hakai_id=None,
-                                  json_input=None
-                                  ):
+                                  json_input=None,
+                                  output='json',
+                                  filter_variables=True,
+                                  output_meta=False):
     # Define dataframe
     df = pd.DataFrame()
 
@@ -205,16 +207,20 @@ def update_hakai_ctd_profile_data(hakai_id=None,
         print('Retrieve Hakai_ID: ' + str(hakai_id))
         # Retrieve data through the API
         # Get Hakai CTD Data Download through the API
-        variable_lists = get.hakai_api_selected_variables()
-
         if type(hakai_id) is list:
             hakai_id_str = ','.join(hakai_id)
         else:
             hakai_id_str = hakai_id
 
         # Let's just get the data from QU39
-        filterUrl = 'hakai_id={' + hakai_id_str + '}&status!=MISCAST&limit=-1' + '&fields=' + ','.join(variable_lists)
-        df, url = get.hakai_ctd_data(filterUrl)
+        filterUrl = 'hakai_id={' + hakai_id_str + '}&status!=MISCAST&limit=-1'
+
+        # Filter variables
+        if filter_variables:
+            variable_lists = get.hakai_api_selected_variables()
+            filterUrl = filterUrl + '&fields=' + ','.join(variable_lists)
+
+        df, url, meta = get.hakai_ctd_data(filterUrl, get_columns_info=output_meta)
 
     elif json_input is not None:
         # Hakai API JSON string to a pandas dataframe
