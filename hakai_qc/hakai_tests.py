@@ -182,10 +182,10 @@ def bad_value_test(df,
     for flag in flag_list:
         for column in variable:
             # Identify already identified as empty values
-            if flag is '.isna':
+            if flag == '.isna':
                 is_flagged = df[column].isna()
             else:
-                is_flagged = df[column] == flag
+                is_flagged = df[column].isin([flag])
 
             if any(is_flagged):
                 df[column + flag_column_suffix] = QartodFlags.GOOD
