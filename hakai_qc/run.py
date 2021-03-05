@@ -310,7 +310,7 @@ def get_hakai_flag_columns(df, var,
 def update_research_dataset(path_out=r'',
                             creator_name=None):
     ctd_qc_log_endpoint = 'eims/views/output/ctd_qc'
-    df_qc, query_url = get.hakai_ctd_data('limit=-1', endpoint=ctd_qc_log_endpoint)
+    df_qc, query_url, unused = get.hakai_ctd_data('limit=-1', endpoint=ctd_qc_log_endpoint)
 
     # Filter QC log by keeping only the lines that have inputs
     df_qc = df_qc.loc[df_qc.filter(like='_flag').notna().any(axis=1)].copy()
