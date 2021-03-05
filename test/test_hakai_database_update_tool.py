@@ -12,10 +12,10 @@ json_output_from_hakai_id_method = hakai_qc.run.update_hakai_ctd_profile_data(ha
 
 # Use JSON input method
 variable_lists = hakai_qc.get.hakai_api_selected_variables()
-[json_input, url] = hakai_qc.get.hakai_ctd_data('hakai_id={' + ','.join(hakai_id_list) + '}' +
-                                                '&limit=-1' +
-                                                '&fields=' + ','.join(variable_lists)
-                                                , output_format='json')
+[json_input, url, meta] = hakai_qc.get.hakai_ctd_data('hakai_id={' + ','.join(hakai_id_list) + '}' +
+                                                      '&limit=-1' +
+                                                      '&fields=' + ','.join(variable_lists),
+                                                      output_format='json')
 json_output_from_json_method = hakai_qc.run.update_hakai_ctd_profile_data(json_input=json_input)
 # TODO need to review both inputs they should be outputting the same thing
 
