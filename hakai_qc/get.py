@@ -280,6 +280,9 @@ def research_profile_netcdf(hakai_id,
     var_list = list(dict.fromkeys(cast_var_order + data_var_order))
 
     # Save to NetCDF
-    file_output_path = os.path.join(path_out, hakai_id_str + file_name_append + '.nc')
+    path_out_sub_dir = os.path.join(path_out, ds.attrs['work_area'], ds.attrs['station'])
+    if not os.path.exists(path_out_sub_dir):
+        os.makedirs(path_out_sub_dir)
+    file_output_path = os.path.join(path_out_sub_dir, hakai_id_str + file_name_append + '.nc')
     ds[var_list].to_netcdf(file_output_path)
     return
