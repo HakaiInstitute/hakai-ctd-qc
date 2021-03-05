@@ -30,7 +30,8 @@ def hakai_stations():
 
 def hakai_ctd_data(filter_url,
                    endpoint='ctd/views/file/cast/data',
-                   output_format='dataframe'):
+                   output_format='dataframe',
+                   get_columns_info=False):
     """
     hakai_ctd_data(filterUrl) method used the Hakai Python API Client to query Processed CTD data from the Hakai
     database based on the filter provided. The data is then converted to a Pandas data frame.
@@ -54,7 +55,14 @@ def hakai_ctd_data(filter_url,
     else:
         output = response
 
-    return output, url
+    if get_columns_info:
+        url = url + '&meta'
+        response = client.get(url)
+        columns_info = pd.DataFrame(response.json())
+    else:
+        columns_info = []
+
+    return output, url, columns_info
 
 
 def json_config(config_file):
