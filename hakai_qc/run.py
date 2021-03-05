@@ -313,7 +313,8 @@ def update_research_dataset(path_out=r'',
     df_qc, query_url = get.hakai_ctd_data('limit=-1', endpoint=ctd_qc_log_endpoint)
 
     # Filter QC log by keeping only the lines that have inputs
-    df_qc = df_qc.loc[df_qc.filter(like='_flag').dropna(axis=0, how='all').index].set_index('hakai_id')
+    df_qc = df_qc.loc[df_qc.filter(like='_flag').notna().any(axis=1)].copy()
+    df_qc = df_qc.set_index('hakai_id')
 
     # Generate NetCDFs
     for hakai_id, row in df_qc.iterrows():
