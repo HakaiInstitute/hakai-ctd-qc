@@ -179,9 +179,17 @@ def research_profile_netcdf(hakai_id,
         return df, columns_info
 
     # Retrieve data to be save
-    data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
-                                               'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
-                                               get_columns_info=True)
+    # TODO TEMPORARY SECTION TO DEAL WITH NO QARTOD FLAGS ON THE DATA BASE
+    data, data_meta = hakai_qc.run.update_hakai_ctd_profile_data(hakai_id=hakai_id,
+                                                                 output='dataframe',
+                                                                 filter_variables=False,
+                                                                 output_meta=True)
+    data = data[data['direction_flag'] == 'd']  # Keep downcast only
+    # # TODO FOLLOWING SECTION SHOULD BE USED IN THE FUTURE WHEN DATABASE IS GOOD TO GO
+    # data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
+    #                                            'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
+    #                                            get_columns_info=True)
+    # ####
     cast, cast_meta = _get_hakai_ctd_full_data(endpoint_list['metadata'],
                                                'hakai_id=' + hakai_id)
 
