@@ -157,13 +157,16 @@ def par_shadow_test(df,
     """
     # Detect PAR Shadow
     print('Flag PAR Shadow Data')
-    df['par_cummax'] = df.sort_values(by=[profile_id, direction_flag, depth_var], ascending=False).groupby(
-        by=[profile_id, direction_flag])[variable].cummax()
+    if df[variable].isna().all():
+        df[flag_column_name] = QartodFlags.UNKNOWN
+    else:
+        df['par_cummax'] = df.sort_values(by=[profile_id, direction_flag, depth_var], ascending=False).groupby(
+            by=[profile_id, direction_flag])[variable].cummax()
 
-    df[flag_column_name] = QartodFlags.GOOD
-    df.loc[(df[variable] < df['par_cummax']) & (
-            df['par_cummax'] > min_par_for_shadow_detection), flag_column_name] = QartodFlags.SUSPECT
-    df.drop('par_cummax', axis=1, inplace=True)
+        df[flag_column_name] = QartodFlags.GOOD
+        df.loc[(df[variable] < df['par_cummax']) & (
+                df['par_cummax'] > min_par_for_shadow_detection), flag_column_name] = QartodFlags.SUSPECT
+        df.drop('par_cummax', axis=1, inplace=True)
     return df
 
 
