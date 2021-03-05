@@ -328,4 +328,5 @@ def update_research_dataset(path_out=r'',
             # TODO add an input to add a creator attribute.
             # TODO should we overwrite already existing files overwritten
             get.research_profile_netcdf(hakai_id, path_out,
-                                        variable_list=var_to_save.index.tolist())
+                                        variable_list=var_to_save.index.tolist(),
+                                        mask_qartod_flag=[2, 3, 4, 9])
