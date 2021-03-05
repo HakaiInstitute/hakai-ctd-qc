@@ -241,6 +241,8 @@ def research_profile_netcdf(hakai_id,
     ds.attrs['instrument'] = str(cast['device_model'][0]+
                                  ' SN'+cast['device_sn'][0]+
                                  ' Firmware'+cast['device_firmware'][0])
+    ds.attrs['work_area'] = str(cast['work_area'][0])
+    ds.attrs['station'] = str(cast['station'][0])
 
     # Add user defined and variable specific global attributes
     ds.attrs.update(general_global_attributes)
