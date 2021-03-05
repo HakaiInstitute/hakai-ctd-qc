@@ -127,7 +127,8 @@ def research_profile_netcdf(hakai_id,
                             timeseries_id='station',
                             depth_var='depth',
                             file_name_append='_Research',
-                            mandatory_output_variables=('measurement_dt','direction_flag','cast_comments')):
+                            mandatory_output_variables=('measurement_dt', 'direction_flag', 'cast_comments'),
+                            mask_qartod_flag=None):
 
     # Define the general global attributes associated to all hakai profile data and the more specific ones associated
     # with each profile and data submission.
@@ -204,6 +205,12 @@ def research_profile_netcdf(hakai_id,
     if variable_list is not None:
         vertical_variables = set(var for var in vertical_variables if re.match('^'+'|^'.join(variable_list), var))\
             .union(mandatory_output_variables)
+
+    # Mask Records associated with Rejected QARTOD Flags
+    if type(mask_qartod_flag) is list:
+        for Q_col in data[vertical_variables].filter(like='_qartod_flag').columns:
+            var_col = Q_col.replace('_qartod_flag', '')
+            data.loc[data[Q_col].isin(mask_qartod_flag), var_col] = pd.NA
 
     # Create Xarray DataArray for each types and merge them together after
     ds_vertical = hakai_qc.transform.dataframe_to_erddap_xarray(
