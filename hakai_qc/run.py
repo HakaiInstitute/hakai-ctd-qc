@@ -247,11 +247,18 @@ def update_hakai_ctd_profile_data(hakai_id=None,
     df = tests_on_profiles(df, hakai_stations, qc_config)
 
     # Isolate the Hakai Flags columns and output to a json string
-    json_out = df[initial_variable_list].to_json(orient='records')
+    if output is 'json':
+        output = df.filter(items=output_variable_list).to_json(orient='records')
     # Pandas JSON also output empty values, to avoid those empty values, use the code below instead.
     # json_out = json.dump([row.dropna().to_dict() for index, row in df.drop('Unnamed: 0', axis=1).iterrows()],
     #                    f, indent=2)
-    return json_out
+    elif output is 'dataframe':
+        output = df.filter(items=output_variable_list)
+
+    if output_meta:
+        output = (output, meta)
+
+    return output
 
 
 def apply_qartod_flag(apply_to, reference, df_to_convert=None):
