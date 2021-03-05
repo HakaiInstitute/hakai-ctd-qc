@@ -246,6 +246,16 @@ def update_hakai_ctd_profile_data(hakai_id=None,
     # Run all of the tests on each available profile
     df = tests_on_profiles(df, hakai_stations, qc_config)
 
+    # Make sure to include Level 1 and Level 2 flags
+    # TODO TEMPORARY
+    output_variable_list = []
+    for var in initial_variable_list:
+        output_variable_list.append(var)
+        if var.endswith('_flag'):
+            output_variable_list.append(re.sub('_flag$','',var) + '_qartod_flag')
+            output_variable_list.append(re.sub('_flag$','',var) + '_flag_description')
+    ####
+
     # Isolate the Hakai Flags columns and output to a json string
     if output is 'json':
         output = df.filter(items=output_variable_list).to_json(orient='records')
