@@ -129,7 +129,6 @@ def research_profile_netcdf(hakai_id,
                             file_name_append='_Research',
                             mandatory_output_variables=('measurement_dt', 'direction_flag', 'cast_comments'),
                             mask_qartod_flag=None):
-
     # Define the general global attributes associated to all hakai profile data and the more specific ones associated
     # with each profile and data submission.
     general_global_attributes = {
@@ -211,7 +210,7 @@ def research_profile_netcdf(hakai_id,
 
     # Filter Vertical Variables to just the accepted ones
     if variable_list is not None:
-        vertical_variables = set(var for var in vertical_variables if re.match('^'+'|^'.join(variable_list), var))\
+        vertical_variables = set(var for var in vertical_variables if re.match('^' + '|^'.join(variable_list), var)) \
             .union(mandatory_output_variables)
 
     # Mask Records associated with Rejected QARTOD Flags
@@ -238,9 +237,9 @@ def research_profile_netcdf(hakai_id,
     ds.attrs['processing_level'] = str(cast['processing_stage'][0])
     ds.attrs['history'] = str({'vendor_metadata': str(cast['vendor_metadata'][0]),
                                'processing_log': str(cast['process_log'][0])})
-    ds.attrs['instrument'] = str(cast['device_model'][0]+
-                                 ' SN'+cast['device_sn'][0]+
-                                 ' Firmware'+cast['device_firmware'][0])
+    ds.attrs['instrument'] = str(cast['device_model'][0] +
+                                 ' SN' + cast['device_sn'][0] +
+                                 ' Firmware' + cast['device_firmware'][0])
     ds.attrs['work_area'] = str(cast['work_area'][0])
     ds.attrs['station'] = str(cast['station'][0])
 
@@ -260,10 +259,35 @@ def research_profile_netcdf(hakai_id,
             for key in not_empty_var.index.values:
                 ds[var].attrs[map_hakai_database[key]] = not_empty_var[var][key]
 
+    # Add Variable Attributes from local json
+    standard_attributes = json_config('hakai_profile_variable_attributes.json')
+    for var, new_attributes in standard_attributes.items():
+        if var in ds.keys():
+            ds[var].attrs.update(new_attributes)
+
     # Add provided variable attributes
     if extra_variable_attributes is not None:
         for var in extra_variable_attributes:
             ds[var].attrs.update(extra_variable_attributes[var])
+
+    # Add QARTOD Associated Flags
+    agg_qartod_var_suffix = '_qartod_flag'
+    qartod_agg_var = [var for var in list(ds.keys()) if var.endswith(agg_qartod_var_suffix)]
+    for var in qartod_agg_var:
+        # Add Attributes to QARTOD aggregated variables
+        ds[var].attrs.update({'long_name': var[0].capitalize() + var[1:].replace(agg_qartod_var_suffix,'')
+                                           + ' Summary QC Flag'})
+        ds[var].attrs.update({'standard_name': 'aggregate_quality_flag',
+                              'missing_value': 2,
+                              'flag_meaning': "PASS NOT_EVALUATED SUSPECT FAIL MISSING",
+                              'flag_values': [1, 2, 3, 4, 9]})
+        # Add Attributes to associated variable
+        associated_var = var.replace(agg_qartod_var_suffix, '')
+        if 'ancillary_variables' in ds[associated_var].attrs:
+            ds[associated_var].attrs['ancillary_variables'] = ds[associated_var].attrs['ancillary_variables'] + \
+                                                              ' ' + var
+        else:
+            ds[associated_var].attrs.update({'ancillary_variables': var})
 
     # Define output path and file
     if (ds['direction_flag'] == b'd').all():  # If all downcast
