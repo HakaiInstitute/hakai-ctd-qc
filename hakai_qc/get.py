@@ -128,7 +128,9 @@ def research_profile_netcdf(hakai_id,
                             depth_var='depth',
                             file_name_append='_Research',
                             mandatory_output_variables=('measurement_dt', 'direction_flag', 'cast_comments'),
-                            mask_qartod_flag=None):
+                            mask_qartod_flag=None,
+                            level_1_flag_suffix='_qartod_flag',
+                            level_2_flag_suffix='_flag_description'):
     # Define the general global attributes associated to all hakai profile data and the more specific ones associated
     # with each profile and data submission.
     general_global_attributes = {
@@ -189,8 +191,8 @@ def research_profile_netcdf(hakai_id,
     #                                            'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
     #                                            get_columns_info=True)
     # ####
-    cast, cast_meta = _get_hakai_ctd_full_data(endpoint_list['metadata'],
-                                               'hakai_id=' + hakai_id)
+    cast, url, cast_meta = hakai_qc.get.hakai_ctd_data('hakai_id=' + hakai_id + '&limit=-1',
+                                                       endpoint_list['metadata'])
 
     # Make some data conversion to compatible with ERDDAP NetCDF Format
     def _convert_dt_columns(df):
@@ -215,17 +217,37 @@ def research_profile_netcdf(hakai_id,
 
     # Mask Records associated with Rejected QARTOD Flags
     if type(mask_qartod_flag) is list:
-        for Q_col in data[vertical_variables].filter(like='_qartod_flag').columns:
-            var_col = Q_col.replace('_qartod_flag', '')
-            data.loc[data[Q_col].isin(mask_qartod_flag), var_col] = pd.NA
+        for Q_col in data[vertical_variables].filter(like=level_1_flag_suffix).columns:
+            var_col = Q_col.replace(level_1_flag_suffix, '')
+            # Replace value by NaN if flag rejected
+            data.loc[data[Q_col].isin(mask_qartod_flag), var_col] = np.NaN
+            # Drop Level 2 flag if data is rejected
+            data.loc[data[Q_col].isin(mask_qartod_flag), var_col + level_2_flag_suffix] = ''
+
+    # Define Variable Attributes Dictionaries
+    # From database metadata
+    map_hakai_database = {'display_column': 'long_name', 'variable_units': 'units'}
+    database_attributes = data_meta.loc[['display_column', 'variable_units']] \
+        .dropna(axis=1).rename(map_hakai_database, axis='index').to_dict()
+    # From hakai-qc json
+    hakai_qc_attributes = json_config('hakai_profile_variable_attributes.json')
+
+    # Hakai QC has priority over database metadata
+    variable_attributes = {}
+    variable_attributes.update(database_attributes)
+    variable_attributes.update(hakai_qc_attributes)
+    if extra_variable_attributes:
+        variable_attributes.update(extra_variable_attributes)
 
     # Create Xarray DataArray for each types and merge them together after
     ds_vertical = hakai_qc.transform.dataframe_to_erddap_xarray(
         data.set_index(coordinate_list)[vertical_variables].dropna(axis=1, how='all'),
-        profile_id=profile_id, timeseries_id=timeseries_id)
+        profile_id=profile_id, timeseries_id=timeseries_id, variable_attributes=variable_attributes,
+        flag_columns={'_qartod_flag$': ['QARTOD', 'aggregate_quality_flag']})
     ds_profile = hakai_qc.transform.dataframe_to_erddap_xarray(
         cast.set_index([timeseries_id, profile_id])[extra_variables.union(profile_variables)].dropna(axis=1, how='all'),
-        profile_id=profile_id, timeseries_id=timeseries_id)
+        profile_id=profile_id, timeseries_id=timeseries_id, variable_attributes=variable_attributes,
+        flag_columns={'_qartod_flag$': ['QARTOD', 'aggregate_quality_flag']})
 
     # Merge the profile_id and vertical data combine both attrs with profile overwriting the vertical ones.
     ds = xr.merge([ds_profile, ds_vertical], join='outer')
@@ -251,50 +273,11 @@ def research_profile_netcdf(hakai_id,
     if extra_global_attributes is not None:
         ds.attrs.update(extra_global_attributes)
 
-    # Add Hakai Database variable attributes
-    map_hakai_database = {'display_column': 'long_name', 'variable_units': 'units'}
-    not_empty_var = data_meta.loc[['display_column', 'variable_units']].dropna(axis=1)
-    for var in not_empty_var:
-        if var in ds:
-            for key in not_empty_var.index.values:
-                ds[var].attrs[map_hakai_database[key]] = not_empty_var[var][key]
-
-    # Add Variable Attributes from local json
-    standard_attributes = json_config('hakai_profile_variable_attributes.json')
-    for var, new_attributes in standard_attributes.items():
-        if var in ds.keys():
-            ds[var].attrs.update(new_attributes)
-
-    # Add provided variable attributes
-    if extra_variable_attributes is not None:
-        for var in extra_variable_attributes:
-            ds[var].attrs.update(extra_variable_attributes[var])
-
-    # Add QARTOD Associated Flags
-    agg_qartod_var_suffix = '_qartod_flag'
-    qartod_agg_var = [var for var in list(ds.keys()) if var.endswith(agg_qartod_var_suffix)]
-    for var in qartod_agg_var:
-        # Add Attributes to QARTOD aggregated variables
-        ds[var].attrs.update({'long_name': var[0].capitalize() + var[1:].replace(agg_qartod_var_suffix,'')
-                                           + ' Summary QC Flag'})
-        ds[var].attrs.update({'standard_name': 'aggregate_quality_flag',
-                              'missing_value': 2,
-                              'flag_meaning': "PASS NOT_EVALUATED SUSPECT FAIL MISSING",
-                              'flag_values': [1, 2, 3, 4, 9]})
-        # Add Attributes to associated variable
-        associated_var = var.replace(agg_qartod_var_suffix, '')
-        if 'ancillary_variables' in ds[associated_var].attrs:
-            ds[associated_var].attrs['ancillary_variables'] = ds[associated_var].attrs['ancillary_variables'] + \
-                                                              ' ' + var
-        else:
-            ds[associated_var].attrs.update({'ancillary_variables': var})
-
     # Define output path and file
     if (ds['direction_flag'] == b'd').all():  # If all downcast
         file_name_append = file_name_append + '_downcast'
     if (ds['direction_flag'] == b'u').all():  # If all downcast
         file_name_append = file_name_append + '_upcast'
-    hakai_id_str = hakai_id.replace(':', '').replace('.', '')
 
     # Sort variable order based on the order from the hakai data table followed by the cast table
     cast_list = cast.columns
@@ -303,7 +286,7 @@ def research_profile_netcdf(hakai_id,
     data_var_order = list(data_var_list[data_var_list.isin(list(ds.keys()))])
     var_list = list(dict.fromkeys(cast_var_order + data_var_order))
 
-    # Save to NetCDF
+    # Save to NetCDF in a subdirectory 'area/station/' and in the original order given by the database
     path_out_sub_dir = os.path.join(path_out, ds.attrs['work_area'], ds.attrs['station'])
     if not os.path.exists(path_out_sub_dir):
         os.makedirs(path_out_sub_dir)

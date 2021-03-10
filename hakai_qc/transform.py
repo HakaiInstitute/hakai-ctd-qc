@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import re
 
 
 def dataframe_to_erddap_xarray(df,
@@ -11,7 +12,8 @@ def dataframe_to_erddap_xarray(df,
                                profile_id=None,
                                trajectory_id=None,
                                global_attributes: dict = None,
-                               variable_attributes: dict = None
+                               variable_attributes: dict = None,
+                               flag_columns: dict = None
                                ):
     # Retrieve datetime and datetimetz variables in the dataframe
     datetime_variables = df.select_dtypes('datetime').columns
@@ -50,7 +52,31 @@ def dataframe_to_erddap_xarray(df,
     # Add Variable Attributes
     if variable_attributes is not None:
         for var in variable_attributes:
-            ds[var].attrs.update(variable_attributes[var])
+            if var in ds:
+                ds[var].attrs.update(variable_attributes[var])
+
+    # Add Flag related attributes
+    for flag_regex, flag_info in flag_columns.items():
+        for var in ds.keys():
+            if re.search(flag_regex, var):
+                associated_var = re.sub(flag_regex, '', var)
+                flag_dict = {'long_name': [associated_var[0].capitalize() +associated_var[1:] +
+                                          ' Summary QC Flag']}
+                if len(flag_info) > 1:
+                    flag_dict.update({'standard_name': flag_info[1]})
+
+                if flag_info[0] == 'QARTOD':
+                    flag_dict.update({'missing_value': 2,
+                                      'flag_meaning': "PASS NOT_EVALUATED SUSPECT FAIL MISSING",
+                                      'flag_values': [1, 2, 3, 4, 9]})
+                ds[var].attrs.update(flag_dict)
+
+                if associated_var in ds:
+                    if 'ancillary_variables' in ds[associated_var].attrs:
+                        ds[associated_var].attrs['ancillary_variables'] = ds[associated_var].attrs[
+                                                                              'ancillary_variables'] + ' ' + var
+                    else:
+                        ds[associated_var].attrs.update({'ancillary_variables': var})
 
     # Add CF Roles
     if timeseries_id:
