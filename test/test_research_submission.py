@@ -4,7 +4,8 @@ from datetime import datetime as dt
 import os
 
 
-hakai_qc.run.update_research_dataset(r'C:\Users\jessy\test')
+hakai_qc.run.update_research_dataset(
+    r'D:\temp', overwrite=False)
 # hakai_id = '080217_2017-01-08T18:03:05.167Z'
 # path_out = r'C:\Users\jessy\test'
 # creator_name = 'Jessy Barrette'

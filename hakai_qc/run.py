@@ -318,7 +318,8 @@ def get_hakai_flag_columns(df, var,
 
 
 def update_research_dataset(path_out=r'',
-                            creator_name=None):
+                            creator_name=None,
+                            overwrite=True):
     ctd_qc_log_endpoint = 'eims/views/output/ctd_qc'
     df_qc, query_url, unused = get.hakai_ctd_data('limit=-1', endpoint=ctd_qc_log_endpoint)
 
@@ -339,4 +340,5 @@ def update_research_dataset(path_out=r'',
             # TODO should we overwrite already existing files overwritten
             get.research_profile_netcdf(hakai_id, path_out,
                                         variable_list=var_to_save.index.tolist(),
-                                        mask_qartod_flag=[2, 3, 4, 9])
+                                        mask_qartod_flag=[2, 3, 4, 9],
+                                        overwrite=overwrite)

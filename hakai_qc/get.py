@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import xarray as xr
 from datetime import datetime as dt
 import json
@@ -119,6 +120,7 @@ def fail_test_hakai_id():
 
 def research_profile_netcdf(hakai_id,
                             path_out,
+                            overwrite=True,
                             variable_list=None,
                             creator_attributes=None,
                             extra_global_attributes=None,
@@ -153,6 +155,14 @@ def research_profile_netcdf(hakai_id,
         'date_created': str(dt.utcnow().isoformat()),
         'id': hakai_id,
     }
+    # Look if overwrite=True and output file exist already,
+    hakai_id_str = hakai_id.replace(':', '').replace('.', '')  # Output Hakai ID String
+    if not overwrite:
+        for root, dirs, files in os.walk(path_out):
+            if any(re.match(hakai_id_str, file) for file in files):
+                print(hakai_id + " already exists")
+                # If already exist stop function
+                return
 
     # Retrieve data for the specified hakai_id
     # Let's define the endpoints we'll use to get the data from the Hakai Database
