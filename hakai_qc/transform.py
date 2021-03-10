@@ -31,6 +31,9 @@ def dataframe_to_erddap_xarray(df,
     for var in df.select_dtypes('int64').columns:
         df[var] = df[var].astype(int)
 
+    # Drop rows with unknown index
+    df = df.loc[df.index.dropna()]
+
     # With all the conversions completed convert the dataframe to an xarray
     ds = df.to_xarray()
 
