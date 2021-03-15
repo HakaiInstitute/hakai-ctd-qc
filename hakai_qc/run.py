@@ -4,6 +4,8 @@ import re
 from ioos_qc.config import QcConfig
 from ioos_qc.qartod import qartod_compare, QartodFlags
 from hakai_qc import hakai_tests, get, utils
+import warnings
+import os
 import json
 
 
@@ -226,10 +228,11 @@ def update_hakai_ctd_profile_data(hakai_id=None,
         # Hakai API JSON string to a pandas dataframe
         df = pd.DataFrame(json_input)
     else:
-        assert RuntimeError, 'update_hakai_ctd_profile_data is missing either a hakai_id or json string input.'
+        raise RuntimeError('update_hakai_ctd_profile_data is missing either a hakai_id or json string input.')
 
     if len(df) == 0:
-        assert RuntimeError, 'No Data is available for this specific input'
+        warnings.warn('No Data is available for this specific input', RuntimeWarning)
+        return None, None
 
     # Save the list of initial variables
     initial_variable_list = df.columns
