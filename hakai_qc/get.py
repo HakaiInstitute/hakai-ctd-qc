@@ -222,8 +222,7 @@ def research_profile_netcdf(hakai_id,
     # Make some data conversion to compatible with ERDDAP NetCDF Format
     def _convert_dt_columns(df):
         time_var_list = df.dropna(axis=1, how='all').filter(regex='_dt$|time_').columns
-        for var in time_var_list:
-            df[var] = pd.to_datetime(df[var], utc=True)
+        df[time_var_list] = df[time_var_list].apply(lambda x: pd.to_datetime(x))
         return df
 
     # Convert time variables to datetime objects
