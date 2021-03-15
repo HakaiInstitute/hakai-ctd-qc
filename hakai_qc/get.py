@@ -9,6 +9,7 @@ import pkg_resources
 import re
 from hakai_api import Client
 import hakai_qc
+import warnings
 
 
 def hakai_stations():
@@ -196,6 +197,9 @@ def research_profile_netcdf(hakai_id,
                                                                  output='dataframe',
                                                                  filter_variables=False,
                                                                  output_meta=True)
+    if data is None:
+        print(hakai_id + ' no data available')
+        return
     data = data[data['direction_flag'] == 'd']  # Keep downcast only
     # # TODO FOLLOWING SECTION SHOULD BE USED IN THE FUTURE WHEN DATABASE IS GOOD TO GO
     # data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
@@ -204,6 +208,11 @@ def research_profile_netcdf(hakai_id,
     # ####
     cast, url, cast_meta = hakai_qc.get.hakai_ctd_data('hakai_id=' + hakai_id + '&limit=-1',
                                                        endpoint_list['metadata'])
+
+    # Review there's actually any good data from QARTOD
+    if all(data[depth_var + level_1_flag_suffix].isin([3, 4])):
+        warnings.warn('No real good data is associated to ' + hakai_id, RuntimeWarning)
+        return
 
     # Make some data conversion to compatible with ERDDAP NetCDF Format
     def _convert_dt_columns(df):
