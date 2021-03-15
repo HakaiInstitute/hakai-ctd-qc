@@ -47,7 +47,7 @@
   "description":"",
   "long_name": "Sea Water Pressure"
  },
- "rinko_dissolved_oxygen_ml_l":{
+ "rinko_do_ml_l":{
   "standard_name":"volume_fraction_of_oxygen_in_sea_water",
   "units":"mL\/L",
   "description":"",
