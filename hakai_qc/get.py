@@ -132,7 +132,8 @@ def research_profile_netcdf(hakai_id,
                             mandatory_output_variables=('measurement_dt', 'direction_flag', 'cast_comments'),
                             mask_qartod_flag=None,
                             level_1_flag_suffix='_qartod_flag',
-                            level_2_flag_suffix='_flag_description'):
+                            level_2_flag_suffix='_flag_description',
+                            remove_empty_variables=True):
     # Define the general global attributes associated to all hakai profile data and the more specific ones associated
     # with each profile and data submission.
     general_global_attributes = {
@@ -249,13 +250,20 @@ def research_profile_netcdf(hakai_id,
     if extra_variable_attributes:
         variable_attributes.update(extra_variable_attributes)
 
+    # Remove empty variables
+    if remove_empty_variables:
+        vertical_variables = data[vertical_variables].dropna(axis=1, how='all').columns
+        cast_variables = cast[extra_variables.union(profile_variables)].dropna(axis=1, how='all').columns
+    else:
+        cast_variables = extra_variables.union(profile_variables)
+
     # Create Xarray DataArray for each types and merge them together after
     ds_vertical = hakai_qc.transform.dataframe_to_erddap_xarray(
-        data.set_index(coordinate_list)[vertical_variables].dropna(axis=1, how='all'),
+        data.set_index(coordinate_list)[vertical_variables],
         profile_id=profile_id, timeseries_id=timeseries_id, variable_attributes=variable_attributes,
         flag_columns={'_qartod_flag$': ['QARTOD', 'aggregate_quality_flag']})
     ds_profile = hakai_qc.transform.dataframe_to_erddap_xarray(
-        cast.set_index([timeseries_id, profile_id])[extra_variables.union(profile_variables)].dropna(axis=1, how='all'),
+        cast.set_index([timeseries_id, profile_id])[cast_variables],
         profile_id=profile_id, timeseries_id=timeseries_id, variable_attributes=variable_attributes,
         flag_columns={'_qartod_flag$': ['QARTOD', 'aggregate_quality_flag']})
 
