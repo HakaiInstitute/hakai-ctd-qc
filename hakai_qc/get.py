@@ -209,6 +209,11 @@ def research_profile_netcdf(hakai_id,
     cast, url, cast_meta = hakai_qc.get.hakai_ctd_data('hakai_id=' + hakai_id + '&limit=-1',
                                                        endpoint_list['metadata'])
 
+    # Get Station info
+    # TODO We'll get it from the CSV file since I can't retrieve it yet from the Hakai DataBase
+    stations = hakai_qc.get.hakai_stations()
+    cast['longitude_station'], cast['latitude_station'] = stations.loc[cast['station']][['Long_DD', 'Lat_DD']].values[0]
+
     # Review there's actually any good data from QARTOD
     if all(data[depth_var + level_1_flag_suffix].isin([3, 4])):
         warnings.warn('No real good data is associated to ' + hakai_id, RuntimeWarning)
