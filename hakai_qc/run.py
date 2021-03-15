@@ -330,7 +330,19 @@ def update_research_dataset(path_out=r'',
     df_qc = df_qc.loc[df_qc.filter(like='_flag').notna().any(axis=1)].copy()
     df_qc = df_qc.set_index('hakai_id')
 
+    # Review in output directory files already available
+    if not overwrite:
+        existing_files = []
+        for (dirpath, dirnames, filenames) in os.walk(path_out):
+            existing_files.extend(filenames)
+
+        # Review which files already exist and remove them from the list
+        remove_id = df_qc.index.str.replace(r'[\:\.]', '', regex=True).isin(
+            pd.Series(existing_files).str.replace('_Research.*', ''))
+        df_qc = df_qc.loc[~remove_id]
+
     # Generate NetCDFs
+    failed_list = 'failed_files.tmp'
     for hakai_id, row in df_qc.iterrows():
         # Retrieve flag columns that starts with AV, drop trailing _flag
         var_to_save = row.filter(like='_flag').str.startswith('AV').dropna()
@@ -341,7 +353,17 @@ def update_research_dataset(path_out=r'',
             # TODO add a step to identify reviewer and add reviewer review to history
             # TODO add an input to add a creator attribute.
             # TODO should we overwrite already existing files overwritten
-            get.research_profile_netcdf(hakai_id, path_out,
-                                        variable_list=var_to_save.index.tolist(),
-                                        mask_qartod_flag=[2, 3, 4, 9],
-                                        overwrite=overwrite)
+            #  there's an option to overwrite or not now but we may want to add an method to just append new variables
+            # with warnings.catch_warnings():
+            #     warnings.filterwarnings('error')
+            try:
+                get.research_profile_netcdf(hakai_id, path_out,
+                                            variable_list=var_to_save.index.tolist(),
+                                            mask_qartod_flag=[2, 3, 4, 9],
+                                            overwrite=overwrite)
+            except RuntimeWarning:
+                 print('Hakai ID '+hakai_id+' failed')
+                #     with open(os.path.join(path_out, failed_list), 'a') as f:
+                #         f.write(r"%s\n" % hakai_id)
+
+
