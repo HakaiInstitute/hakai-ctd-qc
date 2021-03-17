@@ -3,9 +3,11 @@ import re
 from datetime import datetime as dt
 import os
 
-
+hakai_qc.get.research_profile_netcdf('018066_2017-06-13T22:41:14.167Z', r'D:\temp',
+                                     overwrite=True,
+                                     remove_empty_variables=False)
 hakai_qc.run.update_research_dataset(
-    r'D:\temp', overwrite=False)
+    r'D:\temp', overwrite=True)
 # hakai_id = '080217_2017-01-08T18:03:05.167Z'
 # path_out = r'C:\Users\jessy\test'
 # creator_name = 'Jessy Barrette'
