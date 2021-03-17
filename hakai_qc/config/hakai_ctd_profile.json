@@ -117,8 +117,8 @@
   "par": {
       "qartod": {
           "gross_range_test": {
-              "fail_span": [-1, 100000],
-              "suspect_span": [-0.5, 50000]
+              "fail_span": [-2, 100000],
+              "suspect_span": [-1, 50000]
           },
           "attenuated_signal_test": {
               "suspect_threshold": 0.05,
