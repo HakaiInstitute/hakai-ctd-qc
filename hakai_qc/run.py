@@ -7,6 +7,7 @@ from hakai_qc import hakai_tests, get, utils
 import warnings
 import os
 import json
+import copy
 
 
 def tests_on_profiles(df,
@@ -50,7 +51,7 @@ def tests_on_profiles(df,
     # Run the tests for one station at the time and ignore rows that have pressure/depth flagged
     for station_name, station_df in df.dropna(axis=0, subset=['depth', 'pressure']).groupby(by=timeseries_id):
         print('QAQC ' + str(station_name))
-        site_qc_config = qc_config
+        site_qc_config = copy.deepcopy(qc_config)
 
         # Review Site Lat/long and depth range if station is in Hakai List
         # Set Target Location for Range from Station test
@@ -86,9 +87,16 @@ def tests_on_profiles(df,
                     [0, max_pressure * maximum_suspect_depth_ratio]
                 site_qc_config['pressure']['qartod']['gross_range_test']['fail_span'] = \
                     [0, max_pressure * maximum_fail_depth_ratio]
+            test_range_from_target = True
+        else:
+            test_range_from_target = False
 
         # Run the rest of the tests one profile at the time
-        for key, config in qc_config.items():
+        for key, config in site_qc_config.items():
+            # Drop Target test if not available
+            if key == 'position' and 'qartod' in config and not test_range_from_target:
+                config['qartod']['location_test'].pop('target_range', None)
+
             # Print to follow what's happening
             print(string_indent + key)
             for test_type in config.keys():
