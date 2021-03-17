@@ -212,7 +212,10 @@ def research_profile_netcdf(hakai_id,
     # Get Station info
     # TODO We'll get it from the CSV file since I can't retrieve it yet from the Hakai DataBase
     stations = hakai_qc.get.hakai_stations()
-    cast['longitude_station'], cast['latitude_station'] = stations.loc[cast['station']][['Long_DD', 'Lat_DD']].values[0]
+    if cast['station'][0] in stations.index:
+        cast['longitude_station'], cast['latitude_station'] = stations.loc[cast['station']][['Long_DD', 'Lat_DD']].values[0]
+    else:
+        cast['longitude_station'], cast['latitude_station'] = cast[['longitude', 'latitude']].values[0]
 
     # Review there's actually any good data from QARTOD
     if all(data[depth_var + level_1_flag_suffix].isin([3, 4])):
