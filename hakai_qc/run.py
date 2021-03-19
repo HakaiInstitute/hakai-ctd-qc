@@ -66,21 +66,20 @@ def tests_on_profiles(df,
             #         utils.get_bbox_from_target_range(
             #             station_info, site_qc_config['position']['qartod']['location_test']['target_range'])
 
-            if station_info['Lat_DD'] and station_info['Long_DD'] and \
+            if station_info['latitude'] and station_info['longitude'] and \
                     "target_range" in site_qc_config['position']['qartod']['location_test'].keys():
-                site_qc_config['position']['qartod']['location_test']['target_lat'] = [station_info['Lat_DD']]
-                site_qc_config['position']['qartod']['location_test']['target_lon'] = [station_info['Long_DD']]
+                site_qc_config['position']['qartod']['location_test']['target_lat'] = [station_info['latitude']]
+                site_qc_config['position']['qartod']['location_test']['target_lon'] = [station_info['longitude']]
 
             # Set Maximum Acceptable Depth and Pressure Based on Site Name
-            if station_info['Bot_depth'] or station_info['Bot_depth_GIS']:
-                max_depth = max([station_info['Bot_depth'], station_info['Bot_depth_GIS']])
-                max_pressure = gsw.p_from_z(-max_depth, station_info['Lat_DD'])
+            if station_info['depth']:
+                max_pressure = gsw.p_from_z(- station_info['depth'], station_info['latitude'])
 
                 # Update Depth Config
                 site_qc_config['depth']['qartod']['gross_range_test']['suspect_span'] = \
-                    [0, max_depth * maximum_suspect_depth_ratio]
+                    [0, station_info['depth'] * maximum_suspect_depth_ratio]
                 site_qc_config['depth']['qartod']['gross_range_test']['fail_span'] = \
-                    [0, max_depth * maximum_fail_depth_ratio]
+                    [0, station_info['depth'] * maximum_fail_depth_ratio]
 
                 # Update Pressure Config
                 site_qc_config['pressure']['qartod']['gross_range_test']['suspect_span'] = \
@@ -89,6 +88,7 @@ def tests_on_profiles(df,
                     [0, max_pressure * maximum_fail_depth_ratio]
             test_range_from_target = True
         else:
+            print('Unkown Site: ' + station_name)
             test_range_from_target = False
 
         # Run the rest of the tests one profile at the time
@@ -263,8 +263,8 @@ def update_hakai_ctd_profile_data(hakai_id=None,
     for var in initial_variable_list:
         output_variable_list.append(var)
         if var.endswith('_flag'):
-            output_variable_list.append(re.sub('_flag$','',var) + '_qartod_flag')
-            output_variable_list.append(re.sub('_flag$','',var) + '_flag_description')
+            output_variable_list.append(re.sub('_flag$', '', var) + '_qartod_flag')
+            output_variable_list.append(re.sub('_flag$', '', var) + '_flag_description')
     ####
 
     # Isolate the Hakai Flags columns and output to a json string

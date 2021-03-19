@@ -10,23 +10,46 @@ import re
 from hakai_api import Client
 import hakai_qc
 import warnings
+from shapely import wkb
 
 
-def hakai_stations():
+def hakai_stations(source='api'):
     # Load Hakai Station List
-    station_list_file = "HakaiStationLocations.csv"
-    station_list_path = pkg_resources.resource_filename(__name__, station_list_file)
-    hakai_stations_list = pd.read_csv(station_list_path, sep=';', index_col='Station')
+    if source == 'csv':
+        station_list_file = "HakaiStationLocations.csv"
+        station_list_path = pkg_resources.resource_filename(__name__, station_list_file)
+        hakai_stations_list = pd.read_csv(station_list_path, sep=';', index_col='Station')
 
-    # Index per station name
-    hakai_stations_list.index = hakai_stations_list.index.str.upper()  # Force Site Names to be uppercase
+        # Index per station name
+        hakai_stations_list.index = hakai_stations_list.index.str.upper()  # Force Site Names to be uppercase
 
-    # Convert Depth columns to float values
-    hakai_stations_list['Bot_depth'] = pd.to_numeric(hakai_stations_list['Bot_depth'],
-                                                     errors='coerce').astype(float)
-    hakai_stations_list['Bot_depth_GIS'] = pd.to_numeric(hakai_stations_list['Bot_depth_GIS'],
+        # Convert Depth columns to float values
+        hakai_stations_list['Bot_depth'] = pd.to_numeric(hakai_stations_list['Bot_depth'],
                                                          errors='coerce').astype(float)
+        hakai_stations_list['Bot_depth_GIS'] = pd.to_numeric(hakai_stations_list['Bot_depth_GIS'],
+                                                             errors='coerce').astype(float)
+        hakai_stations_list = hakai_stations_list.rename({'Lat_DD':'latitude', 'Lon_DD':'longitude'})
+        hakai_stations_list['depth'] = hakai_stations_list['Bot_depth'].fillna(hakai_stations_list['Bot_depth_GIS'])
+    elif source == 'api':
+        def convert_wkb(wkb_input):
+            return wkb.loads(wkb_input, hex=True) if wkb_input else None
 
+        def get_lat(wkt_input):
+            return wkt_input.y if wkt_input else None
+
+        def get_long(wkt_input):
+            return wkt_input.x if wkt_input else None
+        # Get Hakai Station list
+        hakai_stations_list, url, station_type = hakai_qc.get.hakai_ctd_data('limit=-1', endpoint='eims/site')
+        # Convert retrieve lat/long from WKB column
+        hakai_stations_list['wkt'] = hakai_stations_list['geom'].apply(convert_wkb)
+        hakai_stations_list['latitude'] = hakai_stations_list['wkt'].apply(get_lat)
+        hakai_stations_list['longitude'] = hakai_stations_list['wkt'].apply(get_long)
+        hakai_stations_list['depth'] = None
+        hakai_stations_list = hakai_stations_list.set_index('name')
+
+        # Ignore the stations with no lat/long
+        hakai_stations_list.dropna(how='all', subset=['latitude', 'longitude'], inplace=True)
     return hakai_stations_list
 
 
@@ -213,7 +236,8 @@ def research_profile_netcdf(hakai_id,
     # TODO We'll get it from the CSV file since I can't retrieve it yet from the Hakai DataBase
     stations = hakai_qc.get.hakai_stations()
     if cast['station'][0] in stations.index:
-        cast['longitude_station'], cast['latitude_station'] = stations.loc[cast['station']][['Long_DD', 'Lat_DD']].values[0]
+        cast['longitude_station'], cast['latitude_station'] = stations.loc[cast['station']][['longitude',
+                                                                                             'latitude']].values[0]
     else:
         cast['longitude_station'], cast['latitude_station'] = cast[['longitude', 'latitude']].values[0]
 
