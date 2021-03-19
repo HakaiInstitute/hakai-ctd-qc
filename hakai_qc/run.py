@@ -304,7 +304,7 @@ def apply_qartod_flag(apply_to, reference, df_to_convert=None):
 
 def get_hakai_flag_columns(df, var,
                            extra_flag_list='',
-                           flag_values_to_consider=[2, 3, 4, 9],
+                           flag_values_to_consider=[3, 4],
                            level_1_flag_suffix='_qartod_flag',
                            level_2_flag_suffix='_flag_description'):
     # Retrieve each flags column associated to a variable
@@ -325,6 +325,10 @@ def get_hakai_flag_columns(df, var,
 
     # Aggregate all flag columns together
     df[var + level_1_flag_suffix] = qartod_compare(var_flag_results.transpose().to_numpy())
+
+    # Make sure that empty records are flagged as MISSING
+    if var in df:
+        df.loc[df[var].isna(), var + level_1_flag_suffix] = QartodFlags.MISSING
     return df
 
 
