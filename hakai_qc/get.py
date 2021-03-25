@@ -118,8 +118,8 @@ def config_as_dataframe(qc_config):
 
 def hakai_api_selected_variables():
     variables_to_get = ['ctd_file_pk', 'ctd_cast_pk', 'hakai_id', 'ctd_data_pk', 'filename',
-                        'device_model', 'device_sn',
-                        'work_area', 'cruise', 'station',
+                        'device_model', 'device_sn', 'vessel', 'operators', 'cast_comments',
+                        'work_area', 'cruise', 'station', 'device_firmware',
                         'cast_number', 'latitude', 'longitude', 'start_dt',
                         'bottom_dt', 'end_dt', 'duration', 'start_depth', 'bottom_depth', 'direction_flag',
                         'measurement_dt', 'descent_rate', 'conductivity', 'conductivity_flag',
