@@ -134,10 +134,6 @@
               "fail_span": [0, 45],
               "suspect_span": [2, 42]
           },
-          "spike_test": {
-              "suspect_threshold": 0.5,
-              "fail_threshold": 1
-          },
           "rate_of_change_test": {
               "threshold": 5
           }
