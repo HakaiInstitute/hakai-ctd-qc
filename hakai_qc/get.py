@@ -72,6 +72,11 @@ def hakai_ctd_data(filter_url,
     url = '%s/%s?%s' % (client.api_root, endpoint, filter_url)
     response = client.get(url)
 
+    # If return is 502 (no data) return None
+    if response.status_code == 502:
+        warnings.warn('FAILED TO DOWNLOAD: LIKELY TOO MUCH DATA', RuntimeWarning)
+        return None, url, None
+
     # Sort the different possible inputs
     if output_format == 'dataframe':
         output = pd.DataFrame(response.json())
