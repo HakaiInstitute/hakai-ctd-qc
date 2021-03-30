@@ -161,7 +161,8 @@
   "sigma0": {
       "qartod": {
           "density_inversion_test": {
-              "fail_threshold": -0.03
+              "fail_threshold": -0.03,
+              "suspect_threshold": -0.005
           }
       }
   },
