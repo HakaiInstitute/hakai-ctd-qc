@@ -1,5 +1,5 @@
 # hakai-profile-qaqc
-hakai-profile-qaqc is the main package use to handle the QAQCing of the Hakai Oceanography CTD Dataset. Please refer to the [test description manual](tests_description.md) for a full description of the different tests applied within this package.
+hakai-profile-qaqc is the main package use to handle the QAQCing of the CTD Datasets maintained by the Hakai Institute. Please refer to the [test description manual](tests_description.md) for a full description of the different tests applied within this package. Examples of tes
 
 ## Installation
 Run the following command in a command line
