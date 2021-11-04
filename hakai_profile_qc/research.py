@@ -11,8 +11,10 @@ from hakai_api import Client
 import warnings
 import argparse
 
-import hakai_profile_qc.get as get
-from hakai_profile_qc.review import run
+import hakai_profile_qc.get
+import hakai_profile_qc.transform
+import hakai_profile_qc.review
+
 
 client = Client()  # Follow stdout prompts to get an API token
 

@@ -16,6 +16,7 @@ import json
 from tqdm import tqdm
 
 tqdm.pandas()
+config_path = os.path.join(os.path.dirname(__file__), "config")
 
 
 def run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
@@ -44,7 +45,8 @@ def run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="l
 def tests_on_profiles(
     df,
     hakai_stations,
-    qc_config,
+    qartod_config,
+    hakai_tests_config=None,
     profile_id="hakai_id",
     direction_flag="direction_flag",
     tinp="measurement_dt",
@@ -58,16 +60,9 @@ def tests_on_profiles(
     # Regroup profiles by profile_id and direction and sort them along zinp
     df = df.sort_values(by=[profile_id, direction_flag, zinp])
 
-    # Retrieve hakai tests parameters if provided in the config file
-    if "hakai_tests" in qc_config:
-        hakai_tests_config = qc_config.pop("hakai_tests")
-        hakai_tests_config = hakai_tests_config.pop("hakai")
-    else:
-        hakai_tests_config = {}
-
     # Retrieve tested variables list
     tested_variable_list = []
-    for context in qc_config["contexts"]:
+    for context in qartod_config["contexts"]:
         for stream, att in context["streams"].items():
             if stream not in tested_variable_list:
                 tested_variable_list += [stream]
@@ -87,7 +82,7 @@ def tests_on_profiles(
     tqdm.pandas(desc=f"Apply QARTOD Tests to individual {groupby}", unit="profile")
     df = df.groupby(groupby, as_index=False).progress_apply(
         lambda x: run_ioosqc_on_dataframe(
-            x, qc_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
+            x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
         ),
     )
     df = df.reset_index(drop=True)
@@ -183,7 +178,8 @@ def run(
     hakai_id=None,
     station=None,
     filter_variables=True,
-    qc_config=None,
+    qartod_config=None,
+    hakai_tests_config=None,
     drop_single_test=True,
 ):
     """
@@ -216,18 +212,29 @@ def run(
     df = utils.derived_ocean_variables(df)
 
     # Load default test parameters used right now!=
-    if qc_config == None:
-        print("Load Default Configuration")
+    if qartod_config is None:
+        print("Load Default QARTOD Configuration")
         with open(
-            os.path.join(os.path.dirname(__file__), "config", "hakai_ctd_profile.json")
+            os.path.join(config_path, "hakai_ctd_profile_qartod_test_config.json")
         ) as f:
-            qc_config = json.loads(f.read())
+            qartod_config = json.loads(f.read())
+    if hakai_tests_config is None:
+        print("Load Default Hakai Tests Configuration")
+        with open(
+            os.path.join(config_path, "hakai_ctd_profile_tests_config.json")
+        ) as f:
+            hakai_tests_config = json.loads(f.read())
 
     # Get Reference stations ( this should be changed to get it form the database or added to the data table
     hakai_stations = get.hakai_stations()
 
     # Run all of the tests on each available profile
-    df = tests_on_profiles(df, hakai_stations, qc_config)
+    df = tests_on_profiles(
+        df,
+        hakai_stations,
+        qartod_config=qartod_config,
+        hakai_tests_config=hakai_tests_config,
+    )
 
     # Make sure to include Level 1 and Level 2 flags
     # TODO TEMPORARY
