@@ -8,7 +8,6 @@ import os
 
 import re
 from hakai_api import Client
-import hakai_profile_qc
 import warnings
 import argparse
 

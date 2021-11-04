@@ -1,16 +1,10 @@
 import pandas as pd
-import numpy as np
-import xarray as xr
 from datetime import datetime as dt
-import json
 
-import os
 import pkg_resources
-import re
+
 from hakai_api import Client
 import hakai_profile_qc
-import warnings
-from shapely import wkb
 
 client = Client()  # Follow stdout prompts to get an API token
 
