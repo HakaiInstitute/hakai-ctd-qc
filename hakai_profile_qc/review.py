@@ -174,7 +174,7 @@ def tests_on_profiles(
     return df
 
 
-def run(
+def run_tests(
     hakai_id=None,
     station=None,
     filter_variables=True,
@@ -326,4 +326,4 @@ if __name__ == "__main__":
         hakai_ids = None
 
     # Run Query
-    df = run(station=stations, hakai_id=hakai_ids)
+    df = run_tests(station=stations, hakai_id=hakai_ids)

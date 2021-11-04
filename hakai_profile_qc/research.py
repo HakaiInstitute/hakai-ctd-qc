@@ -72,12 +72,12 @@ def generate_netcdf(
 
     # Retrieve data to be save
     # TODO TEMPORARY SECTION TO DEAL WITH NO QARTOD FLAGS ON THE DATA BASE
-    data = run(hakai_id=[hakai_id], filter_variables=False)
+    data = hakai_profile_qc.review.run_tests(hakai_id=[hakai_id], filter_variables=False)
     if data is None:
         print(hakai_id + " no data available")
         return
     data = data[data["direction_flag"] == "d"]  # Keep downcast only
-    data_meta = get.table_metadata_info("hakai_id=" + hakai_id)
+    data_meta = hakai_profile_qc.get.table_metadata_info("hakai_id=" + hakai_id)
     # # TODO FOLLOWING SECTION SHOULD BE USED IN THE FUTURE WHEN DATABASE IS GOOD TO GO
     # data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
     #                                            'hakai_id=' + hakai_id + '&direction_flag=d&limit=-1',
@@ -249,7 +249,9 @@ def update_research_dataset_with_ctd_log(
     Method use to combined the manually QCed results from the ctd_qc table on the Hakai Database and the automatically generated flags.
     """
     ctd_qc_log_endpoint = "eims/views/output/ctd_qc"
-    df_qc = get.hakai_ctd_data("limit=-1", endpoint=ctd_qc_log_endpoint)
+    df_qc = hakai_profile_qc.get.hakai_ctd_data(
+        "limit=-1", endpoint=ctd_qc_log_endpoint
+    )
 
     # Filter QC log by keeping only the lines that have inputs
     df_qc = df_qc.loc[df_qc.filter(like="_flag").notna().any(axis=1)].copy()
