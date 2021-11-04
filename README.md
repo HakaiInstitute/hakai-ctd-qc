@@ -10,7 +10,7 @@ pip install git+git://github.com/HakaiInstitute/hakai-profile-qaqc.git
 
 ## How To
 
-To run test on an individual profile. Run the following command for comma separated list of hakai IDs:
+To run test on an individual profile. Run the following command for a comma separated list of hakai IDs:
 ```
 python3 -m hakai_profile_qc.review -hakai_id 080217_2017-01-08T18:03:05.167Z,080217_2017-01-26T16:56:39.000Z
 ```
@@ -19,6 +19,10 @@ Run the following command for a specific station:
 ```
 python3 -m hakai_profile_qc.review -station QU39
 ```
+You can also use the following Jupyter Notebooks:
+- https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/notebook/review-hakai-tests.ipynb
+- https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/notebook/generate-research-ncfiles.ipynb
+
 ## Tests applied
 Series of tests applied to the Hakai CTD profile data based on the QARTOD tests and other Hakai specific ones.  
 A full list of the different tests applied now is available in the 
