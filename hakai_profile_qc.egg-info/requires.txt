@@ -1,0 +1,15 @@
+folium
+future
+gsw
+hakai_api
+hakai_qc
+ioos_qc
+ipywidgets
+matplotlib
+numpy
+pandas
+plotly
+pyproj
+requests
+seaborn
+shapely

@@ -1,0 +1,13 @@
+MANIFEST.in
+README.md
+setup.py
+hakai_qc.egg-info/PKG-INFO
+hakai_qc.egg-info/SOURCES.txt
+hakai_qc.egg-info/dependency_links.txt
+hakai_qc.egg-info/not-zip-safe
+hakai_qc.egg-info/requires.txt
+hakai_qc.egg-info/top_level.txt
+test/test_hakai_database_update_tool.py
+test/test_research_submission.py
+test/test_with_hakai_QU5.py
+test/test_with_hakai_qu39.py

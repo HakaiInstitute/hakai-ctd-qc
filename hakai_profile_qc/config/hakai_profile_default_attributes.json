@@ -1,0 +1,90 @@
+{
+    "GLOBAL": {
+        "institution": "Hakai Institute",
+        "project": "Hakai Oceanography",
+        "summary": "text describing that specific data",
+        "comment": "",
+        "infoUrl": "hakai.org",
+        "keywords": "conductivity,temperature,salinity,depth,pressure,dissolved oxygen",
+        "acknowledgment": "Hakai Field Technicians, research and IT groups",
+        "naming_authority": "Hakai Institute",
+        "standard_name_vocabulary": "CF 1.6",
+        "license": "unknown",
+        "geospatial_lat_units": "degrees_north",
+        "geospatial_lon_units": "degrees_east"
+    },
+    "depth": {
+        "standard_name": "depth",
+        "units": "m",
+        "description": "",
+        "long_name": "Depth"
+    },
+    "conductivity": {
+        "standard_name": "sea_water_electrical_conductivity",
+        "units": "mS\/cm",
+        "description": "",
+        "long_name": "Sea Water Conductivity"
+    },
+    "c_star_at": {
+        "standard_name": "volume_beam_attenuation_coefficient_of_radiative_flux_in_sea_water_corrected_for_pure_water_attenuance",
+        "units": "1\/m",
+        "description": "",
+        "long_name": "Beam Attenuation"
+    },
+    "descent_rate": {
+        "standard_name": "platform_speed_wrt_sea_water",
+        "units": "m\/s",
+        "description": "",
+        "long_name": "Profiling Speed"
+    },
+    "dissolved_oxygen_ml_l": {
+        "standard_name": "volume_fraction_of_oxygen_in_sea_water",
+        "units": "mL\/L",
+        "description": "",
+        "long_name": "Dissolved Oxygen Concentration"
+    },
+    "flc": {
+        "standard_name": "mass_concentration_of_chlorophyll_in_sea_water",
+        "units": "ug\/L",
+        "description": "",
+        "long_name": "Chlorophyll-a Concentration"
+    },
+    "par": {
+        "standard_name": "downwelling_photosynthetic_photon_spherical_irradiance_in_sea_water",
+        "units": "umol m-2 s-1",
+        "description": "",
+        "long_name": "Photosynthetically Active Radiation"
+    },
+    "pressure": {
+        "standard_name": "sea_water_pressure",
+        "units": "dBar",
+        "description": "",
+        "long_name": "Sea Water Pressure"
+    },
+    "rinko_do_ml_l": {
+        "standard_name": "volume_fraction_of_oxygen_in_sea_water",
+        "units": "mL\/L",
+        "description": "",
+        "long_name": "Secondary Dissolved Oxygen Concentration"
+    },
+    "salinity": {
+        "standard_name": "sea_water_practical_salinity",
+        "units": "PSU",
+        "scale": "PSS-78",
+        "description": "",
+        "long_name": "Practical Salinity"
+    },
+    "temperature": {
+        "standard_name": "sea_water_temperature",
+        "units": "deg C",
+        "scale": "ITS-90",
+        "description": "",
+        "long_name": "Sea Water Temperature"
+    },
+    "turbidity": {
+        "standard_name": "sea_water_turbidity",
+        "units": "FTU",
+        "description": "",
+        "long_name": "Turbidity"
+    }
+}
