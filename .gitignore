@@ -2,5 +2,5 @@
 .idea
 .ipynb_checkpoints
 *.egg-info
-__pycache__
+*__pycache__/
 hakai_profile_qc/__pycache__
