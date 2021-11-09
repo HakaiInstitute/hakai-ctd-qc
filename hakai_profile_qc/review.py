@@ -242,8 +242,8 @@ def run_tests(
     for var in initial_variable_list:
         output_variable_list.append(var)
         if var.endswith("_flag"):
-            output_variable_list.append(re.sub("_flag$", "", var) + "_qartod_flag")
-            output_variable_list.append(re.sub("_flag$", "", var) + "_flag_description")
+            output_variable_list.append(re.sub("_flag$", "", var) + "_flag_level_1")
+            output_variable_list.append(re.sub("_flag$", "", var) + "_flag")
 
     # Add position qartod_location_test
     position_flag = df.filter(like="location_test").columns.tolist()
@@ -263,8 +263,8 @@ def get_hakai_flag_columns(
     var,
     extra_flag_list="",
     flag_values_to_consider=[3, 4],
-    level_1_flag_suffix="_qartod_flag",
-    level_2_flag_suffix="_flag_description",
+    level_1_flag_suffix="_flag_level_1",
+    level_2_flag_suffix="_flag",
 ):
     """
     Generate the different Level1 and Level2 flag columns by grouping the different tests results.
