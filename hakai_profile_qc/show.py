@@ -13,21 +13,16 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import seaborn as sns
 
-qartod_color = {
-    1: "green",
-    2: "yellow",
-    3: "orange",
+
+# Palette color for flag
+qartod_color_mapping = {
+    1: "seagreen",
+    2: "gray",
+    3: "darkorange",
     4: "red",
     9: "purple",
-    "1": "green",
-    "2": "yellow",
-    "3": "orange",
-    "4": "red",
-    "9": "purple",
 }
-# Palette color for flag
-color_dict = {1: "seagreen", 2: "gray", 3: "darkorange", 4: "red", 9: "purple"}
-dir = {"d": "downcast", "u": "upcast"}
+direction_flag_mapping = {"d": "downcast", "u": "upcast", "s": "static"}
 
 
 def test_results_bar_plot(
@@ -180,7 +175,7 @@ def interactive_profile_viewer(df, variable_list, test_list, var_to_plot=None):
         kk = 1
         for var in ocean_variables:
             for direction_flag in cast_direction:
-                for flag, color in qartod_color.items():
+                for flag, color in qartod_color_mapping.items():
                     df_flag = df_temp[
                         (df_temp[var + "_qartod_flag"] == flag)
                         & (df_temp["direction_flag"] == direction_flag)
@@ -201,7 +196,7 @@ def interactive_profile_viewer(df, variable_list, test_list, var_to_plot=None):
                                 text=df_flag[var + "_flag_description"],
                                 name=var
                                 + " "
-                                + dir[direction_flag]
+                                + direction_flag_mapping[direction_flag]
                                 + " FLAG:"
                                 + str(flag),
                             ),
@@ -341,7 +336,7 @@ def flag_result_plot(
         mlines.Line2D(
             [],
             [],
-            color=color_dict[1],
+            color=qartod_color_mapping[1],
             marker="s",
             markersize=10,
             linestyle="None",
@@ -350,7 +345,7 @@ def flag_result_plot(
         mlines.Line2D(
             [],
             [],
-            color=color_dict[3],
+            color=qartod_color_mapping[3],
             marker="s",
             markersize=10,
             linestyle="None",
@@ -359,7 +354,7 @@ def flag_result_plot(
         mlines.Line2D(
             [],
             [],
-            color=color_dict[4],
+            color=qartod_color_mapping[4],
             marker="s",
             markersize=10,
             linestyle="None",
@@ -403,7 +398,7 @@ def flag_result_plot(
                 x=variable,
                 y=y_axis_var,
                 hue=variable + flag_type,
-                palette=color_dict,
+                palette=qartod_color_mapping,
                 style="direction_flag",
                 linewidth=0,
                 ax=axs[kk],
