@@ -195,7 +195,7 @@ def run_tests(
 
     # Filter variables
     if filter_variables:
-        filter_by += ["fields=" + ",".join(get.hakai_api_selected_variables)]
+        filter_by += ["fields=" + ",".join(get.hakai_ctd_data_table_selected_variables)]
 
     filter_by += ["(status!=MISCAST|status==null)", "limit=-1"]
     df = get.hakai_ctd_data("&".join(filter_by))

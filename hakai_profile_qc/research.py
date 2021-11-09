@@ -1,3 +1,7 @@
+"""
+hakai_profile_qc.research regroup all the different tools used to generate the NetCDF files associated with the Hakai Research CTD dataset found on ERDDAP.
+"""
+
 import pandas as pd
 import numpy as np
 import xarray as xr

@@ -1,3 +1,6 @@
+"""
+Hakai_profile_qc.get regroup all the different tools used to retrieve hakai specific data and information through the hakai-api.
+"""
 import pandas as pd
 from datetime import datetime as dt
 
@@ -69,8 +72,6 @@ def hakai_ctd_data(
 
 def table_metadata_info(filter_url, endpoint="ctd/views/file/cast/data"):
     # Get Hakai Data
-    # Get Data from Hakai API
-    client = Client()  # Follow stdout prompts to get an API token
 
     # Make a data request for sampling stations
     url = "%s/%s?%s" % (client.api_root, endpoint, filter_url)
@@ -81,7 +82,7 @@ def table_metadata_info(filter_url, endpoint="ctd/views/file/cast/data"):
     return pd.DataFrame(response.json())
 
 
-hakai_api_selected_variables = [
+hakai_ctd_data_table_selected_variables = [
     "ctd_file_pk",
     "ctd_cast_pk",
     "hakai_id",
