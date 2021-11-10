@@ -279,15 +279,15 @@ def get_hakai_flag_columns(
         """
         Regroup together tests results in "flag_value_to_consider" as a json string to be outputed as a level2 flag
         """
-        level2 = {
-            item: value
+        level2 = [
+            f"{value}: {item}"
             for item, value in row.items()
             if value in flag_values_to_consider
-        }
+        ]
         if level2 == {}:
             return ""
         else:
-            return str(level2)
+            return "; ".join(level2)
 
     # Retrieve each flags column associated to a variable
     var_flag_results = df.filter(regex=var + "_" + extra_flag_list)
