@@ -61,7 +61,7 @@ def hakai_ctd_data(filter_url, endpoint="ctd/views/file/cast/data", api_root=Non
     """
     if api_root is None:
         api_root = client.api_root
-        
+
     # Make a data request for sampling stations
     url = "%s/%s?%s" % (api_root, endpoint, filter_url)
     print(f"Retrieve data from: {url}")
@@ -100,6 +100,9 @@ hakai_ctd_data_table_selected_variables = [
     "cast_number",
     "latitude",
     "longitude",
+    "station_latitude",
+    "station_longitude",
+    "distance_from_station",
     "start_dt",
     "bottom_dt",
     "end_dt",
