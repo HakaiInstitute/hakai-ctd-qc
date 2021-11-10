@@ -2,32 +2,6 @@
     "contexts": [
         {
             "streams": {
-                "distance_from_station": {
-                    "qartod": {
-                        "gross_range_test": {
-                            "suspect_span": [
-                                0,
-                                1000
-                            ],
-                            "fail_span": [
-                                0,
-                                3000
-                            ]
-                        }
-                    }
-                },
-                "latitude": {
-                    "qartod": {
-                        "location_test": {
-                            "bbox": [
-                                -180,
-                                -90,
-                                180,
-                                90
-                            ]
-                        }
-                    }
-                },
                 "c_star_at": {
                     "qartod": {
                         "attenuated_signal_test": {

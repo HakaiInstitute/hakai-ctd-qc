@@ -112,11 +112,6 @@ def tests_on_profiles(
                 ],
             )
 
-    # Add a Missing Flag at Position when latitude/longitude are NaN. For some reasons, QARTOD is missing that.
-    print("Flag Missing Position Records")
-    df.loc[df["latitude"].isna(), "position_unknown_location"] = QartodFlags.UNKNOWN
-    df.loc[df["longitude"].isna(), "position_unknown_location"] = QartodFlags.UNKNOWN
-
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     if "bottom_hit_detection" in hakai_tests_config:
@@ -262,13 +257,6 @@ def run_tests(
             output_variable_list.append(re.sub("_flag$", "", var) + "_flag_level_1")
             output_variable_list.append(re.sub("_flag$", "", var) + "_flag")
 
-    # Add position qartod_location_test
-    position_flag = df.filter(like="location_test").columns.tolist()
-    if position_flag:
-        df.rename(
-            columns={position_flag[0]: "position_qartod_location_test"}, inplace=True
-        )
-        output_variable_list += ["position_qartod_location_test"]
     if drop_single_test:
         return df.filter(items=output_variable_list)
     else:
