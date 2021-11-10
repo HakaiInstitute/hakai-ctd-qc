@@ -2,6 +2,14 @@
     "contexts": [
         {
             "streams": {
+                "distance_from_station": {
+                    "qartod": {
+                        "gross_range_test": {
+                            "suspect_threshold": 1000,
+                            "fail_threshold": 3000
+                        }
+                    }
+                },
                 "latitude": {
                     "qartod": {
                         "location_test": {
