@@ -6,6 +6,19 @@ import numpy as np
 from ioos_qc.qartod import QartodFlags
 import warnings
 import pkg_resources
+import os
+
+# Import Hakai Station List
+
+hakai_stations = pd.read_csv(
+    os.path.join(os.path.dirname(__file__), "HakaiStationLocations.csv"),
+    sep=";",
+    na_values=[" ", "?"],
+)
+hakai_stations["station_depth"] = hakai_stations["Bot_depth"].fillna(
+    hakai_stations["Bot_depth_GIS"]
+)
+hakai_stations["station"] = hakai_stations["Station"]
 
 
 def do_cap_test(
@@ -156,7 +169,7 @@ def do_cap_test(
 
 def bottom_hit_detection(
     df,
-    variable,
+    variables,
     profile_id="hakai_id",
     depth_variable="depth",
     profile_direction_variable="direction_flag",
@@ -174,7 +187,7 @@ def bottom_hit_detection(
     bottom_hit_id = (
         df.sort_values(by=[profile_id, profile_direction_variable, depth_variable])
         .groupby(by=[profile_id, profile_direction_variable])
-        .last()[variable]
+        .last()[variables]
         .isin([QartodFlags.SUSPECT, QartodFlags.FAIL])
     )
 
@@ -187,7 +200,7 @@ def bottom_hit_detection(
             df.loc[
                 df_bottom_hit[
                     df_bottom_hit[depth_variable]
-                    > df_bottom_hit[df_bottom_hit[variable] == 1][depth_variable].max()
+                    > df_bottom_hit[df_bottom_hit[variables] == 1][depth_variable].max()
                 ].index,
                 flag_column_name,
             ] = QartodFlags.FAIL
@@ -352,4 +365,73 @@ def grey_list(
                 df.loc[df_to_flag.index, column] = df.loc[
                     df_to_flag.index, column
                 ].apply(_append_to_level2_flag)
+    return df
+
+
+def hakai_station_maximum_depth_test(
+    df,
+    variable="depth",
+    flag_column="depth_in_station_range_test",
+    suspect_exceedance_percentage=None,
+    fail_exceedance_percentage=None,
+    suspect_exceedance_range=None,
+    fail_exceedance_range=None,
+):
+    """
+    This test review each profile maximum depth and compare it to the station depth. The whole profile
+    gets flagged as suspect/fail if the maximum depth exceed a percentage or range above of the station depth.
+    """
+    # Get Maximum Depth per profile
+    df_max_depth = (
+        df.groupby(["station", "hakai_id"])[variable]
+        .max()
+        .max(axis="columns")
+        .rename("max_depth")
+        .to_frame()
+    )
+
+    # Join Maximum Depth With station information
+    df_max_depth = df_max_depth.merge(
+        hakai_stations[["station", "station_depth"]],
+        how="left",
+        on="station",
+    )
+
+    # Start with Flag GOOD
+    df_max_depth[flag_column] = QartodFlags.GOOD
+
+    # If station is depth is unknown flag unkown
+    df_max_depth.loc[
+        df_max_depth["station_depth"].isnull(), flag_column
+    ] = QartodFlags.UNKNOWN
+
+    # SUSPECT Flag
+    df_max_depth.loc[
+        (
+            df_max_depth["max_depth"]
+            > df_max_depth["station_depth"] * suspect_exceedance_percentage
+        )
+        | (
+            df_max_depth["max_depth"]
+            > df_max_depth["station_depth"] + suspect_exceedance_range
+        ),
+        flag_column,
+    ] = QartodFlags.SUSPECT
+
+    # Fail Flag
+    df_max_depth.loc[
+        (
+            df_max_depth["max_depth"]
+            > df_max_depth["station_depth"] * fail_exceedance_percentage
+        )
+        | (
+            df_max_depth["max_depth"]
+            > df_max_depth["station_depth"] + fail_exceedance_range
+        ),
+        flag_column,
+    ] = QartodFlags.FAIL
+
+    # Distribute Resulting flag to the whole column
+    df = df.merge(df_max_depth.reset_index()[["station", flag_column]], on="station")
+
     return df

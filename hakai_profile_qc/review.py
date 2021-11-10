@@ -44,7 +44,6 @@ def run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="l
 
 def tests_on_profiles(
     df,
-    hakai_stations,
     qartod_config,
     hakai_tests_config=None,
     profile_id="hakai_id",
@@ -124,7 +123,7 @@ def tests_on_profiles(
         print("Flag Bottom Hit Data")
         df = hakai_tests.bottom_hit_detection(
             df,
-            variable=hakai_tests_config["bottom_hit_detection"]["variable"],
+            variables=hakai_tests_config["bottom_hit_detection"]["variable"],
             profile_id=profile_id,
             depth_variable=zinp,
             profile_direction_variable=direction_flag,
@@ -144,6 +143,27 @@ def tests_on_profiles(
             depth_var=zinp,
         )
 
+    if "depth_range_test" in hakai_tests_config:
+        print("Review maximum depth per profile vs station")
+        df = hakai_tests.hakai_station_maximum_depth_test(
+            df,
+            variable=hakai_tests_config["depth_range_test"]["variables"],
+            suspect_exceedance_percentage=hakai_tests_config["depth_range_test"][
+                "suspect_exceedance_percentage"
+            ],
+            fail_exceedance_percentage=hakai_tests_config["depth_range_test"][
+                "fail_exceedance_percentage"
+            ],
+            suspect_exceedance_range=hakai_tests_config["depth_range_test"][
+                "suspect_exceedance_range"
+            ],
+            fail_exceedance_range=hakai_tests_config["depth_range_test"][
+                "fail_exceedance_range"
+            ],
+        )
+
+    # Add Station Maximum Depth Test
+
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tested_variable_list:
@@ -151,7 +171,7 @@ def tests_on_profiles(
 
         # Extra flags that apply to all variables
         extra_flags = (
-            "|bottom_hit_test|qartod_location_test"
+            "|bottom_hit_test|depth_in_station_range_test"
             + "|pressure_qartod_gross_range_test|depth_qartod_gross_range_test"
         )
 
@@ -199,7 +219,7 @@ def run_tests(
         filter_by += ["fields=" + ",".join(get.hakai_ctd_data_table_selected_variables)]
 
     filter_by += ["(status!=MISCAST|status==null)", "limit=-1"]
-    df = get.hakai_ctd_data("&".join(filter_by),api_root=api_root)
+    df = get.hakai_ctd_data("&".join(filter_by), api_root=api_root)
 
     if len(df) == 0:
         warnings.warn("No Data is available for this specific input", RuntimeWarning)
@@ -226,13 +246,9 @@ def run_tests(
         ) as f:
             hakai_tests_config = json.loads(f.read())
 
-    # Get Reference stations ( this should be changed to get it form the database or added to the data table
-    hakai_stations = get.hakai_stations()
-
     # Run all of the tests on each available profile
     df = tests_on_profiles(
         df,
-        hakai_stations,
         qartod_config=qartod_config,
         hakai_tests_config=hakai_tests_config,
     )

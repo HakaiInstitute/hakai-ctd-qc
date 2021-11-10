@@ -38,5 +38,14 @@
             ".isna",
             -9.99E-29
         ]
+    },
+    "depth_range_test": {
+        "variables": [
+            "depth"
+        ],
+        "suspect_exceedance_percentage": 1.10,
+        "fail_exceedance_percentage": 1.25,
+        "suspect_exceedance_range": 10,
+        "fail_exceedance_range": 30
     }
 }
