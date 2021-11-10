@@ -177,6 +177,7 @@ def tests_on_profiles(
 def run_tests(
     hakai_id=None,
     station=None,
+    api_root=None,
     filter_variables=True,
     qartod_config=None,
     hakai_tests_config=None,
@@ -198,7 +199,7 @@ def run_tests(
         filter_by += ["fields=" + ",".join(get.hakai_ctd_data_table_selected_variables)]
 
     filter_by += ["(status!=MISCAST|status==null)", "limit=-1"]
-    df = get.hakai_ctd_data("&".join(filter_by))
+    df = get.hakai_ctd_data("&".join(filter_by),api_root=api_root)
 
     if len(df) == 0:
         warnings.warn("No Data is available for this specific input", RuntimeWarning)
