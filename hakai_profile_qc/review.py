@@ -15,6 +15,7 @@ import json
 
 from tqdm import tqdm
 
+
 tqdm.pandas()
 config_path = os.path.join(os.path.dirname(__file__), "config")
 
@@ -280,7 +281,7 @@ def get_hakai_flag_columns(
         Regroup together tests results in "flag_value_to_consider" as a json string to be outputed as a level2 flag
         """
         level2 = [
-            f"{value}: {item}"
+            f"{hakai_tests.qartod_to_hakai_flag[value]}: {item}"
             for item, value in row.items()
             if value in flag_values_to_consider
         ]

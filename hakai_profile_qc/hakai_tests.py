@@ -10,6 +10,8 @@ import os
 
 # Import Hakai Station List
 
+qartod_to_hakai_flag = {1: "AV", 2: "NA", 3: "SVC", 4: "SVD", 9: "MV"}
+
 hakai_stations = pd.read_csv(
     os.path.join(os.path.dirname(__file__), "HakaiStationLocations.csv"),
     sep=";",
@@ -268,17 +270,10 @@ def bad_value_test(
 
 def grey_list(
     df,
-    level1_flag_suffix="_qartod_flag",
-    level2_flag_suffix="_flag_description",
+    level1_flag_suffix="_flag_level_1",
+    level2_flag_suffix="_flag",
     grey_list_suffix="_grey_list_test",
-    time="measurement_dt",
 ):
-    def _append_to_level2_flag(flag_string):
-        if flag_string == "":
-            flag_string = "{"
-        else:
-            flag_string = flag_string.rsplit("}")[0] + ", "
-        return flag_string + grey_flag_description + "}"
 
     # # Retrieve the grey list data from the Hakai Database
     # endpoint = 'eims/views/output/ctd_flags'
@@ -358,13 +353,17 @@ def grey_list(
             df.loc[df_to_flag.index, qartod_columns] = row["flag_type"]
 
             # Append to description Flag Comment and name
-            grey_flag_description = f"HakaiGreyList: {row.filter(items=['flag_type','comments','flagged_by']).to_dict()}"
+            grey_flag_description = f"{qartod_to_hakai_flag[row['flag_type']]}: Hakai Grey List - {row.comments}{' flagged by '+ row.flagged_by if row.flagged_by else ''}"
             for column in flag_descriptor_columns:
                 if column not in df:
                     df[column] = ""
                 df.loc[df_to_flag.index, column] = df.loc[
                     df_to_flag.index, column
-                ].apply(_append_to_level2_flag)
+                ].apply(
+                    lambda x: x + "; " + grey_flag_description
+                    if x
+                    else grey_flag_description
+                )
     return df
 
 
