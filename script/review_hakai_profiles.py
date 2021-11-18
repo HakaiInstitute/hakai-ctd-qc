@@ -2,16 +2,33 @@ from hakai_api import Client
 import hakai_profile_qc.review
 
 import pandas as pd
+import argparse
 
 
 # Connect to API
 client = Client()
 
-# Run by default in development
-api_root = "https://goose.hakai.org/api"
+# Parse input to script
+parser = argparse.ArgumentParser(description="QC Hakai CTD Profiles")
+parser.add_argument(
+    "-server",
+    type=str,
+    help="Which database is run the script",
+    default="goose",
+)
+args = parser.parse_args()
+if "hecate" == args.server:
+    api_root = client.api_root
+elif "goose" == args.server:
+    api_root = "https://goose.hakai.org/api"
+else:
+    raise RuntimeError("Unknown server!")
 
+# Define endpoints
 ctd_cast_endpoint = "/ctd/views/file/cast"
 ctd_cast_data_endpoint = "/ctd/views/file/cast/data"
+# put_casts_endpoint
+# put_ctd_cast_data
 
 # Get Cast Data
 processed_cast_filter = "processing_stage={8_rbr_processed,8_binAvg}&limit=1000"
