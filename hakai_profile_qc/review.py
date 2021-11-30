@@ -78,14 +78,22 @@ def tests_on_profiles(
         )
 
     # Run QARTOD tests
-    groupby = [profile_id, direction_flag]
-    tqdm.pandas(desc=f"Apply QARTOD Tests to individual {groupby}", unit="profile")
-    df = df.groupby(groupby, as_index=False).progress_apply(
+    # On profiles
+    tqdm.pandas(desc=f"Apply QARTOD Tests to individual profiles", unit=" profile")
+    df_profiles = df.query("direction_flag in ('d','u')").groupby([profile_id, direction_flag], as_index=False).progress_apply(
         lambda x: run_ioosqc_on_dataframe(
             x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
         ),
     )
-    df = df.reset_index(drop=True)
+    # On static measurements
+    tqdm.pandas(desc=f"Apply QARTOD Tests to individual static measurements", unit=" measurement")
+    df_static = df.query("direction_flag in ('s')").groupby([profile_id,tinp]).progress_apply(
+        lambda x: run_ioosqc_on_dataframe(
+            x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
+        ),
+    )
+    # Regroup back together profiles and static data
+    df = df_profiles.append(df_static).reset_index(drop=True)
 
     # HAKAI SPECIFIC TESTS #
     # This section regroup different non QARTOD tests which are specific to Hakai profile dataset. Most of the them
