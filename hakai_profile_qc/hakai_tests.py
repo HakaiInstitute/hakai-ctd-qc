@@ -377,7 +377,7 @@ def hakai_station_maximum_depth_test(
     fail_exceedance_range=None,
 ):
     """
-    This test review each profile maximum depth and compare it to the station depth. The whole profile
+    This test review each profile maximum depth by profile identifier and compare it to the station depth. The whole profile
     gets flagged as suspect/fail if the maximum depth exceed a percentage or range above of the station depth.
     """
     # Get Maximum Depth per profile
@@ -390,7 +390,7 @@ def hakai_station_maximum_depth_test(
     )
 
     # Join Maximum Depth With station information
-    df_max_depth = df_max_depth.merge(
+    df_max_depth = df_max_depth.reset_index().merge(
         hakai_stations[["station", "station_depth"]],
         how="left",
         on="station",
@@ -431,6 +431,9 @@ def hakai_station_maximum_depth_test(
     ] = QartodFlags.FAIL
 
     # Distribute Resulting flag to the whole column
-    df = df.merge(df_max_depth.reset_index()[["station", flag_column]], on="station")
+    df = df.merge(
+        df_max_depth.reset_index()[["station","hakai_id", flag_column]], 
+        on=["station","hakai_id"]
+    )
 
     return df
