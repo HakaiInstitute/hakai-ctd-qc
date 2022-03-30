@@ -69,6 +69,8 @@ for chunk in np.array_split(df_casts, 40):
 
     # Update casts to qced
     chunk["processing_stage"] = "9_qc_auto"
+    chunk['process_error'] = chunk['process_error'].fillna("")
     for id, row in chunk.iterrows():
         json_string = generate_process_flags_json(row, df_qced)
-        client.put(f"{api_root}/process/flags/json/{row['cast_pk']}", json_string)
+        response = client.post(f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}", json_string)
+
