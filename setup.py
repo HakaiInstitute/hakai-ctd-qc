@@ -8,7 +8,7 @@ setup(
     author="Jessy Barrette",
     author_email="jessy.barrette@hakai.org",
     license="MIT",
-    packages=find_packages(),
+    packages=['hakai_profile_qc'],
     include_package_data=True,
     install_requires=[
         "future",
