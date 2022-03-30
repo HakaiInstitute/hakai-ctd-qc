@@ -24,7 +24,7 @@ setup(
         "folium",
         "ipywidgets",
         "shapely",
-        "hakai_qc",
+        "hakai_profile_qc",
     ],
     zip_safe=False,
 )
