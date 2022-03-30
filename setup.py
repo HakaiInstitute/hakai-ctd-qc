@@ -8,6 +8,7 @@ setup(
     author="Jessy Barrette",
     author_email="jessy.barrette@hakai.org",
     license="MIT",
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
         "future",
@@ -24,7 +25,6 @@ setup(
         "folium",
         "ipywidgets",
         "shapely",
-        "hakai_profile_qc",
     ],
     zip_safe=False,
 )
