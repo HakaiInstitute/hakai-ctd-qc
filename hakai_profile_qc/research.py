@@ -80,7 +80,7 @@ def generate_netcdf(
     if data is None:
         print(hakai_id + " no data available")
         return
-    data = data[data["direction_flag"] == "d"]  # Keep downcast only
+    data = data.loc[data["direction_flag"] == "d"]  # Keep downcast only
     data_meta = hakai_profile_qc.get.table_metadata_info("hakai_id=" + hakai_id)
     # # TODO FOLLOWING SECTION SHOULD BE USED IN THE FUTURE WHEN DATABASE IS GOOD TO GO
     # data, data_meta = _get_hakai_ctd_full_data(endpoint_list['ctd_data'],
