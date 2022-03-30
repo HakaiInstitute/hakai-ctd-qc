@@ -96,7 +96,7 @@ def generate_netcdf(
 
     # Get Station info
     # TODO We'll get it from the CSV file since I can't retrieve it yet from the Hakai DataBase
-    stations = hakai_profile_qc.get.hakai_stations()
+    stations = hakai_profile_qc.get.hakai_stations("csv")
     if cast["station"][0] in stations.index:
         cast["longitude_station"], cast["latitude_station"] = stations.loc[
             cast["station"]
