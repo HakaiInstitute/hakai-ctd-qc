@@ -39,8 +39,8 @@ def generate_netcdf(
     file_name_append="_Research",
     mandatory_output_variables=("measurement_dt", "direction_flag", "cast_comments"),
     mask_qartod_flag=None,
-    level_1_flag_suffix="_qartod_flag",
-    level_2_flag_suffix="_flag_description",
+    level_1_flag_suffix="_flag_level_1",
+    level_2_flag_suffix="_flag",
     remove_empty_variables=True,
 ):
     # Load Default attributes
@@ -76,7 +76,9 @@ def generate_netcdf(
 
     # Retrieve data to be save
     # TODO TEMPORARY SECTION TO DEAL WITH NO QARTOD FLAGS ON THE DATA BASE
-    data = hakai_profile_qc.review.run_tests(hakai_id=[hakai_id], filter_variables=False)
+    data = hakai_profile_qc.review.run_tests(
+        hakai_id=[hakai_id], filter_variables=False
+    )
     if data is None:
         print(hakai_id + " no data available")
         return
