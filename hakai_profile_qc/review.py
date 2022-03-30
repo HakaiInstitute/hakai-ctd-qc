@@ -80,17 +80,28 @@ def tests_on_profiles(
     # Run QARTOD tests
     # On profiles
     tqdm.pandas(desc=f"Apply QARTOD Tests to individual profiles", unit=" profile")
-    df_profiles = df.query("direction_flag in ('d','u')").groupby([profile_id, direction_flag], as_index=False).progress_apply(
-        lambda x: run_ioosqc_on_dataframe(
-            x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
-        ),
+    df_profiles = (
+        df.query("direction_flag in ('d','u')")
+        .groupby([profile_id, direction_flag], as_index=False)
+        .progress_apply(
+            lambda x: run_ioosqc_on_dataframe(
+                x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
+            ),
+        )
     )
     # On static measurements
-    tqdm.pandas(desc=f"Apply QARTOD Tests to individual static measurements", unit=" measurement")
-    df_static = df.query("direction_flag in ('s')").groupby([profile_id,tinp]).progress_apply(
-        lambda x: run_ioosqc_on_dataframe(
-            x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
-        ),
+    tqdm.pandas(
+        desc=f"Apply QARTOD Tests to individual static measurements",
+        unit=" measurement",
+    )
+    df_static = (
+        df.query("direction_flag in ('s')")
+        .groupby([profile_id, tinp])
+        .progress_apply(
+            lambda x: run_ioosqc_on_dataframe(
+                x, qartod_config, tinp=tinp, zinp=zinp, lat=lat, lon=lon
+            ),
+        )
     )
     # Regroup back together profiles and static data
     df = df_profiles.append(df_static).reset_index(drop=True)
@@ -257,17 +268,9 @@ def run_tests(
         hakai_tests_config=hakai_tests_config,
     )
 
-    # Make sure to include Level 1 and Level 2 flags
-    # TODO TEMPORARY
-    output_variable_list = []
-    for var in initial_variable_list:
-        output_variable_list.append(var)
-        if var.endswith("_flag"):
-            output_variable_list.append(re.sub("_flag$", "", var) + "_flag_level_1")
-            output_variable_list.append(re.sub("_flag$", "", var) + "_flag")
-
+    # Return original table or all the single flag tests if requested
     if drop_single_test:
-        return df.filter(items=output_variable_list)
+        return df[initial_variable_list]
     else:
         return df
 
