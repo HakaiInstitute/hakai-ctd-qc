@@ -5,7 +5,9 @@ import numpy as np
 import pandas as pd
 import argparse
 import json
+from tqdm import tqdm
 
+CHUNK_SIZE=100
 
 def generate_process_flags_json(cast, data):
     return json.dumps(
@@ -62,24 +64,29 @@ url = f"{api_root}{ctd_cast_endpoint}?{processed_cast_filter}"
 response = client.get(url)
 
 df_casts = pd.DataFrame(response.json())
-
+chunks = round(len(df_casts)/CHUNK_SIZE)
 # If no data needs to be qaqc
 if df_casts.empty:
     print("No Drops needs to be QC")
     exit()
+print(f"{len(df_casts)} needs to be qc!")
 
-for chunk in np.array_split(df_casts, 40):
-    df_qced = hakai_profile_qc.review.run_tests(hakai_id=chunk["hakai_id"].to_list(), api_root=api_root)
+for chunk in np.array_split(df_casts, chunks):
+    df_qced = hakai_profile_qc.review.run_tests(
+        hakai_id=chunk["hakai_id"].to_list(), api_root=api_root
+    )
 
     # Convert QARTOD to string temporarily
     qartod_columns = df_qced.filter(regex="_flag_level_1").columns
     df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
-    df_qced = df_qced.replace({'':None})
+    df_qced = df_qced.replace({"": None})
 
     # Update casts to qced
     chunk["processing_stage"] = "9_qc_auto"
     chunk["process_error"] = chunk["process_error"].fillna("")
-    for id, row in chunk.iterrows():
+    for id, row in tqdm(
+        chunk.iterrows(), desc="Upload flags", unit="profil", total=len(chunk)
+    ):
         json_string = generate_process_flags_json(row, df_qced)
         response = client.post(
             f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}", json_string
