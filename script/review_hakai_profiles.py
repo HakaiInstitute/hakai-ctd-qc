@@ -10,21 +10,25 @@ import json
 def generate_process_flags_json(cast, data):
     return json.dumps(
         {
-            "cast": cast[
-                ["ctd_cast_pk", "hakai_id", "processing_stage", "process_error"]
-            ].to_json(),
-            "cast_data": data.query(f"hakai_id=='{cast['hakai_id']}'")
-            .filter(regex="^ctd_data_pk$|_flag$|_flag_level_1$")
-            .drop(
-                columns=[
-                    "direction_flag",
-                    "process_flag",
-                    "process_flag_level_1",
-                    "location_flag",
-                    "location_flag_level_1",
-                ]
-            )
-            .to_json(orient="records"),
+            "cast": json.loads(
+                cast[
+                    ["ctd_cast_pk", "hakai_id", "processing_stage", "process_error"]
+                ].to_json()
+            ),
+            "ctd_data": json.loads(
+                data.query(f"hakai_id=='{cast['hakai_id']}'")
+                .filter(regex="^ctd_data_pk$|_flag$|_flag_level_1$")
+                .drop(
+                    columns=[
+                        "direction_flag",
+                        "process_flag",
+                        "process_flag_level_1",
+                        "location_flag",
+                        "location_flag_level_1",
+                    ]
+                )
+                .to_json(orient="records")
+            ),
         }
     )
 
@@ -65,12 +69,20 @@ if df_casts.empty:
     exit()
 
 for chunk in np.array_split(df_casts, 40):
-    df_qced = hakai_profile_qc.review.run_tests(hakai_id=chunk["hakai_id"].to_list())
+    df_qced = hakai_profile_qc.review.run_tests(hakai_id=chunk["hakai_id"].to_list(), api_root=api_root)
+
+    # Convert QARTOD to string temporarily
+    qartod_columns = df_qced.filter(regex="_flag_level_1").columns
+    df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
+    df_qced = df_qced.replace({'':None})
 
     # Update casts to qced
     chunk["processing_stage"] = "9_qc_auto"
-    chunk['process_error'] = chunk['process_error'].fillna("")
+    chunk["process_error"] = chunk["process_error"].fillna("")
     for id, row in chunk.iterrows():
         json_string = generate_process_flags_json(row, df_qced)
-        response = client.post(f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}", json_string)
-
+        response = client.post(
+            f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}", json_string
+        )
+        if response.status_code != 200:
+            print(f"Failed to update {row['hakai_id']}")
