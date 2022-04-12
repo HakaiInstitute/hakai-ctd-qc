@@ -229,9 +229,9 @@ def run_tests(
     if station:
         filter_by += ["station=" + ",".join(station)]
 
-    # Filter variables
-    if filter_variables:
-        filter_by += ["fields=" + ",".join(get.hakai_ctd_data_table_selected_variables)]
+    # # Filter variables
+    # if filter_variables:
+    #     filter_by += ["fields=" + ",".join(get.hakai_ctd_data_table_selected_variables)]
 
     filter_by += ["(status!=MISCAST|status==null)", "limit=-1"]
     df = get.hakai_ctd_data("&".join(filter_by), api_root=api_root)
