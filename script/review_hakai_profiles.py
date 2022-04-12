@@ -7,7 +7,8 @@ import argparse
 import json
 from tqdm import tqdm
 
-CHUNK_SIZE=100
+CHUNK_SIZE = 100
+
 
 def generate_process_flags_json(cast, data):
     return json.dumps(
@@ -64,7 +65,7 @@ url = f"{api_root}{ctd_cast_endpoint}?{processed_cast_filter}"
 response = client.get(url)
 
 df_casts = pd.DataFrame(response.json())
-chunks = round(len(df_casts)/CHUNK_SIZE)
+chunks = round(len(df_casts) / CHUNK_SIZE)
 # If no data needs to be qaqc
 if df_casts.empty:
     print("No Drops needs to be QC")
@@ -78,6 +79,7 @@ for chunk in np.array_split(df_casts, chunks):
 
     # Convert QARTOD to string temporarily
     qartod_columns = df_qced.filter(regex="_flag_level_1").columns
+    # TODO Drop once qartod columns are of INT type in hakai DB
     df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
     df_qced = df_qced.replace({"": None})
 
