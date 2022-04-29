@@ -9,6 +9,11 @@ from tqdm import tqdm
 import re
 import os
 
+import logging
+
+logger = logging.getLogger()
+logging.basicConfig(filename='provisional_conversion.log', encoding='utf-8', level=logging.error)
+
 def rename_columns(col):
     if col in ['direction_flag']:
         return col
@@ -73,7 +78,14 @@ low_count_cast_stations = df_stations.loc[is_low_count_station]
 # Run all the stations with a low count all at by 20 at the time
 low_count_station_list = low_count_cast_stations.index.get_level_values(1).to_list()
 for station_list in np.array_split(low_count_station_list, round(len(low_count_cast_stations)/30)):
-    qc_station(list(station_list))
+    try:
+        qc_station(list(station_list))
+    except:
+        try:
+            for station in station_list:
+                qc_station([station])
+        except:
+            logger.error(f'Failed to output {station}')
 
 # Then iterate over the stations with more drop by station
 for work_area,station,row in df_stations[not is_low_count_station].iterrows():
