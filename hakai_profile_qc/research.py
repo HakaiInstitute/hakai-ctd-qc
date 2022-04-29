@@ -19,6 +19,9 @@ import hakai_profile_qc.get
 import hakai_profile_qc.transform
 import hakai_profile_qc.review
 
+import logging 
+
+logger = logging.getLogger(__name__)
 
 client = Client()  # Follow stdout prompts to get an API token
 
@@ -67,7 +70,7 @@ def generate_netcdf(
     if not overwrite:
         for root, dirs, files in os.walk(path_out):
             if any(re.match(hakai_id_str, file) for file in files):
-                print(hakai_id + " already exists")
+                logger.warning(hakai_id + " already exists")
                 # If already exist stop function
                 return
 
@@ -80,7 +83,7 @@ def generate_netcdf(
         hakai_id=[hakai_id], filter_variables=False
     )
     if data is None:
-        print(hakai_id + " no data available")
+        logger.warning(hakai_id + " no data available")
         return
     data = data.loc[data["direction_flag"] == "d"]  # Keep downcast only
     data_meta = hakai_profile_qc.get.table_metadata_info("hakai_id=" + hakai_id)
@@ -284,7 +287,7 @@ def update_research_dataset_with_ctd_log(
         )
 
         if len(var_to_save.index) > 0:
-            print("Save " + hakai_id)
+            logger.info("Save " + hakai_id)
             # TODO add a step to identify reviewer and add reviewer review to history
             # TODO add an input to add a creator attribute.
             # TODO should we overwrite already existing files overwritten
@@ -300,7 +303,7 @@ def update_research_dataset_with_ctd_log(
                     overwrite=overwrite,
                 )
             except RuntimeWarning:
-                print("Hakai ID " + hakai_id + " failed")
+                logger.error("Hakai ID " + hakai_id + " failed")
 
 
 if __name__ == "__main__":

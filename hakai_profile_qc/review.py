@@ -15,6 +15,9 @@ import json
 
 from tqdm import tqdm
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 tqdm.pandas()
 config_path = os.path.join(os.path.dirname(__file__), "config")
@@ -70,7 +73,7 @@ def tests_on_profiles(
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
     if "bad_value_test" in hakai_tests_config:
-        print(f'Flag Bad Values: {hakai_tests_config["bad_value_test"]["flag_list"]}')
+        logger.info(f'Flag Bad Values: {hakai_tests_config["bad_value_test"]["flag_list"]}')
         df = hakai_tests.bad_value_test(
             df,
             variables=hakai_tests_config["bad_value_test"]["variables"],
@@ -112,7 +115,7 @@ def tests_on_profiles(
     # DO CAP DETECTION
     if any(df["direction_flag"] == "u") and ("do_cap_test" in hakai_tests_config):
         for key in hakai_tests_config["do_cap_test"]["variable"]:
-            print("DO Cap Detection to " + key + " variable")
+            logger.info("DO Cap Detection to " + key + " variable")
             hakai_tests.do_cap_test(
                 df,
                 key,
@@ -135,7 +138,7 @@ def tests_on_profiles(
     # BOTTOM HIT DETECTION
     #  Find Profiles that were flagged near the bottom and assume this is likely related to having it the bottom.
     if "bottom_hit_detection" in hakai_tests_config:
-        print("Flag Bottom Hit Data")
+        logger.info("Flag Bottom Hit Data")
         df = hakai_tests.bottom_hit_detection(
             df,
             variables=hakai_tests_config["bottom_hit_detection"]["variable"],
@@ -146,7 +149,7 @@ def tests_on_profiles(
 
     # Detect PAR Shadow
     if "par_shadow_test" in hakai_tests_config:
-        print("Flag PAR Shadow Data")
+        logger.info("Flag PAR Shadow Data")
         df = hakai_tests.par_shadow_test(
             df,
             variable=hakai_tests_config["par_shadow_test"]["variable"],
@@ -159,7 +162,7 @@ def tests_on_profiles(
         )
 
     if "depth_range_test" in hakai_tests_config:
-        print("Review maximum depth per profile vs station")
+        logger.info("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
             df,
             variable=hakai_tests_config["depth_range_test"]["variables"],
@@ -182,7 +185,7 @@ def tests_on_profiles(
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tested_variable_list:
-        print("Apply flag results to " + var)
+        logger.info("Apply flag results to " + var)
 
         # Extra flags that apply to all variables
         extra_flags = (
@@ -203,7 +206,7 @@ def tests_on_profiles(
 
     # Apply Hakai Grey List
     # Grey List should overwrite the QARTOD Flags
-    print("Apply Hakai Grey List")
+    logger.info("Apply Hakai Grey List")
     df = hakai_tests.grey_list(df)
 
     return df
@@ -244,18 +247,18 @@ def run_tests(
     initial_variable_list = df.columns
 
     # Get Derived Variables
-    print("Add derived variables")
+    logger.info("Add derived variables")
     df = utils.derived_ocean_variables(df)
 
     # Load default test parameters used right now!=
     if qartod_config is None:
-        print("Load Default QARTOD Configuration")
+        logger.info("Load Default QARTOD Configuration")
         with open(
             os.path.join(config_path, "hakai_ctd_profile_qartod_test_config.json")
         ) as f:
             qartod_config = json.loads(f.read())
     if hakai_tests_config is None:
-        print("Load Default Hakai Tests Configuration")
+        logger.info("Load Default Hakai Tests Configuration")
         with open(
             os.path.join(config_path, "hakai_ctd_profile_tests_config.json")
         ) as f:
@@ -333,12 +336,12 @@ if __name__ == "__main__":
     # Read json file or json string
     if args.station:
         stations = args.station.split(",")
-        print(f"Review stations: {stations}")
+        logger.info(f"Review stations: {stations}")
     else:
         stations = None
     if args.hakai_id:
         hakai_ids = args.hakai_id.split(",")
-        print(f"Review hakai_ids: {hakai_ids}")
+        logger.info(f"Review hakai_ids: {hakai_ids}")
     else:
         hakai_ids = None
 
