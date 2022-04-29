@@ -230,7 +230,7 @@ def run_tests(
         filter_by += ["hakai_id={" + ",".join(hakai_id) + "}"]
 
     if station:
-        filter_by += ["station=" + ",".join(station)]
+        filter_by += ["station={" + ",".join(station) +"}"]
 
     # # Filter variables
     # if filter_variables:
