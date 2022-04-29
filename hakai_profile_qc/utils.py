@@ -3,8 +3,8 @@ from pyproj import Geod
 
 
 def derived_ocean_variables(df,
-                            latitude='latitude',
-                            longitude='longitude',
+                            latitude='station_latitude',
+                            longitude='station_longitude',
                             sea_water_pressure='pressure',
                             sea_water_salinity='salinity',
                             sea_water_temperature='temperature'):
