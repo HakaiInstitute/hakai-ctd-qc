@@ -25,6 +25,7 @@ setup(
         "folium",
         "ipywidgets",
         "shapely",
+        "tqdm"
     ],
     zip_safe=False,
 )
