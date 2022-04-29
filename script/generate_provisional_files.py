@@ -88,5 +88,8 @@ for station_list in np.array_split(low_count_station_list, round(len(low_count_c
             logger.error(f'Failed to output {station}')
 
 # Then iterate over the stations with more drop by station
-for work_area,station,row in df_stations[not is_low_count_station].iterrows():
-    qc_station([station])
+for (work_area,station),row in df_stations.loc[~is_low_count_station].iterrows():
+    try:
+        qc_station([station])
+    except:
+        logger.error(f'Failed to output {station}')
