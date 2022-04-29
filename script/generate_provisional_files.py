@@ -12,7 +12,7 @@ import os
 import logging
 
 logger = logging.getLogger()
-logging.basicConfig(filename='provisional_conversion.log', encoding='utf-8', level=logging.error)
+logging.basicConfig(filename='provisional_conversion.log', encoding='utf-8', level=logging.ERROR)
 
 def rename_columns(col):
     if col in ['direction_flag']:
