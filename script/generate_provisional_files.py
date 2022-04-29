@@ -17,6 +17,33 @@ def rename_columns(col):
     return col
 
 CHUNK_SIZE=300
+
+def qc_station(station):
+    # Run QC tests
+    df = hakai_profile_qc.review.run_tests(station=station, filter_variables=True)
+    
+    # Replace flag values from seabird
+    df = df.replace({-9.99E-29: np.nan})
+
+    # Consider only downcast data
+    df['direction_flag'] = df['direction_flag'].fillna('d')
+    df = df.query("direction_flag=='d'") # Ignore up cast and static data in provisional dataset
+
+    # Rename Columns 
+    df.columns = [rename_columns(col) for col in df.columns]
+    df = df.drop(columns=['weather','bin_stats'])
+
+    # Save data grouped xarray datasets just to serve temporarily ERDDAP
+    for (work_area,station),df_profile in tqdm(df.groupby(['work_area','station']),desc='Save each individual files:',unit='file'):
+        dir_path = os.path.join(output_path,work_area,station)
+        if not os.path.isdir(dir_path):
+            os.makedirs(dir_path)
+        start_time = pd.to_datetime(df_profile['start_dt'].min())
+        end_time = pd.to_datetime(df_profile['start_dt'].min())
+        file_output = os.path.join(dir_path, f"{work_area}_{station}_{start_time.strftime('%Y%m%d')}-{end_time.strftime('%Y%m%d')}.nc")
+        df_profile.to_xarray().to_netcdf(file_output)
+
+
 parser = argparse.ArgumentParser(description="QC Hakai CTD Profiles")
 parser.add_argument(
     "--output_path",
@@ -34,30 +61,20 @@ ctd_cast_endpoint = "/ctd/views/file/cast"
 ctd_cast_data_endpoint = "/ctd/views/file/cast/data"
 
 # Get Cast Data
-processed_cast_filter = "processing_stage={8_rbr_processed,8_binAvg,9_qc_auto,10_qc_pi}&status==null&station_latitude!=null&station_longitude!=null&work_area={CALVERT,QUADRA,JOHNSTONE STRAIT}&limit=-1&fields=work_area,station,hakai_id"
+processed_cast_filter = "processing_stage={8_rbr_processed,8_binAvg,9_qc_auto,10_qc_pi}&status==null&station_latitude!=null&station_longitude!=null&work_area={CALVERT,QUADRA,JOHNSTONE STRAIT}&limit=-1&fields=work_area,station,hakai_id,start_dt"
 url = f"{client.api_root}{ctd_cast_endpoint}?{processed_cast_filter}"
 response = client.get(url)
-df_stations = pd.DataFrame(response.json())
-chunks = round(len(df_stations)/CHUNK_SIZE)
-for chunk in np.array_split(df_stations, chunks):
-    # Run QC tests
-    df = hakai_profile_qc.review.run_tests(hakai_id=chunk['hakai_id'].to_list())
-    
-    # Replace flag values from seabird
-    df = df.replace({-9.99E-29: np.nan})
+df_stations = pd.DataFrame(response.json()).sort_values(['work_area','station','start_dt']).groupby(['work_area','station']).agg({'start_dt':['min','max'],'hakai_id':['count']})
 
-    # Consider only downcast data
-    df['direction_flag'] = df['direction_flag'].fillna('d')
-    df = df.query("direction_flag=='d'") # Ignore up cast and static data in provisional dataset
 
-    # Rename Columns 
-    df.columns = [rename_columns(col) for col in df.columns]
-    df = df.drop(columns=['weather','bin_stats'])
+is_low_count_station = df_stations[('hakai_id','count')]<5
+low_count_cast_stations = df_stations.loc[is_low_count_station]
 
-    # Save data grouped xarray datasets just to serve temporarily ERDDAP
-    for (work_area,station,hakai_id),df_profile in tqdm(df.groupby(['work_area','station','hakai_id']),desc='Save each individual files:',unit='file'):
-        dir_path = os.path.join(output_path,work_area,station)
-        if not os.path.isdir(dir_path):
-            os.makedirs(dir_path)
-        file_output = os.path.join(dir_path, f"{hakai_id}.nc")
-        df_profile.to_xarray().to_netcdf(file_output)
+# Run all the stations with a low count all at by 20 at the time
+low_count_station_list = low_count_cast_stations.index.get_level_values(1).to_list()
+for station_list in np.array_split(low_count_station_list, round(len(low_count_cast_stations)/30)):
+    qc_station(list(station_list))
+
+# Then iterate over the stations with more drop by station
+for work_area,station,row in df_stations[not is_low_count_station].iterrows():
+    qc_station([station])
