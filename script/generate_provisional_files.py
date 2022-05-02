@@ -21,6 +21,31 @@ logger = logging.getLogger()
 
 CHUNK_SIZE = 300
 
+ignored_station = [
+    "AB1",
+    "BED1",
+    "BED10",
+    "BED3",
+    "BED4",
+    "BED5",
+    "BED6",
+    "BED7",
+    "BED8",
+    "BED9",
+    "CP1",
+    "CP2",
+    "FCC1",
+    "HER1",
+    "HER2",
+    "HER3",
+    "HER4",
+    "HER5",
+    "MC1",
+    "RC1",
+    "RC2",
+    "RC3",
+]
+
 
 def qc_station(station):
     # Run QC tests
@@ -87,8 +112,7 @@ df_stations = (
     .sort_values(["work_area", "station", "start_dt"])
     .groupby(["work_area", "station"])
     .agg({"start_dt": ["min", "max"], "hakai_id": ["count"]})
-)
-
+).query("station not in @ignored_station")
 
 is_low_count_station = df_stations[("hakai_id", "count")] < 5
 low_count_cast_stations = df_stations.loc[is_low_count_station]
