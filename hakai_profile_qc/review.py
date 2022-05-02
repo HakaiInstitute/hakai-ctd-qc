@@ -73,7 +73,9 @@ def tests_on_profiles(
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
     if "bad_value_test" in hakai_tests_config:
-        logger.info(f'Flag Bad Values: {hakai_tests_config["bad_value_test"]["flag_list"]}')
+        logger.info(
+            f'Flag Bad Values: {hakai_tests_config["bad_value_test"]["flag_list"]}'
+        )
         df = hakai_tests.bad_value_test(
             df,
             variables=hakai_tests_config["bad_value_test"]["variables"],
@@ -220,6 +222,7 @@ def run_tests(
     qartod_config=None,
     hakai_tests_config=None,
     drop_single_test=True,
+    extra_filter_by=None,
 ):
     """
     Method use to retrieve Hakai CTD data from the hakai database throuh the API and then run the different tests requested within the configuration
@@ -230,13 +233,18 @@ def run_tests(
         filter_by += ["hakai_id={" + ",".join(hakai_id) + "}"]
 
     if station:
-        filter_by += ["station={" + ",".join(station) +"}"]
+        filter_by += ["station={" + ",".join(station) + "}"]
 
     # # Filter variables
     if filter_variables:
         filter_by += ["fields=" + ",".join(get.hakai_ctd_data_table_selected_variables)]
 
+    # Input
+    if extra_filter_by:
+        filter_by += [extra_filter_by]
+
     filter_by += ["(status!=MISCAST|status==null)", "limit=-1"]
+
     df = get.hakai_ctd_data("&".join(filter_by), api_root=api_root)
 
     if len(df) == 0:
