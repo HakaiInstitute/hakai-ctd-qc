@@ -40,7 +40,7 @@ def qc_station(station):
 
     # Save data grouped xarray datasets just to serve temporarily ERDDAP
     for (work_area,station),df_profile in tqdm(df.groupby(['work_area','station']),desc='Save each individual files:',unit='file'):
-        dir_path = os.path.join(output_path,work_area,station)
+        dir_path = os.path.join(output_path,work_area)
         if not os.path.isdir(dir_path):
             os.makedirs(dir_path)
         start_time = pd.to_datetime(df_profile['start_dt'].min())
