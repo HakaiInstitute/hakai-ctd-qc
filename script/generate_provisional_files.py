@@ -94,6 +94,12 @@ parser.add_argument(
     help="Which database is run the script",
     default="./output",
 )
+parser.add_argument(
+    "--station",
+    type=str,
+    help="Station comma separated list to review",
+    default=None,
+)
 args = parser.parse_args()
 output_path = args.output_path
 
@@ -114,6 +120,11 @@ df_stations = (
     .agg({"start_dt": ["min", "max"], "hakai_id": ["count"]})
 ).query("station not in @ignored_station")
 
+# Consider only stations given if station input
+if args.station:
+    stations = args.station.split(",")
+    df_stations = df_stations.query("station in @stations")
+
 is_low_count_station = df_stations[("hakai_id", "count")] < 5
 low_count_cast_stations = df_stations.loc[is_low_count_station]
 
@@ -129,11 +140,11 @@ for station_list in np.array_split(
             for station in station_list:
                 qc_station([station])
         except:
-            logger.error(f"Failed to output {station}")
+            logger.error(f"Failed to output {station}", exc_info=True)
 
 # Then iterate over the stations with more drop by station
 for (work_area, station), row in df_stations.loc[~is_low_count_station].iterrows():
     try:
         qc_station([station])
     except:
-        logger.error(f"Failed to output {station}")
+        logger.error(f"Failed to output {station}", exc_info=True)
