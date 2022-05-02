@@ -47,9 +47,11 @@ ignored_station = [
 ]
 
 
-def qc_station(station):
+def qc_station(station, extra_filter_by=None):
     # Run QC tests
-    df = hakai_profile_qc.review.run_tests(station=station, filter_variables=True)
+    df = hakai_profile_qc.review.run_tests(
+        station=station, filter_variables=True, extra_filter_by=extra_filter_by
+    )
 
     # Convert time variables to datetime
     time_vars = [col for col in df.columns if col.endswith("_dt")]
@@ -113,6 +115,9 @@ ctd_cast_data_endpoint = "/ctd/views/file/cast/data"
 processed_cast_filter = "processing_stage={8_rbr_processed,8_binAvg,9_qc_auto,10_qc_pi}&status==null&station_latitude!=null&station_longitude!=null&work_area={CALVERT,QUADRA,JOHNSTONE STRAIT}&limit=-1&fields=work_area,station,hakai_id,start_dt"
 url = f"{client.api_root}{ctd_cast_endpoint}?{processed_cast_filter}"
 response = client.get(url)
+if response.status_code != 200:
+    logger.error(response.text)
+
 df_stations = (
     pd.DataFrame(response.json())
     .sort_values(["work_area", "station", "start_dt"])
@@ -130,21 +135,35 @@ low_count_cast_stations = df_stations.loc[is_low_count_station]
 
 # Run all the stations with a low count all at by 20 at the time
 low_count_station_list = low_count_cast_stations.index.get_level_values(1).to_list()
-for station_list in np.array_split(
-    low_count_station_list, round(len(low_count_cast_stations) / 30)
-):
-    try:
-        qc_station(list(station_list))
-    except:
+if len(low_count_cast_stations) > 0:
+    for station_list in np.array_split(
+        low_count_station_list, round(len(low_count_cast_stations) / 30)
+    ):
         try:
-            for station in station_list:
-                qc_station([station])
+            qc_station(list(station_list))
         except:
-            logger.error(f"Failed to output {station}", exc_info=True)
+            try:
+                for station in station_list:
+                    qc_station([station])
+            except:
+                logger.error(f"Failed to output {station}", exc_info=True)
 
 # Then iterate over the stations with more drop by station
 for (work_area, station), row in df_stations.loc[~is_low_count_station].iterrows():
     try:
         qc_station([station])
     except:
-        logger.error(f"Failed to output {station}", exc_info=True)
+        # Try to load a year at the time
+        time_min, time_max = df_stations.loc[work_area, station]["start_dt"]
+        year = int(time_min[0:4])
+        year_end = int(time_max[0:4]) + 1
+        while year < year_end:
+            try:
+                qc_station(
+                    [station],
+                    extra_filter_by=f"start_dt>={year}-01-01&start_dt<{year+1}-01-01",
+                )
+            except:
+
+                logger.error(f"Failed to output {station}", exc_info=True)
+            year += 1
