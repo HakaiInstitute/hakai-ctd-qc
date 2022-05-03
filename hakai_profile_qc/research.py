@@ -19,7 +19,7 @@ import hakai_profile_qc.get
 import hakai_profile_qc.transform
 import hakai_profile_qc.review
 
-import logging 
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -302,7 +302,7 @@ def update_research_dataset_with_ctd_log(
                     mask_qartod_flag=[2, 3, 4, 9],
                     overwrite=overwrite,
                 )
-            except RuntimeWarning:
+            except:
                 logger.error("Hakai ID " + hakai_id + " failed")
 
 
