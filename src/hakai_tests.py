@@ -258,10 +258,9 @@ def bad_value_test(
     for column in variables:
         # Assign everything as good first
         df[column + flag_column_suffix] = QartodFlags.GOOD
-        for flag in flag_list:
-            df.loc[
-                df[column].isin([flag]), column + flag_column_suffix
-            ] = QartodFlags.MISSING
+        df[column + flag_column_suffix].loc[
+            df[column].isna() | df[column].isin(flag_list)
+        ] = QartodFlags.MISSING
 
     # Replace bad data in dataframe to an empty value
     df = df.replace(flag_list, np.nan)
@@ -430,10 +429,7 @@ def hakai_station_maximum_depth_test(
         flag_column,
     ] = QartodFlags.FAIL
 
-    # Distribute Resulting flag to the whole column
-    df = df.merge(
-        df_max_depth.reset_index()[["station","hakai_id", flag_column]], 
-        on=["station","hakai_id"]
+    return df.merge(
+        df_max_depth.reset_index()[["station", "hakai_id", flag_column]],
+        on=["station", "hakai_id"],
     )
-
-    return df
