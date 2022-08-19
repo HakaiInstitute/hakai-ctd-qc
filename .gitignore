@@ -5,3 +5,7 @@
 *__pycache__/
 hakai_profile_qc/__pycache__
 *.nc
+*.log
+/**/__pycache__/*
+
+/**/.DS_Store
