@@ -195,7 +195,7 @@ def bottom_hit_detection(
 
     # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
     for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_id]:
-        for index, df_bottom_hit in df[df[profile_id] == hakai_id].groupby(
+        for _, df_bottom_hit in df[df[profile_id] == hakai_id].groupby(
             by=[profile_id, profile_direction_variable]
         ):
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
