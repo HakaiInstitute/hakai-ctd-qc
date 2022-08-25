@@ -419,10 +419,12 @@ def get_hakai_flag_columns(
 def get_hakai_ctd_stations_list():
     """Return  a dataframe of all the work_area,stations available in the hakai database"""
     client = Client()
-    url = f"{client.api_root}{config['CTD_CAST_ENDPOINT']}?limit=-1&fields=work_area,station,station_latitude,station_longitude&distinct"
+    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?limit=-1&fields=work_area,station,station_latitude,station_longitude&distinct"
     response = client.get(url)
-    if response.status_code == 200:
-        return pd.DataFrame(response.json)
+    if response.status_code != 200:
+        logger.error(response.text)
+        return
+    return pd.DataFrame(response.json())
 
 
 def generate_hakai_provisional_netcdf_dataset(config=None):
@@ -433,12 +435,15 @@ def generate_hakai_provisional_netcdf_dataset(config=None):
 
     station_list = get_hakai_ctd_stations_list()
     station_list = station_list.query(
-        "work_area in ('CALVERT','JOHNSTONE STRAIT','QUADRA') and station not in @hakai_ignored_station"
-    ).set_index("station")
+        f"work_area in ('CALVERT','JOHNSTONE STRAIT','QUADRA') and station not in {config['IGNORED_HAKAI_STATIONS']}"
+    ).set_index("station", drop=False)
     for station, row in station_list.iterrows():
         df_data, df_casts = qc_profiles(
             f"limit=-1&station={station}&(status=null|status='')&process_error=null"
         )
+        # If no data keep going
+        if df_data is None:
+            continue
 
         # Generate file name
         file_name_output = f"./output/HakaiWaterPropertiesInstrumentProfileProvisional/{row['work_area']}/{row['work_area']}_{row['station']}_{df_casts['start_dt'].min()}-{df_casts['start_dt'].max()}.nc"
@@ -457,7 +462,7 @@ def generate_hakai_provisional_netcdf_dataset(config=None):
                 ds[var].attrs = attrs
 
         # Standardize columns and encoding
-        ds.to_netcdf(file_name_output)
+        standardize_dateset(ds).to_netcdf(file_name_output)
 
 
 def generate_hakai_ctd_research_dataset(config):
@@ -505,9 +510,7 @@ def generate_hakai_ctd_research_dataset(config):
 
         # Drop flag variables and rows and depth
         ignored_variables = [
-            var
-            for var in df_data_qc
-            if var not in config["netcdf_attributes"]
+            var for var in df_data_qc if var not in config["netcdf_attributes"]
         ]
         df_data_qc = (
             df_data_qc.drop(columns=ignored_variables)
