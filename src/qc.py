@@ -16,7 +16,7 @@ from ioos_qc.streams import PandasStream
 from tqdm import tqdm
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
-from ocean_data_parser.read.utils import standardize_dateset
+from ocean_data_parser.read.utils import standardize_dataset
 
 import hakai_tests
 
@@ -132,6 +132,13 @@ def _derived_ocean_variables(df):
         df["absolute salinity"], df["conservative temperature"], df["pressure"]
     )
     df["sigma0"] = gsw.sigma0(df["absolute salinity"], df["conservative temperature"])
+    return df
+
+
+def _convert_time_to_datetime(df):
+    time_vars = ["start_dt", "bottom_dt", "end_dt", "measurement_dt"]
+    for time_var in time_vars:
+        df[time_var] = pd.to_datetime(df[time_var], utc=True)
     return df
 
 
@@ -320,13 +327,14 @@ def qc_profiles(processed_cast_filter=None, config=None):
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
         return None, None
-    logger.info("%s needs to be qc!", len(df_casts))
+    logger.info("QC %s drops", len(df_casts))
 
     qced_cast_data = []
     for chunk in np.array_split(
         df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
     ):
         logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
+        logger.info("Retrieve data from hakai server")
         response_data = client.get(
             "%s/%s?hakai_id={%s}&limit=-1"
             % (
@@ -337,6 +345,8 @@ def qc_profiles(processed_cast_filter=None, config=None):
         )
         df_qced = pd.DataFrame(response_data.json())
         df_qced = _derived_ocean_variables(df_qced)
+        df_qced = _convert_time_to_datetime(df_qced)
+        logger.info("Run QC Process")
         df_qced = run_qc_profiles(df_qced, config)
 
         # Convert QARTOD to string temporarily
@@ -418,51 +428,77 @@ def get_hakai_flag_columns(
 
 def get_hakai_ctd_stations_list():
     """Return  a dataframe of all the work_area,stations available in the hakai database"""
-    client = Client()
-    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?limit=-1&fields=work_area,station,station_latitude,station_longitude&distinct"
-    response = client.get(url)
-    if response.status_code != 200:
-        logger.error(response.text)
-        return
-    return pd.DataFrame(response.json())
 
-
-def generate_hakai_provisional_netcdf_dataset(config=None):
+def generate_hakai_provisional_netcdf_dataset(
+    config=None, start_dt=None, low_drop_count_threshold=5, station_list=None
+):
     # Get Hakai Station List
     # netcdf_attributes = json.loads(config['']
     if config is None:
         config = read_config_yaml(DEFAULT_CONFIG_PATH)
 
-    station_list = get_hakai_ctd_stations_list()
-    station_list = station_list.query(
-        f"work_area in ('CALVERT','JOHNSTONE STRAIT','QUADRA') and station not in {config['IGNORED_HAKAI_STATIONS']}"
-    ).set_index("station", drop=False)
-    for station, row in station_list.iterrows():
+    # Get the list of all the casts available
+    client = Client()
+    if station_list is None:
+        url = (
+            "%s/%s?limit=-1&(status=null|status='')&work_area={CALVERT,QUADRA,JOHNSTONE STRAIT}&station!={%s}&fields=station,hakai_id"
+            % (
+                config["HAKAI_API_SERVER_ROOT"],
+                config["CTD_CAST_ENDPOINT"],
+                ",".join(config["IGNORED_HAKAI_STATIONS"]),
+            )
+        )
+        if start_dt:
+            url += f"&start_dt>={start_dt}"
+
+        response = client.get(url)
+        if response.status_code != 200:
+            logger.error(response.text)
+            return None
+        df_casts = pd.DataFrame(response.json())
+
+        # Review how many drops exist per station
+        drop_per_station = df_casts.groupby(["station"]).count()
+        low_drop_stations = drop_per_station.query("hakai_id<@low_drop_count_threshold")
+        station_list = [",".join(low_drop_stations.index)] + drop_per_station.query(
+            "hakai_id>=@low_drop_count_threshold"
+        ).index.tolist()
+
+    for station in station_list:
+        query = (
+            "limit=-1&station={%s}&(status=null|status='')&process_error=null" % station
+        )
+        if start_dt:
+            query += f"&start_dt>={start_dt}"
+
         df_data, df_casts = qc_profiles(
-            f"limit=-1&station={station}&(status=null|status='')&process_error=null"
+            "limit=-1&station={%s}&(status=null|status='')&process_error=null" % station
         )
         # If no data keep going
         if df_data is None:
             continue
+        for (work_area, station), df_station in df_data.groupby(
+            ["work_area", "station"]
+        ):
+            # Generate file name
+            file_name_output = f"./output/HakaiWaterPropertiesInstrumentProfileProvisional/{work_area}/{work_area}_{station}_{df_station['start_dt'].min()}-{df_station['start_dt'].max()}.nc"
+            subdir = os.path.dirname(file_name_output)
+            if not os.path.isdir(subdir):
+                logger.info("Generate directory: %s", subdir)
+                os.makedirs(subdir)
+            logger.info("Generate file: %s", file_name_output)
 
-        # Generate file name
-        file_name_output = f"./output/HakaiWaterPropertiesInstrumentProfileProvisional/{row['work_area']}/{row['work_area']}_{row['station']}_{df_casts['start_dt'].min()}-{df_casts['start_dt'].max()}.nc"
-        subdir = os.path.dirname(file_name_output)
-        if not os.path.isdir(subdir):
-            logger.info("Generate directory: %s", subdir)
-            os.makedirs(subdir)
+            # Convert to xarray
+            ds = df_station.to_xarray()
 
-        # Convert to xarray
-        ds = df_data.to_xarray()
+            # Add attributes from config
+            ds.attrs = config["netcdf_attributes"]["GLOBAL"]
+            for var, attrs in config["netcdf_attributes"].items():
+                if var in ds:
+                    ds[var].attrs = attrs
 
-        # Add attributes from config
-        ds.attrs = config["netcdf_attributes"]["GLOBAL"]
-        for var, attrs in config["netcdf_attributes"].items():
-            if var in ds:
-                ds[var].attrs = attrs
-
-        # Standardize columns and encoding
-        standardize_dateset(ds).to_netcdf(file_name_output)
+            # Standardize columns and encoding
+            standardize_dataset(ds).to_netcdf(file_name_output)
 
 
 def generate_hakai_ctd_research_dataset(config):
@@ -559,7 +595,7 @@ def generate_hakai_ctd_research_dataset(config):
                     ds[var].attrs = attrs
 
             # Standardize columns and encoding
-            standardize_dateset(ds).to_netcdf(file_name_output)
+            standardize_dataset(ds).to_netcdf(file_name_output)
 
 
 if __name__ == "__main__":
@@ -571,14 +607,14 @@ if __name__ == "__main__":
     parser.add_argument("--config", default=None)
     args = parser.parse_args()
     # Read default config and update with given one
-    config = read_config_yaml(DEFAULT_CONFIG_PATH)
+    input_config = read_config_yaml(DEFAULT_CONFIG_PATH)
     if args.config:
-        config.update(read_config_yaml(args.config))
+        input_config.update(read_config_yaml(args.config))
 
     # Run Query
     if args.qc_profiles:
-        df = qc_profiles(args.processed_cast_filter, config)
+        df = qc_profiles(args.processed_cast_filter, input_config)
     if args.update_provisional:
-        generate_hakai_provisional_netcdf_dataset(config)
+        generate_hakai_provisional_netcdf_dataset(input_config)
     if args.update_research:
-        generate_hakai_ctd_research_dataset(config)
+        generate_hakai_ctd_research_dataset(input_config)

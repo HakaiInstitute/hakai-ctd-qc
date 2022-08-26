@@ -303,7 +303,7 @@ def grey_list(
     # Since the grey list is a manual input it will likely be small amount and looping through
     # each should be good enough for now. We may have to filter the grey list based on the input in the future
     # if the grey list becomes significant.
-    for index, row in df_grey_list.iterrows():
+    for _, row in df_grey_list.iterrows():
         # Generate Grey List Entry Query
         # Mandatory fields
         query_string = f"'{row['start_datetime_range']}' <= measurement_dt <= '{row['end_datetime_range']}'"
