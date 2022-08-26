@@ -11,10 +11,30 @@ HAKAI_API_SERVER_ROOT: https://goose.hakai.org/api
 CTD_CAST_ENDPOINT: "ctd/views/file/cast"
 CTD_CAST_DATA_ENDPOINT: "ctd/views/file/cast/data"
 CTD_CAST_QC_ENDPOINT: "eims/views/output/ctd_qc"
-HAKAI_STATIONS_ENDPOINT: null
+HAKAI_STATIONS_ENDPOINT: "eims/views/output_sites"
 
 # NETCDF Attributes
 HAKAI_CTD_ATTRIBUTES: ${PACKAGE_PATH}/config/hakai_profile_default_attributes.json
+
+# Flag Conventions
+FLAG_CONVENTIONS:
+    Hakai:
+        AV: accepted_value
+        MV: missing_value
+        SVC: suspisious_value_cautious
+        SVD: suspisious_value_discard
+        NA: not_available
+    QARTOD:
+        1: GOOD
+        2: UNKOWN
+        3: SUSPECT
+        4: FAIL
+        9: MISSING
+    direction_flag:
+        d: downward
+        c: stable
+        u: upward
+
 
 # IOOS QC COORDS Mapping
 ioos_qc_coords_mapping:

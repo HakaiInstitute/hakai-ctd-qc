@@ -426,8 +426,28 @@ def get_hakai_flag_columns(
     return df
 
 
-def get_hakai_ctd_stations_list():
-    """Return  a dataframe of all the work_area,stations available in the hakai database"""
+def generate_netcdf_attributes(ds, config):
+
+    for var in ds:
+        if var == "direction_flag":
+            ds[var].attrs["flag_values"] = config["FLAG CONVENTION"][
+                "direction_flag"
+            ].keys()
+            ds[var].attrs["flag_meaning"] = " ".join(
+                config["FLAG CONVENTION"]["direction_flag"].values()
+            )
+        elif var.endswith("_flag"):
+            ds[var].attrs["flag_values"] = config["FLAG CONVENTION"]["Hakai"].keys()
+            ds[var].attrs["flag_meaning"] = " ".join(
+                config["FLAG CONVENTION"]["Hakai"].values()
+            )
+        elif var.endswith("_flag_level_1"):
+            ds[var].attrs["flag_values"] = config["FLAG CONVENTION"]["QARTOD"].keys()
+            ds[var].attrs["flag_meaning"] = " ".join(
+                config["FLAG CONVENTION"]["QARTOD"].values()
+            )
+    return ds
+
 
 def generate_hakai_provisional_netcdf_dataset(
     config=None, start_dt=None, low_drop_count_threshold=5, station_list=None

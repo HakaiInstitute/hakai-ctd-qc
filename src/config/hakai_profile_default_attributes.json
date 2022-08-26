@@ -12,8 +12,25 @@
         "license": "unknown",
         "geospatial_lat_units": "degrees_north",
         "geospatial_lon_units": "degrees_east",
-        "cdm_data_type": "TimeseriesProfile"
+        "cdm_data_type": "TimeseriesProfile",
+        "cdm_profile_variables": [
+            "hakai_id",
+            "latitude",
+            "longitude",
+            "start_dt",
+            "bottom_dt",
+            "end_dt",
+            "survey",
+            "device_sn"
+        ],
+        "cdm_timeseries_variables": [
+            "station",
+            "station_latitude",
+            "station_longitude"
+        ]
     },
+    "work_area": {},
+    "cruise": {},
     "hakai_id": {
         "long_name": "Hakai ID",
         "cf_role": "profile_id"
