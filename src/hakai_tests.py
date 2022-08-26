@@ -1,6 +1,7 @@
 """Hakai Tests
 Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
+import logging
 import pandas as pd
 import numpy as np
 from ioos_qc.qartod import QartodFlags
@@ -8,6 +9,7 @@ import warnings
 import pkg_resources
 import os
 
+logger = logging.getLogger(__name__)
 # Import Hakai Station List
 
 qartod_to_hakai_flag = {1: "AV", 2: "NA", 3: "SVC", 4: "SVD", 9: "MV"}
@@ -257,9 +259,10 @@ def bad_value_test(
 
     for column in variables:
         # Assign everything as good first
+        logger.debug("Generate flag column: %s%s", column, flag_column_suffix)
         df[column + flag_column_suffix] = QartodFlags.GOOD
-        df[column + flag_column_suffix].loc[
-            df[column].isna() | df[column].isin(flag_list)
+        df.loc[
+            df[column].isna() | df[column].isin(flag_list), column + flag_column_suffix
         ] = QartodFlags.MISSING
 
     # Replace bad data in dataframe to an empty value
