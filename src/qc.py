@@ -344,6 +344,7 @@ def qc_profiles(processed_cast_filter=None, config=None):
             )
         )
         df_qced = pd.DataFrame(response_data.json())
+        original_variables = df_qced.columns
         df_qced = _derived_ocean_variables(df_qced)
         df_qced = _convert_time_to_datetime(df_qced)
         logger.info("Run QC Process")
@@ -364,17 +365,23 @@ def qc_profiles(processed_cast_filter=None, config=None):
                 chunk.iterrows(), desc="Upload flags", unit="profil", total=len(chunk)
             ):
                 logger.debug("Upload qced %s", row["hakai_id"])
-                json_string = _generate_process_flags_json(row, df_qced)
+                json_string = _generate_process_flags_json(
+                    row, df_qced[original_variables]
+                )
                 response = client.post(
                     f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                     json_string,
                 )
                 if response.status_code != 200:
-                    print(f"Failed to update {row['hakai_id']}")
+                    logger.error(
+                        "Failed to update %s: %s", row["hakai_id"], response.text
+                    )
+                    response.raise_for_status()
         else:
             qced_cast_data += [df_qced]
 
-    return pd.concat(qced_cast_data), df_casts
+    if qced_cast_data:
+        return pd.concat(qced_cast_data), df_casts
 
 
 def get_hakai_flag_columns(
@@ -625,16 +632,23 @@ if __name__ == "__main__":
     parser.add_argument("--qc_profiles", action="store_true")
     parser.add_argument("--qc_profiles_filter", default=None)
     parser.add_argument("--config", default=None)
+    parser.add_argument("--kwargs", default=None)
+    parser.add_argument("--config_kwargs", default=None)
     args = parser.parse_args()
+
     # Read default config and update with given one
     input_config = read_config_yaml(DEFAULT_CONFIG_PATH)
     if args.config:
         input_config.update(read_config_yaml(args.config))
+    kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
+    input_config.update(
+        json.loads(args.config_kwargs.replace("'", '"')) if args.config_kwargs else {}
+    )
 
     # Run Query
     if args.qc_profiles:
-        df = qc_profiles(args.processed_cast_filter, input_config)
+        df = qc_profiles(args.qc_profiles_filter, input_config, **kwargs)
     if args.update_provisional:
-        generate_hakai_provisional_netcdf_dataset(input_config)
+        generate_hakai_provisional_netcdf_dataset(input_config, **kwargs)
     if args.update_research:
-        generate_hakai_ctd_research_dataset(input_config)
+        generate_hakai_ctd_research_dataset(input_config, **kwargs)
