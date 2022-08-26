@@ -10,3 +10,6 @@ hakai_profile_qc/__pycache__
 
 /**/.DS_Store
 /output/
+hakai_profile_qc/__pycache__/**/*
+
+*.pyc
