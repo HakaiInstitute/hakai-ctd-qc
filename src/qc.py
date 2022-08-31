@@ -29,13 +29,13 @@ sentry_logging = LoggingIntegration(
     level=logging.INFO,  # Capture info and above as breadcrumbs
     event_level=logging.WARNING,  # Send errors as events
 )
-# sentry_sdk.init(
-#     dsn="https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251",
-#     integrations=[
-#         sentry_logging,
-#     ],
-#     traces_sample_rate=1.0,
-# )
+sentry_sdk.init(
+    dsn="https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251",
+    integrations=[
+        sentry_logging,
+    ],
+    traces_sample_rate=1.0,
+)
 
 
 tqdm.pandas()
@@ -147,7 +147,8 @@ def _convert_time_to_datetime(df):
 
 def run_qc_profiles(df, config):
     """
-    Main method that runs on a number of profiles a series of QARTOD tests and specific to the Hakai CTD Dataset.
+    Main method that runs on a number of profiles a series of QARTOD tests and specific
+    to the Hakai CTD Dataset.
     """
     # Read configurations
     # QARTOD
@@ -317,18 +318,34 @@ def qc_test_profiles(config=None):
     return qc_profiles(query, config)
 
 
-def qc_profiles(processed_cast_filter=None, config=None):
+def qc_unqced_profiles(config=None):
+    """Run QC Tests on casts associated with the processing_stages 8"""
+    query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1"
+    return qc_profiles(query, config)
 
-    # Handle default inputs
-    if processed_cast_filter is None:
-        logger.info("QC processed data that is not qced yet")
-        # QC data that has been processed but not qced yet
-        processed_cast_filter = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1"
+
+def qc_profiles(cast_filter_query, config=None, output=None):
+    """Run Hakai Profile
+
+    Args:
+        cast_filter_query (str): query use to retrieve the list
+            of the profiles to QC. This should correspond to filter
+            query of the Hakai API for the ctd.ctd_cast table.
+        config (str, dict, optional): Config file used to run QC.
+            It can be either a python dictionary or the path to a YAML file
+            See package ./src/config/config.yaml for example.
+            Defaults configuration.
+        output (bool): Output resulting data as pandas dataframes.
+
+    Returns:
+        (ctd_cast_data,ctd_cast): Resulting data as pandas dataframes.
+    """
+    # load Config
     if config is None:
         config = read_config_yaml(DEFAULT_CONFIG_PATH)
 
     # Get the list of hakai_ids to qc
-    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{processed_cast_filter}"
+    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}"
     client = Client()
     logger.info("Retrieve: %s", url)
     response = client.get(url)
@@ -368,7 +385,7 @@ def qc_profiles(processed_cast_filter=None, config=None):
         # Update qced casts stage and error log
         chunk["processing_stage"] = "9_qc_auto"
         chunk["process_error"] = chunk["process_error"].fillna("")
-        
+
         # Upload to server
         if config["UPDATE_SERVER_DATABASE"]:
             for _, row in tqdm(
@@ -387,10 +404,10 @@ def qc_profiles(processed_cast_filter=None, config=None):
                         "Failed to update %s: %s", row["hakai_id"], response.text
                     )
                     response.raise_for_status()
-        else:
+        if output:
             qced_cast_data += [df_qced]
 
-    if qced_cast_data:
+    if output:
         return pd.concat(qced_cast_data), df_casts
 
 
@@ -398,7 +415,7 @@ def _get_hakai_flag_columns(
     df,
     var,
     extra_flag_list="",
-    flag_values_to_consider=[3, 4],
+    flag_values_to_consider=None,
     level_1_flag_suffix="_flag_level_1",
     level_2_flag_suffix="_flag",
 ):
@@ -415,10 +432,10 @@ def _get_hakai_flag_columns(
             for item, value in row.items()
             if value in flag_values_to_consider
         ]
-        if level2 == {}:
-            return ""
-        else:
-            return "; ".join(level2)
+        return "; ".join(level2) if level2 != {} else ""
+
+    if flag_values_to_consider is None:
+        flag_values_to_consider = [3, 4]
 
     # Retrieve each flags column associated to a variable
     var_flag_results = df.filter(regex=var + "_" + extra_flag_list)
@@ -469,6 +486,7 @@ def _generate_netcdf_attributes(ds, config):
 def generate_hakai_provisional_netcdf_dataset(
     config=None, start_dt=None, low_drop_count_threshold=5, station_list=None
 ):
+    """Generate the provisional NetCDF files to be served by ERDDAP."""
     # Get Hakai Station List
     # netcdf_attributes = json.loads(config['']
     if config is None:
@@ -541,12 +559,14 @@ def generate_hakai_provisional_netcdf_dataset(
 
 
 def generate_hakai_ctd_research_dataset(config):
-    # Get Hakai Station List
-    # netcdf_attributes = json.loads(config['']
+    """
+    Tool use to generate research level NetCDF Files to be served by ERDDAP.
+    One file is generated per profiles. The research dataset includes ctd data
+    that successfully Pass (not FAIL) the automated QC and manual QC (see ctd.ctd_qc table) steps.
+    """
     if config is None:
         config = read_config_yaml(DEFAULT_CONFIG_PATH)
 
-    # get qced hakai_id list
     client = Client()
     logger.info("Retrieve list of QC profiles")
     response = client.get(
@@ -639,11 +659,11 @@ def generate_hakai_ctd_research_dataset(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--qc_unqced_profiles", action="store_true")
     parser.add_argument("--update_provisional", action="store_true")
     parser.add_argument("--update_research", action="store_true")
     parser.add_argument("--run_test_suite", action="store_true")
-    parser.add_argument("--qc_profiles", action="store_true")
-    parser.add_argument("--qc_profiles_filter", default=None)
+    parser.add_argument("--qc_profiles_query", default=None)
     parser.add_argument("--config", default=None)
     parser.add_argument("--kwargs", default=None)
     parser.add_argument("--config_kwargs", default=None)
@@ -659,8 +679,8 @@ if __name__ == "__main__":
     )
 
     # Run Query
-    if args.qc_profiles:
-        df = qc_profiles(args.qc_profiles_filter, input_config, **kwargs)
+    if args.qc_profiles_query:
+        df = qc_profiles(args.qc_profiles_query, input_config, **kwargs)
     if args.update_provisional:
         generate_hakai_provisional_netcdf_dataset(input_config, **kwargs)
     if args.update_research:
