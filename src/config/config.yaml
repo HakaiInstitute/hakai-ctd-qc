@@ -32,9 +32,8 @@ FLAG_CONVENTIONS:
         9: MISSING
     direction_flag:
         d: downward
-        c: stable
+        s: stable
         u: upward
-
 
 # IOOS QC COORDS Mapping
 ioos_qc_coords_mapping:
@@ -43,6 +42,7 @@ ioos_qc_coords_mapping:
     lon: "longitude"
     lat: "latitude"
 
+# Variables to output to the Research NetCDF files
 RESEARCH_CTD_VARIABLES: [
     "depth",
     "pressure",
@@ -151,7 +151,7 @@ CTD_VARIABLES: [
         "cdom_ppb_flag_level_1"
     ]
 
-# Ignored station list
+# Stations to ignored from Hakai's provisional and research datasets
 IGNORED_HAKAI_STATIONS: [
         "AB1",
         "BED1",
@@ -176,3 +176,65 @@ IGNORED_HAKAI_STATIONS: [
         "RC2",
         "RC3"
     ]
+
+TEST_HAKAI_IDS: [
+    # one cast from each instrument per year
+    "018032_2012-06-16T17:35:27.166Z",
+    "018066_2012-08-06T16:07:22.667Z",
+    "018032_2013-05-11T18:45:46.334Z",
+    "018066_2013-01-21T22:24:28.501Z",
+    "080217_2014-08-08T11:29:08.667Z",
+    "018032_2014-11-29T17:15:14.000Z",
+    "018032_2015-02-24T23:03:33.667Z",
+    "018066_2015-09-22T23:29:23.667Z",
+    "080217_2015-08-05T21:18:30.333Z",
+    "065679_2015-06-18T15:39:21.833Z",
+    "018066_2016-04-13T19:39:55.501Z",
+    "080217_2016-04-22T16:12:19.000Z",
+    "010856_2016-06-23T19:13:18.833Z",
+    "018032_2016-05-18T18:52:42.334Z",
+    "065679_2016-07-16T14:21:32.167Z",
+    "065679_2017-05-01T13:56:39.333Z",
+    "018066_2017-01-21T00:52:52.333Z",
+    "080217_2017-05-20T16:24:00.667Z",
+    "010856_2017-06-19T17:26:58.500Z",
+    "018032_2017-03-20T18:30:21.666Z",
+    "065679_2018-08-22T16:12:27.333Z",
+    "080217_2018-05-05T17:43:55.167Z",
+    "018066_2018-11-20T18:59:50.500Z",
+    "018032_2018-04-01T20:07:31.000Z",
+    "066061_2018-03-17T19:33:10.333Z",
+    "018032_2019-02-27T19:49:26.833Z",
+    "080217_2019-04-10T18:32:58.000Z",
+    "018066_2019-01-23T23:06:56.167Z",
+    "080217_2019-06-27T14:22:17.833Z", # achiever cruise,... low pressure
+    "018066_2019-02-15T17:08:31.833Z", # oxygen changes v1.2
+    "018066_2019-06-12T18:20:50.834Z",
+    "018066_2018-01-25T21:39:49.000Z",
+    "065679_2018-06-26T18:25:16.500Z",
+    "080217_2019-10-31T19:02:09.000Z",
+    "018066_2019-04-17T18:01:52.333Z",
+    "018032_2017-05-07T18:00:24.166Z",
+    "018066_2017-05-24T18:29:06.667Z",
+    "203658_2020-09-29T20:26:43.000Z", # nature trust casts
+    "203658_2020-09-29T21:22:43.000Z",
+    "203658_2020-07-28T17:56:58.000Z",
+    "203657_2020-09-18T17:57:43.000Z",
+    "203657_2020-08-24T20:44:33.000Z",
+    "203656_2020-09-23T18:10:45.000Z",
+    "205020_2021-03-03T21:47:29.000Z", # static cast that was entered as "dynamic" in metadata
+    "18066_2021-06-22T19:10:52.000Z", #partial profile with upcast
+    "203654_2021-02-16T22:19:38.000Z", # static cast type with pH measurement
+    "203657_2020-11-23T22:32:59.000Z", # static drop
+    "205020_2021-02-26T17:55:56.000Z", # too shallow static drop (will not process)
+    "203654_2021-02-19T17:55:07.000Z", # short static deployment (<2min soak,... will not process)
+    "80217_2021-07-03T17:40:45.166Z", # profile and two static measurement within soak
+    "203619_2020-08-26T00:20:35.000Z", # profile with CODA DO sensor
+    "203619_2020-08-27T17:49:34.000Z", # profile with CODA DO sensor
+    "203619_2020-08-27T17:33:29.500Z", # profile with CODA DO sensor
+    "018032_2013-06-29T22:39:42.167Z", # missing vendor metadata
+    "080217_2014-08-31T08:43:28.000Z", # upcast only data
+    "080217_2015-09-20T17:35:17.000Z", # Used to ouput bottom_depth==NaN
+    "080217_2019-08-29T19:11:57.666Z", # RBR Oxygen do data with Ruskin issue for 2.5.8 to <2.10
+    "204949_2021-10-26T04:54:42.000Z" # Skeena CTD IN fresh water
+]

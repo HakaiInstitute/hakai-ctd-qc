@@ -2,7 +2,6 @@ import argparse
 import json
 import logging
 import os
-from re import L
 import yaml
 
 import gsw
@@ -46,10 +45,14 @@ DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "config", "config.yaml")
 
 def read_config_yaml(path):
     """YAML Config reader replace any ${PACKAGE_PATH} by the package actual path"""
-    with open(os.path.join(path), encoding="UTF-8") as f:
-        yaml_str = f.read()
-    yaml_str = yaml_str.replace("${PACKAGE_PATH}", PACKAGE_PATH)
-    config = yaml.load(yaml_str, Loader=yaml.FullLoader)
+    if isinstance(path, str):
+        with open(os.path.join(path), encoding="UTF-8") as f:
+            yaml_str = f.read()
+        yaml_str = yaml_str.replace("${PACKAGE_PATH}", PACKAGE_PATH)
+        config = yaml.load(yaml_str, Loader=yaml.FullLoader)
+    elif isinstance(path, dict):
+        # Configuation is already parsed to a dictionary
+        config = path
 
     # Parse input files
     if "QARTOD_TESTS_CONFIGURATION_PATH" in config:
@@ -298,7 +301,7 @@ def run_qc_profiles(df, config):
             extra_flags = extra_flags + "|" + var + "_do_cap_test"
 
         # Create Hakai Flag Columns
-        df = get_hakai_flag_columns(df, var, extra_flags)
+        df = _get_hakai_flag_columns(df, var, extra_flags)
 
     # Apply Hakai Grey List
     # Grey List should overwrite the QARTOD Flags
@@ -306,6 +309,12 @@ def run_qc_profiles(df, config):
     df = hakai_tests.grey_list(df)
 
     return df
+
+
+def qc_test_profiles(config=None):
+    """Run Tests on Hakai ID test suite"""
+    query = "hakai_id={%s}&limit=-1" % ",".join(config["TEST_HAKAI_IDS"])
+    return qc_profiles(query, config)
 
 
 def qc_profiles(processed_cast_filter=None, config=None):
@@ -359,6 +368,7 @@ def qc_profiles(processed_cast_filter=None, config=None):
         # Update qced casts stage and error log
         chunk["processing_stage"] = "9_qc_auto"
         chunk["process_error"] = chunk["process_error"].fillna("")
+        
         # Upload to server
         if config["UPDATE_SERVER_DATABASE"]:
             for _, row in tqdm(
@@ -384,7 +394,7 @@ def qc_profiles(processed_cast_filter=None, config=None):
         return pd.concat(qced_cast_data), df_casts
 
 
-def get_hakai_flag_columns(
+def _get_hakai_flag_columns(
     df,
     var,
     extra_flag_list="",
@@ -396,7 +406,7 @@ def get_hakai_flag_columns(
     Generate the different Level1 and Level2 flag columns by grouping the different tests results.
     """
 
-    def generate_level2_flag(row):
+    def __generate_level2_flag(row):
         """
         Regroup together tests results in "flag_value_to_consider" as a json string to be outputed as a level2 flag
         """
@@ -424,7 +434,7 @@ def get_hakai_flag_columns(
 
     # Generete Level 2 Flag Description for failed flag
     df[var + level_2_flag_suffix] = var_flag_results.apply(
-        generate_level2_flag, axis="columns"
+        __generate_level2_flag, axis="columns"
     )
 
     # Make sure that empty records are flagged as MISSING
@@ -433,7 +443,7 @@ def get_hakai_flag_columns(
     return df
 
 
-def generate_netcdf_attributes(ds, config):
+def _generate_netcdf_attributes(ds, config):
 
     for var in ds:
         if var == "direction_flag":
@@ -486,7 +496,9 @@ def generate_hakai_provisional_netcdf_dataset(
 
         # Review how many drops exist per station
         drop_per_station = df_casts.groupby(["station"]).count()
-        low_drop_stations = drop_per_station.query("hakai_id<@low_drop_count_threshold")
+        low_drop_stations = drop_per_station.query(
+            f"hakai_id<{low_drop_count_threshold}"
+        )
         station_list = [",".join(low_drop_stations.index)] + drop_per_station.query(
             "hakai_id>=@low_drop_count_threshold"
         ).index.tolist()
@@ -629,6 +641,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--update_provisional", action="store_true")
     parser.add_argument("--update_research", action="store_true")
+    parser.add_argument("--run_test_suite", action="store_true")
     parser.add_argument("--qc_profiles", action="store_true")
     parser.add_argument("--qc_profiles_filter", default=None)
     parser.add_argument("--config", default=None)
@@ -652,3 +665,5 @@ if __name__ == "__main__":
         generate_hakai_provisional_netcdf_dataset(input_config, **kwargs)
     if args.update_research:
         generate_hakai_ctd_research_dataset(input_config, **kwargs)
+    if args.run_test_suite:
+        qc_test_profiles(input_config)
