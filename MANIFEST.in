@@ -1,3 +1,0 @@
-include src/HakaiStationLocations.csv
-include src/HakaiProfileDatasetGreyList.csv
-recursive-include src/config *
