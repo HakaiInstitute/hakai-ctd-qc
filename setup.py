@@ -8,12 +8,11 @@ setup(
     author="Jessy Barrette",
     author_email="jessy.barrette@hakai.org",
     license="MIT",
-    packages=["hakai_profile_qc"],
+    packages=["src"],
     include_package_data=True,
     install_requires=[
         "ioos_qc",
         "gsw",
-        "pyproj",
         "pandas",
         "numpy",
         "hakai_api",
