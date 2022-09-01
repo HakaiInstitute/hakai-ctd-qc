@@ -205,7 +205,7 @@ def run_qc_profiles(df, config):
         )
     )
     # Regroup back together profiles and static data
-    df = df_profiles.append(df_static).reset_index(drop=True)
+    df = pd.concat([df_profiles,df_static]).reset_index(drop=True)
 
     # HAKAI SPECIFIC TESTS #
     # This section regroup different non QARTOD tests which are specific to
@@ -529,7 +529,7 @@ def generate_hakai_provisional_netcdf_dataset(
             query += f"&start_dt>={start_dt}"
 
         df_data, df_casts = qc_profiles(
-            "limit=-1&station={%s}&(status=null|status='')&process_error=null" % station
+            "limit=-1&station={%s}&(status=null|status='')&process_error=null" % station, output=True
         )
         # If no data keep going
         if df_data is None:
@@ -585,7 +585,7 @@ def generate_hakai_ctd_research_dataset(config):
         # TODO Replace by a query to ctd_file_cast_data and ctd_file_cast when flags will be available
         logger.info("Download CTD data and run automated qc")
         df_data, df_casts = qc_profiles(
-            "hakai_id={%s}&limit=-1" % ",".join(chunk.index)
+            "hakai_id={%s}&limit=-1" % ",".join(chunk.index), output=True
         )
         # Output only downcast
         df_data = df_data.query("direction_flag=='d'")
@@ -667,6 +667,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", default=None)
     parser.add_argument("--kwargs", default=None)
     parser.add_argument("--config_kwargs", default=None)
+    parser.add_argument("--credentials", default=None)
     args = parser.parse_args()
 
     # Read default config and update with given one
@@ -677,6 +678,8 @@ if __name__ == "__main__":
     input_config.update(
         json.loads(args.config_kwargs.replace("'", '"')) if args.config_kwargs else {}
     )
+    if args.credentials:
+        client = Client(credentials=args.credentials)
 
     # Run Query
     if args.qc_profiles_query:
