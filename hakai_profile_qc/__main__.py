@@ -18,7 +18,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from ocean_data_parser.read.utils import standardize_dataset
 
 import hakai_tests
-
+import sentry_warnings
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -308,7 +308,6 @@ def run_qc_profiles(df, config):
     # Grey List should overwrite the QARTOD Flags
     logger.info("Apply Hakai Grey List")
     df = hakai_tests.grey_list(df)
-
     return df
 
 
@@ -375,6 +374,8 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         df_qced = _convert_time_to_datetime(df_qced)
         logger.info("Run QC Process")
         df_qced = run_qc_profiles(df_qced, config)
+
+        sentry_warnings.run_sentry_warnings(df_qced,chunk)
 
         # Convert QARTOD to string temporarily
         qartod_columns = df_qced.filter(regex="_flag_level_1").columns
@@ -683,10 +684,17 @@ if __name__ == "__main__":
 
     # Run Query
     if args.qc_profiles_query:
+        sentry_sdk.set_tag("process","special query")
         df = qc_profiles(args.qc_profiles_query, input_config, **kwargs)
+    if args.qc_unqced_profiles:
+        sentry_sdk.set_tag("process","qc unqced")
+        qc_unqced_profiles(input_config)
     if args.update_provisional:
+        sentry_sdk.set_tag("process","generate_provisional")
         generate_hakai_provisional_netcdf_dataset(input_config, **kwargs)
     if args.update_research:
+        sentry_sdk.set_tag("process","generate_research")
         generate_hakai_ctd_research_dataset(input_config, **kwargs)
     if args.run_test_suite:
+        sentry_sdk.set_tag("process","test")
         qc_test_profiles(input_config)
