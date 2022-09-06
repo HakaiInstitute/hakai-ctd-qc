@@ -391,14 +391,13 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
         df_qced = df_qced.replace({"": None})
 
-        # Update qced casts stage and error log
-        chunk["processing_stage"] = "9_qc_auto"
-        chunk["process_error"] = chunk["process_error"].fillna("")
+        # Update qced casts processing_stage
+        chunk["processing_stage"] = chunk["processing_stage"].replace({" 8_binAvg": "9_qc_auto", "8_rbr_processed":  "9_qc_auto"})
 
         # Upload to server
         if config["UPDATE_SERVER_DATABASE"]:
             for _, row in tqdm(
-                chunk.iterrows(), desc="Upload flags", unit="profil", total=len(chunk)
+                chunk.iterrows(), desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}", unit="profil", total=len(chunk)
             ):
                 logger.debug("Upload qced %s", row["hakai_id"])
                 json_string = _generate_process_flags_json(
