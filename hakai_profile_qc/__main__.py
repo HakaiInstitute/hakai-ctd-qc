@@ -195,6 +195,11 @@ def run_qc_profiles(df, config):
         desc="Apply QARTOD Tests to individual static measurements",
         unit=" measurement",
     )
+    # Drop QARTOD tests that aren't compatible with static unique mesurements
+    static_qartod_config = qartod_config.copy()
+    for context in static_qartod_config['contexts']:
+        for var,tests in context['streams'].items():
+            tests['qartod'].pop('attenuated_signal_test',None)
     df_static = (
         df.query("direction_flag in ('s')")
         .groupby(["hakai_id", "measurement_dt"])
@@ -204,6 +209,7 @@ def run_qc_profiles(df, config):
             ),
         )
     )
+
     # Regroup back together profiles and static data
     df = pd.concat([df_profiles,df_static]).reset_index(drop=True)
 
@@ -370,7 +376,9 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         )
         df_qced = pd.DataFrame(response_data.json())
         original_variables = df_qced.columns
+        logger.info("Generate derived variables")
         df_qced = _derived_ocean_variables(df_qced)
+        logger.info("Convert time variables to datetime objects")
         df_qced = _convert_time_to_datetime(df_qced)
         logger.info("Run QC Process")
         df_qced = run_qc_profiles(df_qced, config)
