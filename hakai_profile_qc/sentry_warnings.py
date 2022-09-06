@@ -37,6 +37,6 @@ def run_sentry_warnings(casts_data,casts):
     _generate_sentry_warning("temperature_qartod_gross_range_test==4","Temperature out of range")
     _generate_sentry_warning("dissolved_oxygen_ml_l_qartod_gross_range_test==4","Dissolved Oxygen out of range")
     _generate_sentry_warning("rinko_do_ml_l_qartod_gross_range_test==4","Secondary Oxygen out of range")
-
+    _generate_sentry_warning("par_qartod_gross_range_test==4","PAR out of range")
 
 
