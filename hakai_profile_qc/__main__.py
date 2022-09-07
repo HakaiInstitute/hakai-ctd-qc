@@ -25,12 +25,18 @@ logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
 )
+
+
 def log_to_sentry(config):
     if config["SENTRY_DSN"] is None:
-        return 
+        return
     sentry_logging = LoggingIntegration(
-        level=logging.getLevelName(config["SENTRY_LEVEL"]),  # Capture info and above as breadcrumbs
-        event_level=logging.getLevelName(config["SENTRY_EVENT_LEVEL"]),  # Send errors as events
+        level=logging.getLevelName(
+            config["SENTRY_LEVEL"]
+        ),  # Capture info and above as breadcrumbs
+        event_level=logging.getLevelName(
+            config["SENTRY_EVENT_LEVEL"]
+        ),  # Send errors as events
     )
     sentry_sdk.init(
         dsn=config["SENTRY_DSN"],
@@ -68,7 +74,9 @@ def read_config_yaml(path):
         with open(config["HAKAI_CTD_ATTRIBUTES"], encoding="UTF-8") as f:
             config["netcdf_attributes"] = json.load(f)
     if "SENTRY_EVENT_MINIMUM_DATE" in config:
-        config["SENTRY_EVENT_MINIMUM_DATE"] = pd.to_datetime(config["SENTRY_EVENT_MINIMUM_DATE"])
+        config["SENTRY_EVENT_MINIMUM_DATE"] = pd.to_datetime(
+            config["SENTRY_EVENT_MINIMUM_DATE"]
+        )
     return config
 
 
@@ -202,9 +210,9 @@ def run_qc_profiles(df, config):
     )
     # Drop QARTOD tests that aren't compatible with static unique mesurements
     static_qartod_config = qartod_config.copy()
-    for context in static_qartod_config['contexts']:
-        for var,tests in context['streams'].items():
-            tests['qartod'].pop('attenuated_signal_test',None)
+    for context in static_qartod_config["contexts"]:
+        for var, tests in context["streams"].items():
+            tests["qartod"].pop("attenuated_signal_test", None)
     df_static = (
         df.query("direction_flag in ('s')")
         .groupby(["hakai_id", "measurement_dt"])
@@ -216,7 +224,7 @@ def run_qc_profiles(df, config):
     )
 
     # Regroup back together profiles and static data
-    df = pd.concat([df_profiles,df_static]).reset_index(drop=True)
+    df = pd.concat([df_profiles, df_static]).reset_index(drop=True)
 
     # HAKAI SPECIFIC TESTS #
     # This section regroup different non QARTOD tests which are specific to
@@ -351,10 +359,10 @@ def qc_profiles(cast_filter_query, config=None, output=None):
     # load Config
     if config is None:
         config = read_config_yaml(DEFAULT_CONFIG_PATH)
-    
+
     # Add sentry log
     log_to_sentry(config)
-    
+
     # Get the list of hakai_ids to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}"
     client = Client()
@@ -389,7 +397,9 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         logger.info("Run QC Process")
         df_qced = run_qc_profiles(df_qced, config)
 
-        sentry_warnings.run_sentry_warnings(df_qced,chunk,config['SENTRY_EVENT_MINIMUM_DATE'])
+        sentry_warnings.run_sentry_warnings(
+            df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
+        )
 
         # Convert QARTOD to string temporarily
         qartod_columns = df_qced.filter(regex="_flag_level_1").columns
@@ -398,13 +408,18 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         df_qced = df_qced.replace({"": None})
 
         # Update qced casts processing_stage
-        chunk["processing_stage"] = chunk["processing_stage"].replace({" 8_binAvg": "9_qc_auto", "8_rbr_processed":  "9_qc_auto"})
+        chunk["processing_stage"] = chunk["processing_stage"].replace(
+            {" 8_binAvg": "9_qc_auto", "8_rbr_processed": "9_qc_auto"}
+        )
         chunk["process_error"] = chunk["process_error"].fillna("")
 
         # Upload to server
         if config["UPDATE_SERVER_DATABASE"]:
             for _, row in tqdm(
-                chunk.iterrows(), desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}", unit="profil", total=len(chunk)
+                chunk.iterrows(),
+                desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
+                unit="profil",
+                total=len(chunk),
             ):
                 logger.debug("Upload qced %s", row["hakai_id"])
                 json_string = _generate_process_flags_json(
@@ -544,7 +559,9 @@ def generate_hakai_provisional_netcdf_dataset(
             query += f"&start_dt>={start_dt}"
 
         df_data, df_casts = qc_profiles(
-            "limit=-1&station={%s}&(status=null|status='')&process_error=null" % station, output=True
+            "limit=-1&station={%s}&(status=null|status='')&process_error=null"
+            % station,
+            output=True,
         )
         # If no data keep going
         if df_data is None:
@@ -683,7 +700,7 @@ if __name__ == "__main__":
     parser.add_argument("--kwargs", default=None)
     parser.add_argument("--config_kwargs", default=None)
     parser.add_argument("--credentials", default=None)
-    parser.add_argument("--upload_flags",action="store_true")
+    parser.add_argument("--upload_flags", action="store_true")
     args = parser.parse_args()
 
     # Read default config and update with given one
@@ -697,21 +714,21 @@ if __name__ == "__main__":
     if args.credentials:
         client = Client(credentials=args.credentials)
     if args.upload_flags:
-        input_config['UPDATE_SERVER_DATABASE'] = True
+        input_config["UPDATE_SERVER_DATABASE"] = True
 
     # Run Query
     if args.qc_profiles_query:
-        sentry_sdk.set_tag("process","special query")
+        sentry_sdk.set_tag("process", "special query")
         df = qc_profiles(args.qc_profiles_query, input_config, **kwargs)
     if args.qc_unqced_profiles:
-        sentry_sdk.set_tag("process","qc unqced")
+        sentry_sdk.set_tag("process", "qc unqced")
         qc_unqced_profiles(input_config)
     if args.update_provisional:
-        sentry_sdk.set_tag("process","generate_provisional")
+        sentry_sdk.set_tag("process", "generate_provisional")
         generate_hakai_provisional_netcdf_dataset(input_config, **kwargs)
     if args.update_research:
-        sentry_sdk.set_tag("process","generate_research")
+        sentry_sdk.set_tag("process", "generate_research")
         generate_hakai_ctd_research_dataset(input_config, **kwargs)
     if args.run_test_suite:
-        sentry_sdk.set_tag("process","test")
+        sentry_sdk.set_tag("process", "test")
         qc_test_profiles(input_config)
