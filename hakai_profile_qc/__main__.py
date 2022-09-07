@@ -25,17 +25,20 @@ logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
 )
-sentry_logging = LoggingIntegration(
-    level=logging.INFO,  # Capture info and above as breadcrumbs
-    event_level=logging.WARNING,  # Send errors as events
-)
-sentry_sdk.init(
-    dsn="https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251",
-    integrations=[
-        sentry_logging,
-    ],
-    traces_sample_rate=1.0,
-)
+def log_to_sentry(config):
+    if config["SENTRY_DSN"] is None:
+        return 
+    sentry_logging = LoggingIntegration(
+        level=logging.getLevelName(config["SENTRY_LEVEL"]),  # Capture info and above as breadcrumbs
+        event_level=logging.getLevelName(config["SENTRY_EVENT_LEVEL"]),  # Send errors as events
+    )
+    sentry_sdk.init(
+        dsn=config["SENTRY_DSN"],
+        integrations=[
+            sentry_logging,
+        ],
+        traces_sample_rate=1.0,
+    )
 
 
 tqdm.pandas()
@@ -64,6 +67,8 @@ def read_config_yaml(path):
     if "HAKAI_CTD_ATTRIBUTES" in config:
         with open(config["HAKAI_CTD_ATTRIBUTES"], encoding="UTF-8") as f:
             config["netcdf_attributes"] = json.load(f)
+    if "SENTRY_EVENT_MINIMUM_DATE" in config:
+        config["SENTRY_EVENT_MINIMUM_DATE"] = pd.to_datetime(config["SENTRY_EVENT_MINIMUM_DATE"])
     return config
 
 
@@ -266,7 +271,7 @@ def run_qc_profiles(df, config):
             direction_flag="direction_flag",
             depth_var="depth",
         )
-
+    # Station Maximum Depth Test
     if "depth_range_test" in hakai_tests_config:
         logger.info("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
@@ -285,8 +290,6 @@ def run_qc_profiles(df, config):
                 "fail_exceedance_range"
             ],
         )
-
-    # Add Station Maximum Depth Test
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
@@ -348,7 +351,10 @@ def qc_profiles(cast_filter_query, config=None, output=None):
     # load Config
     if config is None:
         config = read_config_yaml(DEFAULT_CONFIG_PATH)
-
+    
+    # Add sentry log
+    log_to_sentry(config)
+    
     # Get the list of hakai_ids to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}"
     client = Client()
@@ -383,7 +389,7 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         logger.info("Run QC Process")
         df_qced = run_qc_profiles(df_qced, config)
 
-        sentry_warnings.run_sentry_warnings(df_qced,chunk)
+        sentry_warnings.run_sentry_warnings(df_qced,chunk,config['SENTRY_EVENT_MINIMUM_DATE'])
 
         # Convert QARTOD to string temporarily
         qartod_columns = df_qced.filter(regex="_flag_level_1").columns
@@ -393,6 +399,7 @@ def qc_profiles(cast_filter_query, config=None, output=None):
 
         # Update qced casts processing_stage
         chunk["processing_stage"] = chunk["processing_stage"].replace({" 8_binAvg": "9_qc_auto", "8_rbr_processed":  "9_qc_auto"})
+        chunk["process_error"] = chunk["process_error"].fillna("")
 
         # Upload to server
         if config["UPDATE_SERVER_DATABASE"]:
@@ -676,6 +683,7 @@ if __name__ == "__main__":
     parser.add_argument("--kwargs", default=None)
     parser.add_argument("--config_kwargs", default=None)
     parser.add_argument("--credentials", default=None)
+    parser.add_argument("--upload_flags",action="store_true")
     args = parser.parse_args()
 
     # Read default config and update with given one
@@ -688,6 +696,8 @@ if __name__ == "__main__":
     )
     if args.credentials:
         client = Client(credentials=args.credentials)
+    if args.upload_flags:
+        input_config['UPDATE_SERVER_DATABASE'] = True
 
     # Run Query
     if args.qc_profiles_query:

@@ -1,9 +1,19 @@
 from sentry_sdk import set_tag, set_context
 import logging
+import pandas as pd
 logger = logging.getLogger(__name__)
 tags = ['work_area','station','device_sn','hakai_id']
 context = ["cruise","vessel","operators","comments","cast_type","no_cast","bottle_drop","processing_software_version"]
-def run_sentry_warnings(casts_data,casts):
+def run_sentry_warnings(casts_data,casts,minimum_date=None):
+    """Review qc result and return to sentry particular results that needs a special attention."""
+
+    if minimum_date:
+        # Filter out times prior to minimum date
+        casts['start_dt'] = pd.to_datetime(casts['start_dt'])
+        casts = casts.query('start_dt>@minimum_date')
+        if casts.empty:
+            return
+
     casts = casts.set_index('hakai_id')
     def _generate_sentry_warning(query,message):
         if query:
@@ -37,6 +47,6 @@ def run_sentry_warnings(casts_data,casts):
     _generate_sentry_warning("temperature_qartod_gross_range_test==4","Temperature out of range")
     _generate_sentry_warning("dissolved_oxygen_ml_l_qartod_gross_range_test==4","Dissolved Oxygen out of range")
     _generate_sentry_warning("rinko_do_ml_l_qartod_gross_range_test==4","Secondary Oxygen out of range")
-    _generate_sentry_warning("par_qartod_gross_range_test==4","PAR out of range")
+    # _generate_sentry_warning("par_qartod_gross_range_test==4","PAR out of range")
 
 
