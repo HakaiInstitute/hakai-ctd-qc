@@ -1,6 +1,7 @@
 """Hakai Tests
 Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
+import logging
 import pandas as pd
 import numpy as np
 from ioos_qc.qartod import QartodFlags
@@ -8,6 +9,7 @@ import warnings
 import pkg_resources
 import os
 
+logger = logging.getLogger(__name__)
 # Import Hakai Station List
 
 qartod_to_hakai_flag = {1: "AV", 2: "NA", 3: "SVC", 4: "SVD", 9: "MV"}
@@ -195,7 +197,7 @@ def bottom_hit_detection(
 
     # Now let's flag the consecutive data that are flagged in sigma0 near the bottom as bottom hit
     for hakai_id in bottom_hit_id[bottom_hit_id].reset_index()[profile_id]:
-        for index, df_bottom_hit in df[df[profile_id] == hakai_id].groupby(
+        for _, df_bottom_hit in df[df[profile_id] == hakai_id].groupby(
             by=[profile_id, profile_direction_variable]
         ):
             # For each bottom hit find the deepest good record in density and flag everything else below as FAIL
@@ -257,11 +259,11 @@ def bad_value_test(
 
     for column in variables:
         # Assign everything as good first
+        logger.debug("Generate flag column: %s%s", column, flag_column_suffix)
         df[column + flag_column_suffix] = QartodFlags.GOOD
-        for flag in flag_list:
-            df.loc[
-                df[column].isin([flag]), column + flag_column_suffix
-            ] = QartodFlags.MISSING
+        df.loc[
+            df[column].isna() | df[column].isin(flag_list), column + flag_column_suffix
+        ] = QartodFlags.MISSING
 
     # Replace bad data in dataframe to an empty value
     df = df.replace(flag_list, np.nan)
@@ -301,7 +303,7 @@ def grey_list(
     # Since the grey list is a manual input it will likely be small amount and looping through
     # each should be good enough for now. We may have to filter the grey list based on the input in the future
     # if the grey list becomes significant.
-    for index, row in df_grey_list.iterrows():
+    for _, row in df_grey_list.iterrows():
         # Generate Grey List Entry Query
         # Mandatory fields
         query_string = f"'{row['start_datetime_range']}' <= measurement_dt <= '{row['end_datetime_range']}'"
@@ -430,10 +432,7 @@ def hakai_station_maximum_depth_test(
         flag_column,
     ] = QartodFlags.FAIL
 
-    # Distribute Resulting flag to the whole column
-    df = df.merge(
-        df_max_depth.reset_index()[["station","hakai_id", flag_column]], 
-        on=["station","hakai_id"]
+    return df.merge(
+        df_max_depth.reset_index()[["station", "hakai_id", flag_column]],
+        on=["station", "hakai_id"],
     )
-
-    return df

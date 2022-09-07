@@ -2,10 +2,13 @@
 hakai-profile-qaqc is the main package use to handle the QAQCing of the CTD Datasets maintained by the Hakai Institute. Please refer to the [test description manual](tests_description.md) for a full description of the different tests applied within this package. Examples of tes
 
 ## Installation
-Run the following command in a command line
-
+Create the conda environment:
+```terminal
+conda env create -f environment.yaml
 ```
-pip install git+git://github.com/HakaiInstitute/hakai-profile-qaqc.git
+Activate the environment
+```terminal
+conda activate hakai_qc
 ```
 
 ## How To
