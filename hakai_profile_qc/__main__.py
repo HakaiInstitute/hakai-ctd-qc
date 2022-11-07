@@ -95,8 +95,7 @@ logging.basicConfig(
     level=config["LOGGING_LEVEL"],
     format=config["LOGGING_FORMAT"],
 )
-if config["SENTRY_DSN"]:
-    log_to_sentry()
+log_to_sentry()
 # Log to Hakai
 client = Client()
 
