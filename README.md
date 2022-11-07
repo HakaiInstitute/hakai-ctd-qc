@@ -70,7 +70,7 @@ https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/
 This package use the [QARTOD flagging definition](https://cdn.ioos.noaa.gov/media/2020/07/QARTOD-Data-Flags-Manual_version1.2final.pdf)
 which follow the definitions presented below:
 
-![Alt text](QARTOD_Flag_Convetion_Table.png?raw=true 'QARTOD Flag Convention')
+![Alt text](QARTOD_Flag_Convention_Table.png?raw=true 'QARTOD Flag Convention')
 
 ```
 
