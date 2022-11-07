@@ -13,6 +13,11 @@ CTD_CAST_DATA_ENDPOINT: 'ctd/views/file/cast/data'
 CTD_CAST_QC_ENDPOINT: 'eims/views/output/ctd_qc'
 HAKAI_STATIONS_ENDPOINT: 'eims/views/output_sites'
 
+# Logging
+LOGGING_LEVEL: INFO
+LOGGING_FORMAT: '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+ENVIRONMENT: DEFAULT
+
 # Sentry
 SENTRY_DSN: https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251
 SENTRY_LEVEL: INFO

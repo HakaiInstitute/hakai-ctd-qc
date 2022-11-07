@@ -43,41 +43,60 @@ def log_to_sentry(config):
         integrations=[
             sentry_logging,
         ],
+        environment=config["ENVIRONMENT"],
         traces_sample_rate=1.0,
     )
 
 
 tqdm.pandas()
 PACKAGE_PATH = os.path.join(os.path.dirname(__file__))
-DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "config", "config.yaml")
+DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "config", "default-config.yaml")
+ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..","config.yaml")
 
 
-def read_config_yaml(path):
+def read_config_yaml():
     """YAML Config reader replace any ${PACKAGE_PATH} by the package actual path"""
-    if isinstance(path, str):
-        with open(os.path.join(path), encoding="UTF-8") as f:
+
+    def __parse_config_yaml(config_path):
+        with open(config_path, encoding="UTF-8") as f:
             yaml_str = f.read()
         yaml_str = yaml_str.replace("${PACKAGE_PATH}", PACKAGE_PATH)
-        config = yaml.load(yaml_str, Loader=yaml.FullLoader)
-    elif isinstance(path, dict):
-        # Configuation is already parsed to a dictionary
-        config = path
+        return yaml.load(yaml_str, Loader=yaml.SafeLoader)
+
+    # Read config from the different sources
+    parsed_config = __parse_config_yaml(DEFAULT_CONFIG_PATH)
+    if os.path.exists(ENV_CONFIG_PATH):
+        parsed_config.update(__parse_config_yaml(ENV_CONFIG_PATH))
 
     # Parse input files
-    if "QARTOD_TESTS_CONFIGURATION_PATH" in config:
-        with open(config["QARTOD_TESTS_CONFIGURATION_PATH"], encoding="UTF-8") as f:
-            config["qartod_tests_config"] = json.load(f)
-    if "HAKAI_TESTS_CONFIGURATION_PATH" in config:
-        with open(config["HAKAI_TESTS_CONFIGURATION_PATH"], encoding="UTF-8") as f:
-            config["hakai_tests_config"] = json.load(f)
-    if "HAKAI_CTD_ATTRIBUTES" in config:
-        with open(config["HAKAI_CTD_ATTRIBUTES"], encoding="UTF-8") as f:
-            config["netcdf_attributes"] = json.load(f)
-    if "SENTRY_EVENT_MINIMUM_DATE" in config:
-        config["SENTRY_EVENT_MINIMUM_DATE"] = pd.to_datetime(
-            config["SENTRY_EVENT_MINIMUM_DATE"]
+    if "QARTOD_TESTS_CONFIGURATION_PATH" in parsed_config:
+        with open(
+            parsed_config["QARTOD_TESTS_CONFIGURATION_PATH"], encoding="UTF-8"
+        ) as f:
+            parsed_config["qartod_tests_config"] = json.load(f)
+    if "HAKAI_TESTS_CONFIGURATION_PATH" in parsed_config:
+        with open(
+            parsed_config["HAKAI_TESTS_CONFIGURATION_PATH"], encoding="UTF-8"
+        ) as f:
+            parsed_config["hakai_tests_config"] = json.load(f)
+    if "HAKAI_CTD_ATTRIBUTES" in parsed_config:
+        with open(parsed_config["HAKAI_CTD_ATTRIBUTES"], encoding="UTF-8") as f:
+            parsed_config["netcdf_attributes"] = json.load(f)
+    if "SENTRY_EVENT_MINIMUM_DATE" in parsed_config:
+        parsed_config["SENTRY_EVENT_MINIMUM_DATE"] = pd.to_datetime(
+            parsed_config["SENTRY_EVENT_MINIMUM_DATE"]
         )
-    return config
+    return parsed_config
+
+
+loaded_config = read_config_yaml()
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=loaded_config["LOGGING_LEVEL"],
+    format=loaded_config["LOGGING_FORMAT"],
+)
+if loaded_config["SENTRY_DSN"]:
+    log_to_sentry(loaded_config)
 
 
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
@@ -672,7 +691,7 @@ def generate_hakai_ctd_research_dataset(config):
                     if key in ds:
                         continue
                     ds[key] = value
-                elif key in ds and key not in config["netcdf_attributes"]:
+                elif key in ds:
                     ds = ds.drop(key)
                     ds.attrs[key] = value
                 elif type(value) in (bool,):
@@ -703,32 +722,28 @@ if __name__ == "__main__":
     parser.add_argument("--upload_flags", action="store_true")
     args = parser.parse_args()
 
-    # Read default config and update with given one
-    input_config = read_config_yaml(DEFAULT_CONFIG_PATH)
-    if args.config:
-        input_config.update(read_config_yaml(args.config))
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
-    input_config.update(
+    loaded_config.update(
         json.loads(args.config_kwargs.replace("'", '"')) if args.config_kwargs else {}
     )
     if args.credentials:
         client = Client(credentials=args.credentials)
     if args.upload_flags:
-        input_config["UPDATE_SERVER_DATABASE"] = True
+        loaded_config["UPDATE_SERVER_DATABASE"] = True
 
     # Run Query
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
-        df = qc_profiles(args.qc_profiles_query, input_config, **kwargs)
+        df = qc_profiles(args.qc_profiles_query, loaded_config, **kwargs)
     if args.qc_unqced_profiles:
         sentry_sdk.set_tag("process", "qc unqced")
-        qc_unqced_profiles(input_config)
+        qc_unqced_profiles(loaded_config)
     if args.update_provisional:
         sentry_sdk.set_tag("process", "generate_provisional")
-        generate_hakai_provisional_netcdf_dataset(input_config, **kwargs)
+        generate_hakai_provisional_netcdf_dataset(loaded_config, **kwargs)
     if args.update_research:
         sentry_sdk.set_tag("process", "generate_research")
-        generate_hakai_ctd_research_dataset(input_config, **kwargs)
+        generate_hakai_ctd_research_dataset(loaded_config, **kwargs)
     if args.run_test_suite:
         sentry_sdk.set_tag("process", "test")
-        qc_test_profiles(input_config)
+        qc_test_profiles(loaded_config)
