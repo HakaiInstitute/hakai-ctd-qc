@@ -27,7 +27,7 @@ logging.basicConfig(
 )
 
 
-def log_to_sentry(config):
+def log_to_sentry():
     if config["SENTRY_DSN"] is None:
         return
     sentry_logging = LoggingIntegration(
@@ -51,7 +51,7 @@ def log_to_sentry(config):
 tqdm.pandas()
 PACKAGE_PATH = os.path.join(os.path.dirname(__file__))
 DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "config", "default-config.yaml")
-ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..","config.yaml")
+ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "config.yaml")
 
 
 def read_config_yaml():
@@ -89,14 +89,16 @@ def read_config_yaml():
     return parsed_config
 
 
-loaded_config = read_config_yaml()
+config = read_config_yaml()
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=loaded_config["LOGGING_LEVEL"],
-    format=loaded_config["LOGGING_FORMAT"],
+    level=config["LOGGING_LEVEL"],
+    format=config["LOGGING_FORMAT"],
 )
-if loaded_config["SENTRY_DSN"]:
-    log_to_sentry(loaded_config)
+if config["SENTRY_DSN"]:
+    log_to_sentry()
+# Log to Hakai
+client = Client()
 
 
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
@@ -177,7 +179,7 @@ def _convert_time_to_datetime(df):
     return df
 
 
-def run_qc_profiles(df, config):
+def run_qc_profiles(df):
     """
     Main method that runs on a number of profiles a series of QARTOD tests and specific
     to the Hakai CTD Dataset.
@@ -347,19 +349,19 @@ def run_qc_profiles(df, config):
     return df
 
 
-def qc_test_profiles(config=None):
+def qc_test_profiles():
     """Run Tests on Hakai ID test suite"""
     query = "hakai_id={%s}&limit=-1" % ",".join(config["TEST_HAKAI_IDS"])
     return qc_profiles(query, config)
 
 
-def qc_unqced_profiles(config=None):
+def qc_unqced_profiles():
     """Run QC Tests on casts associated with the processing_stages 8"""
     query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1"
     return qc_profiles(query, config)
 
 
-def qc_profiles(cast_filter_query, config=None, output=None):
+def qc_profiles(cast_filter_query, output=None):
     """Run Hakai Profile
 
     Args:
@@ -375,16 +377,9 @@ def qc_profiles(cast_filter_query, config=None, output=None):
     Returns:
         (ctd_cast_data,ctd_cast): Resulting data as pandas dataframes.
     """
-    # load Config
-    if config is None:
-        config = read_config_yaml(DEFAULT_CONFIG_PATH)
-
-    # Add sentry log
-    log_to_sentry(config)
 
     # Get the list of hakai_ids to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}"
-    client = Client()
     logger.info("Retrieve: %s", url)
     response = client.get(url)
     df_casts = pd.DataFrame(response.json())
@@ -414,7 +409,7 @@ def qc_profiles(cast_filter_query, config=None, output=None):
         logger.info("Convert time variables to datetime objects")
         df_qced = _convert_time_to_datetime(df_qced)
         logger.info("Run QC Process")
-        df_qced = run_qc_profiles(df_qced, config)
+        df_qced = run_qc_profiles(df_qced)
 
         sentry_warnings.run_sentry_warnings(
             df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
@@ -509,7 +504,7 @@ def _get_hakai_flag_columns(
     return df
 
 
-def _generate_netcdf_attributes(ds, config):
+def _generate_netcdf_attributes(ds):
 
     for var in ds:
         if var == "direction_flag":
@@ -533,16 +528,12 @@ def _generate_netcdf_attributes(ds, config):
 
 
 def generate_hakai_provisional_netcdf_dataset(
-    config=None, start_dt=None, low_drop_count_threshold=5, station_list=None
+    start_dt=None, low_drop_count_threshold=5, station_list=None
 ):
     """Generate the provisional NetCDF files to be served by ERDDAP."""
     # Get Hakai Station List
-    # netcdf_attributes = json.loads(config['']
-    if config is None:
-        config = read_config_yaml(DEFAULT_CONFIG_PATH)
 
     # Get the list of all the casts available
-    client = Client()
     if station_list is None:
         url = (
             "%s/%s?limit=-1&(status=null|status='')&work_area={CALVERT,QUADRA,JOHNSTONE STRAIT}&station!={%s}&fields=station,hakai_id"
@@ -609,16 +600,13 @@ def generate_hakai_provisional_netcdf_dataset(
             standardize_dataset(ds).to_netcdf(file_name_output)
 
 
-def generate_hakai_ctd_research_dataset(config):
+def generate_hakai_ctd_research_dataset():
     """
     Tool use to generate research level NetCDF Files to be served by ERDDAP.
     One file is generated per profiles. The research dataset includes ctd data
     that successfully Pass (not FAIL) the automated QC and manual QC (see ctd.ctd_qc table) steps.
     """
-    if config is None:
-        config = read_config_yaml(DEFAULT_CONFIG_PATH)
 
-    client = Client()
     logger.info("Retrieve list of QC profiles")
     response = client.get(
         f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_QC_ENDPOINT']}?limit=-1"
@@ -723,27 +711,27 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
-    loaded_config.update(
+    config.update(
         json.loads(args.config_kwargs.replace("'", '"')) if args.config_kwargs else {}
     )
     if args.credentials:
         client = Client(credentials=args.credentials)
     if args.upload_flags:
-        loaded_config["UPDATE_SERVER_DATABASE"] = True
+        config["UPDATE_SERVER_DATABASE"] = True
 
     # Run Query
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
-        df = qc_profiles(args.qc_profiles_query, loaded_config, **kwargs)
+        df = qc_profiles(args.qc_profiles_query, config, **kwargs)
     if args.qc_unqced_profiles:
         sentry_sdk.set_tag("process", "qc unqced")
-        qc_unqced_profiles(loaded_config)
+        qc_unqced_profiles()
     if args.update_provisional:
         sentry_sdk.set_tag("process", "generate_provisional")
-        generate_hakai_provisional_netcdf_dataset(loaded_config, **kwargs)
+        generate_hakai_provisional_netcdf_dataset(config, **kwargs)
     if args.update_research:
         sentry_sdk.set_tag("process", "generate_research")
-        generate_hakai_ctd_research_dataset(loaded_config, **kwargs)
+        generate_hakai_ctd_research_dataset(config, **kwargs)
     if args.run_test_suite:
         sentry_sdk.set_tag("process", "test")
-        qc_test_profiles(loaded_config)
+        qc_test_profiles()
