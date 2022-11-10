@@ -9,9 +9,9 @@ def run_sentry_warnings(casts_data,casts,minimum_date=None):
 
     if minimum_date:
         # Filter out times prior to minimum date
-        casts['start_dt'] = pd.to_datetime(casts['start_dt'])
-        casts = casts.query('start_dt>@minimum_date')
-        if casts.empty:
+        casts_data['start_dt'] = pd.to_datetime(casts_data['start_dt'])
+        casts_data = casts_data.query('start_dt>@minimum_date')
+        if casts_data.empty:
             return
 
     casts = casts.set_index('hakai_id')
