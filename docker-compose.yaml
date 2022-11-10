@@ -4,8 +4,5 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: on-failure
     ports:
       - '19999:19999'
-    environment:
-      - DATA_REPOSITORIES_PATH=/venv/data
