@@ -44,7 +44,7 @@ def log_to_sentry():
 
 tqdm.pandas()
 PACKAGE_PATH = os.path.join(os.path.dirname(__file__))
-DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "config", "default-config.yaml")
+DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "default-config.yaml")
 ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "config.yaml")
 config_from_env = ["HAKAI_API_TOKEN", "ENVIRONMENT", "HAKAI_API_SERVER_ROOT"]
 
