@@ -3,7 +3,24 @@
 hakai-profile-qaqc is the main package use to handle the QAQCing of the CTD Datasets maintained by the Hakai Institute. Please refer to the [test description manual](tests_description.md) for a full description of the different tests applied within this package. Examples of tes
 
 ## Install and configure
+The present package can be installed locally or through a docker container.
+In all cases it is best to clone locally the package and apply the appropriate configuration.
 
+```terminal 
+git clone git@github.com:HakaiInstitute/hakai-profile-qaqc.git
+```
+### Configuration
+The package configuration can be made through three different levels by order of precedence.
+
+- default-config.yaml: default configuration file
+- config.yaml (optional): configuration
+- environment variables: Only the following variables are retrieved if available:
+    - HAKAI_API_TOKEN: Token pass to the hakai api service
+    - ENVIRONMENT: environment used in sentry to track the different deployments
+    - HAKAI_API_SERVER_ROOT: API root to interact with to retrieve and upload data.
+    - UPDATE_SERVER_DATABASE: bool to upload resulting flags on server
+
+### Development 
 Create the conda environment:
 
 ```terminal
@@ -18,6 +35,12 @@ conda activate hakai_qc
 
 The package relies on the configuration file available under hakai_profile_qc/config/configl.yaml. You can potentially modify the configuration file or pass in any changes to the configuration as a json string dictionary as an input parameer to the command line option
 `--config_kwargs``
+
+### docker-compose
+The processing of the latest not quality controlled ctd profiles can be executed through a docker-compose command. Use the following command to run the docker container:
+```terminal
+docker-compose up -d
+```
 
 ## How To
 
