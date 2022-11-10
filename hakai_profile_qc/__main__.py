@@ -354,14 +354,17 @@ def run_qc_profiles(df):
 
 def qc_test_profiles():
     """Run Tests on Hakai ID test suite"""
-    query = "hakai_id={%s}&limit=-1" % ",".join(config["TEST_HAKAI_IDS"])
-    return qc_profiles(query, config)
+    query = (
+        "hakai_id={%s}&limit=-1&fields=hakai_id,processing_stage,process_error"
+        % ",".join(config["TEST_HAKAI_IDS"])
+    )
+    return qc_profiles(query)
 
 
 def qc_unqced_profiles():
     """Run QC Tests on casts associated with the processing_stages 8"""
     query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1"
-    return qc_profiles(query, config)
+    return qc_profiles(query)
 
 
 def qc_profiles(cast_filter_query, output=None):
