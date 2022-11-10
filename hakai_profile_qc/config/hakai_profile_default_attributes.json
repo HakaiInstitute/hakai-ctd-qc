@@ -11,7 +11,56 @@
         "standard_name_vocabulary": "CF 1.6",
         "license": "unknown",
         "geospatial_lat_units": "degrees_north",
-        "geospatial_lon_units": "degrees_east"
+        "geospatial_lon_units": "degrees_east",
+        "cdm_data_type": "TimeseriesProfile",
+        "cdm_profile_variables": [
+            "hakai_id",
+            "latitude",
+            "longitude",
+            "start_dt",
+            "bottom_dt",
+            "end_dt",
+            "survey",
+            "device_sn"
+        ],
+        "cdm_timeseries_variables": [
+            "station",
+            "station_latitude",
+            "station_longitude"
+        ]
+    },
+    "work_area": {},
+    "cruise": {},
+    "hakai_id": {
+        "long_name": "Hakai ID",
+        "cf_role": "profile_id"
+    },
+    "station": {
+        "long_name": "Station",
+        "cf_role": "timeseries_id"
+    },
+    "latitude": {
+        "long_name": "Latitude",
+        "standard_name": "latitude",
+        "units": "degrees_north"
+    },
+    "longitude": {
+        "long_name": "Longitude",
+        "standard_name": "longitude",
+        "units": "degrees_east"
+    },
+    "start_dt": {
+        "long_name": "Profile Start Time",
+        "standard_name": "time"
+    },
+    "bottom_dt": {
+        "long_name": "Profile Bottom Time"
+    },
+    "end_dt": {
+        "long_name": "Profile End Time"
+    },
+    "measurement_dt": {
+        "long_name": "Record Measurement Time"
     },
     "depth": {
         "standard_name": "depth",
@@ -42,6 +91,11 @@
         "units": "mL\/L",
         "description": "",
         "long_name": "Dissolved Oxygen Concentration"
+    },
+    "dissolved_oxygen_percent": {
+        "long_name": "Dissolved Oxygen Percentage of Saturation",
+        "units": "%",
+        "standard_name": "fractional_saturation_of_oxygen_in_sea_water"
     },
     "flc": {
         "standard_name": "mass_concentration_of_chlorophyll_in_sea_water",
@@ -86,5 +140,9 @@
         "units": "FTU",
         "description": "",
         "long_name": "Turbidity"
+    },
+    "spec_cond": {
+        "long_name": "Specific Conductance",
+        "units": "mS/cm"
     }
 }
