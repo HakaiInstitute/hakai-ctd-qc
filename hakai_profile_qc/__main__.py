@@ -363,7 +363,7 @@ def qc_test_profiles():
 
 def qc_unqced_profiles():
     """Run QC Tests on casts associated with the processing_stages 8"""
-    query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1"
+    query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1&fields=hakai_id,processing_stage,process_error"
     return qc_profiles(query)
 
 
