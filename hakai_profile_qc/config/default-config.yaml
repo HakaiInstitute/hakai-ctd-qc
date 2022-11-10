@@ -12,6 +12,7 @@ CTD_CAST_ENDPOINT: 'ctd/views/file/cast'
 CTD_CAST_DATA_ENDPOINT: 'ctd/views/file/cast/data'
 CTD_CAST_QC_ENDPOINT: 'eims/views/output/ctd_qc'
 HAKAI_STATIONS_ENDPOINT: 'eims/views/output_sites'
+HAKAI_API_ENDPOINT: null
 
 # Logging
 LOGGING_LEVEL: INFO

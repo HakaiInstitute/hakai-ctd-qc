@@ -20,12 +20,6 @@ from ocean_data_parser.read.utils import standardize_dataset
 import hakai_tests
 import sentry_warnings
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
-)
-
 
 def log_to_sentry():
     if config["SENTRY_DSN"] is None:
@@ -52,6 +46,7 @@ tqdm.pandas()
 PACKAGE_PATH = os.path.join(os.path.dirname(__file__))
 DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "config", "default-config.yaml")
 ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "config.yaml")
+config_from_env = ["HAKAI_API_TOKEN", "ENVIRONMENT", "HAKAI_API_SERVER_ROOT"]
 
 
 def read_config_yaml():
@@ -67,6 +62,10 @@ def read_config_yaml():
     parsed_config = __parse_config_yaml(DEFAULT_CONFIG_PATH)
     if os.path.exists(ENV_CONFIG_PATH):
         parsed_config.update(__parse_config_yaml(ENV_CONFIG_PATH))
+    # environment variables
+    parsed_config.update(
+        {key: os.environ[key] for key in config_from_env if key in os.environ}
+    )
 
     # Parse input files
     if "QARTOD_TESTS_CONFIGURATION_PATH" in parsed_config:
@@ -97,7 +96,7 @@ logging.basicConfig(
 )
 log_to_sentry()
 # Log to Hakai
-client = Client()
+client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 
 
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
