@@ -2,7 +2,7 @@
 # We do that because the time taken to build both containers from scratch each time adds up to 350s currently - that is too long
 # Docker can cache the "build" image and not rebuild it each time because it doesn't change often
 # However, our source code "./src" does change frequent as we update it. Therefore we cannot cache it.
-FROM --platform=linux/arm64/v8 continuumio/miniconda3:4.12.0 as build
+FROM --platform=linux/amd64 continuumio/miniconda3:4.12.0 as build
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     build-essential gcc git
@@ -36,7 +36,7 @@ RUN /venv/bin/conda-unpack
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
-FROM --platform=linux/arm64/v8  python:3.9.13-buster AS runtime
+FROM --platform=linux/amd64  python:3.9.13-buster AS runtime
 
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
