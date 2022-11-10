@@ -60,18 +60,15 @@ Hakai's test suite profiles can be run quickly through the goose sever by using 
 python hakai_profile_qc --run_test_suite
 ```
 
-To update flags on the development server
+By default the data from the hakaidev database will be download through the goose.hakai.org/api.
 
-```
-python hakai_profile_qc --run_test_suite --config_kwargs "{'HAKAI_API_SERVER_ROOT':'https://goose.hakai.org/api', 'UPDATE_SERVER_DATABASE':true}"
-```
 
 ## Production
 
-The tool can be run on the production server and ran on the unqced profiles by using the following command line:
+The tool can be run on the production server and ran on the unqced profiles by using the following command line with the right configuration setup:
 
 ```
-python hakai_profile_qc --qc_unqced_profiles --config_kwargs "{'HAKAI_API_SERVER_ROOT':'https://hecate.hakai.org/api', 'UPDATE_SERVER_DATABASE':true}"
+python hakai_profile_qc --qc_unqced_profiles
 ```
 
 ## Tests applied
@@ -83,10 +80,10 @@ A full list of the different tests applied now is available in the
 It is also possible to run the different tests on your own through an online Jupyter Notebook:
 https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/review-hakai-tests.ipynb
 
-## Generate NetCDF datasets
+<!-- ## Generate NetCDF datasets
 
 To generate the source files for the Hakai Research Dataset, you can use the following jupyter notebook here:
-https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/generate-research-ncfiles.ipynb
+https://colab.research.google.com/github/HakaiInstitute/hakai-profile-qaqc/blob/main/generate-research-ncfiles.ipynb -->
 
 ## FLAG CONVENTION
 
