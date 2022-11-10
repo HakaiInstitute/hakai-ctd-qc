@@ -706,35 +706,24 @@ if __name__ == "__main__":
     parser.add_argument("--update_research", action="store_true")
     parser.add_argument("--run_test_suite", action="store_true")
     parser.add_argument("--qc_profiles_query", default=None)
-    parser.add_argument("--config", default=None)
     parser.add_argument("--kwargs", default=None)
-    parser.add_argument("--config_kwargs", default=None)
-    parser.add_argument("--credentials", default=None)
-    parser.add_argument("--upload_flags", action="store_true")
     args = parser.parse_args()
 
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
-    config.update(
-        json.loads(args.config_kwargs.replace("'", '"')) if args.config_kwargs else {}
-    )
-    if args.credentials:
-        client = Client(credentials=args.credentials)
-    if args.upload_flags:
-        config["UPDATE_SERVER_DATABASE"] = True
 
     # Run Query
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
-        df = qc_profiles(args.qc_profiles_query, config, **kwargs)
+        df = qc_profiles(args.qc_profiles_query)
     if args.qc_unqced_profiles:
         sentry_sdk.set_tag("process", "qc unqced")
         qc_unqced_profiles()
     if args.update_provisional:
         sentry_sdk.set_tag("process", "generate_provisional")
-        generate_hakai_provisional_netcdf_dataset(config, **kwargs)
+        generate_hakai_provisional_netcdf_dataset(**kwargs)
     if args.update_research:
         sentry_sdk.set_tag("process", "generate_research")
-        generate_hakai_ctd_research_dataset(config, **kwargs)
+        generate_hakai_ctd_research_dataset(**kwargs)
     if args.run_test_suite:
         sentry_sdk.set_tag("process", "test")
         qc_test_profiles()
