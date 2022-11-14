@@ -75,7 +75,7 @@ python hakai_profile_qc --qc_unqced_profiles
 
 The tool is deployed as an app [here](https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-batch-mode) to be run on irregular bassis to process a significant amount of the profiles without taking over any of the ressources of the production sever. 
 
-To avoid restarting the process on completed the following command needs to be send to the docker container made available on the server:
+To avoid restarting the process on completed the following command needs to be send to the docker container made available on the server (more details [here](https://blog.alexellis.io/containers-on-swarm/)):
 
 ```shell
 sudo docker service update CONTAINER_ID --restart-condition “none"
