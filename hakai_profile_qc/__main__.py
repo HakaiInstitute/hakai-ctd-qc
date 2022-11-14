@@ -713,7 +713,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
-
+    
+    logger.info("Start Process")
     # Run Query
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
@@ -730,3 +731,5 @@ if __name__ == "__main__":
     if args.run_test_suite:
         sentry_sdk.set_tag("process", "test")
         qc_test_profiles()
+    
+    logger.info("End Process")
