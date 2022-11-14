@@ -220,7 +220,7 @@ def run_qc_profiles(df):
     tqdm.pandas(desc="Apply QARTOD Tests to individual profiles", unit=" profile")
     df_profiles = (
         df.query("direction_flag in ('d','u')")
-        .groupby(["hakai_id", "direction_flag"], as_index=False)
+        .groupby(["hakai_id", "direction_flag"], as_index=False, group_keys=True)
         .progress_apply(
             lambda x: _run_ioosqc_on_dataframe(
                 x, qartod_config, **config["ioos_qc_coords_mapping"]
@@ -239,7 +239,7 @@ def run_qc_profiles(df):
             tests["qartod"].pop("attenuated_signal_test", None)
     df_static = (
         df.query("direction_flag in ('s')")
-        .groupby(["hakai_id", "measurement_dt"])
+        .groupby(["hakai_id", "measurement_dt"],as_index=False, group_keys=True)
         .progress_apply(
             lambda x: _run_ioosqc_on_dataframe(
                 x, qartod_config, **config["ioos_qc_coords_mapping"]
