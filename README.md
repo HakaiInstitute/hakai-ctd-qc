@@ -70,6 +70,20 @@ The tool can be run on the production server and ran on the unqced profiles by u
 ```
 python hakai_profile_qc --qc_unqced_profiles
 ```
+## Deployment
+### Batch processing
+
+The tool is deployed as an app [here](https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-batch-mode) to be run on irregular bassis to process a significant amount of the profiles without taking over any of the ressources of the production sever. 
+
+To avoid restarting the process on completed the following command needs to be send to the docker container made available on the server:
+
+```shell
+sudo docker service update CONTAINER_ID --restart-condition “none"
+```
+
+### Regular drop QC 
+
+A cron job on the hecate.hakai.org server is used to qc the latest submitted profiles.
 
 ## Tests applied
 
