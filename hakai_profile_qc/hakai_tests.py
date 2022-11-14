@@ -93,7 +93,7 @@ def do_cap_test(
     df["bin_id"] = ((df[depth_var] / bin_size)).round()
 
     # Group average record associated to each profile,direction and bin_id
-    df_grouped = df.groupby([profile_id, direction_flag, "bin_id"]).mean()
+    df_grouped = df.groupby([profile_id, direction_flag, "bin_id"]).mean(numeric_only=True)
 
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
     profile_bin_stats = df_grouped.groupby(by=[profile_id, "bin_id"])[var].agg(
