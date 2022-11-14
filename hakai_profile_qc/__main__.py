@@ -355,7 +355,7 @@ def run_qc_profiles(df):
 def qc_test_profiles():
     """Run Tests on Hakai ID test suite"""
     query = (
-        "hakai_id={%s}&limit=-1&fields=hakai_id,processing_stage,process_error"
+        "hakai_id={%s}&limit=-1&fields=ctd_cast_pk,hakai_id,processing_stage,process_error"
         % ",".join(config["TEST_HAKAI_IDS"])
     )
     return qc_profiles(query)
