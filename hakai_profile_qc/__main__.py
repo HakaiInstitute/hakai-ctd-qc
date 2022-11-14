@@ -17,6 +17,8 @@ import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
 from ocean_data_parser.read.utils import standardize_dataset
 
+from hakai_profile_qc.version import __version__
+
 import hakai_tests
 import sentry_warnings
 
@@ -38,6 +40,7 @@ def log_to_sentry():
             sentry_logging,
         ],
         environment=config["ENVIRONMENT"],
+        release=f"hakai-profile-qc@{__version__}",
         traces_sample_rate=1.0,
     )
 
@@ -239,7 +242,7 @@ def run_qc_profiles(df):
             tests["qartod"].pop("attenuated_signal_test", None)
     df_static = (
         df.query("direction_flag in ('s')")
-        .groupby(["hakai_id", "measurement_dt"],as_index=False, group_keys=True)
+        .groupby(["hakai_id", "measurement_dt"], as_index=False, group_keys=True)
         .progress_apply(
             lambda x: _run_ioosqc_on_dataframe(
                 x, qartod_config, **config["ioos_qc_coords_mapping"]
@@ -713,7 +716,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
-    
+
     logger.info("Start Process")
     # Run Query
     if args.qc_profiles_query:
@@ -731,5 +734,5 @@ if __name__ == "__main__":
     if args.run_test_suite:
         sentry_sdk.set_tag("process", "test")
         qc_test_profiles()
-    
+
     logger.info("End Process")
