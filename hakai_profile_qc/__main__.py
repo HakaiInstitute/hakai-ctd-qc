@@ -2,25 +2,24 @@ import argparse
 import json
 import logging
 import os
-import yaml
 
 import gsw
 import numpy as np
 import pandas as pd
+import sentry_sdk
+import yaml
 from hakai_api import Client
 from ioos_qc.config import Config
 from ioos_qc.qartod import QartodFlags, qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
-from tqdm import tqdm
-import sentry_sdk
-from sentry_sdk.integrations.logging import LoggingIntegration
 from ocean_data_parser.read.utils import standardize_dataset
-
-from hakai_profile_qc.version import __version__
+from sentry_sdk.integrations.logging import LoggingIntegration
+from tqdm import tqdm
 
 import hakai_tests
 import sentry_warnings
+from version import __version__
 
 
 def log_to_sentry():
