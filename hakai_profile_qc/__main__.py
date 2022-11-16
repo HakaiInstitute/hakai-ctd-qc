@@ -18,9 +18,9 @@ from ocean_data_parser.read.utils import standardize_dataset
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 
-import hakai_tests
-import sentry_warnings
-from version import __version__
+from hakai_profile_qc import hakai_tests
+from hakai_profile_qc import sentry_warnings
+from hakai_profile_qc.version import __version__
 
 start_time = time()
 
@@ -452,7 +452,7 @@ def qc_profiles(cast_filter_query, output=None):
         chunk["process_error"] = chunk["process_error"].fillna("")
 
         # Upload to server
-        if config["UPDATE_SERVER_DATABASE"]:
+        if config["UPDATE_SERVER_DATABASE"] in (True, "true"):
             for _, row in tqdm(
                 chunk.iterrows(),
                 desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
