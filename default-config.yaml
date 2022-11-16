@@ -6,7 +6,7 @@ STATION_LIST_PATH: ${PACKAGE_PATH}/HakaiStationLocations.csv
 
 # Hakai API Endpoints Definition
 UPDATE_SERVER_DATABASE: false
-CTD_CAST_CHUNKSIZE: 100
+CTD_CAST_CHUNKSIZE: 300
 HAKAI_API_SERVER_ROOT: https://goose.hakai.org/api
 CTD_CAST_ENDPOINT: 'ctd/views/file/cast'
 CTD_CAST_DATA_ENDPOINT: 'ctd/views/file/cast/data'
