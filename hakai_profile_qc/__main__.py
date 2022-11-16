@@ -55,6 +55,12 @@ config_from_env = [
     "UPDATE_SERVER_DATABASE",
     "SENTRY_EVENT_MINIMUM_DATE",
 ]
+minimum_cast_variables = [
+    "ctd_cast_pk",
+    "hakai_id",
+    "processing_stage",
+    "process_error",
+] + sentry_warnings.context
 
 
 def read_config_yaml():
@@ -357,16 +363,18 @@ def run_qc_profiles(df):
 
 def qc_test_profiles():
     """Run Tests on Hakai ID test suite"""
-    query = (
-        "hakai_id={%s}&limit=-1&fields=ctd_cast_pk,hakai_id,processing_stage,process_error"
-        % ",".join(config["TEST_HAKAI_IDS"])
+    query = "hakai_id={%s}&limit=-1&fields=%s" % (
+        ",".join(config["TEST_HAKAI_IDS"]),
+        ",".join(minimum_cast_variables),
     )
     return qc_profiles(query)
 
 
 def qc_unqced_profiles():
     """Run QC Tests on casts associated with the processing_stages 8"""
-    query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1&fields=ctd_cast_pk,hakai_id,processing_stage,process_error"
+    query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1&fields=%s" % ",".join(
+        minimum_cast_variables
+    )
     return qc_profiles(query)
 
 
