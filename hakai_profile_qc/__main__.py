@@ -268,10 +268,10 @@ def run_qc_profiles(df):
     # Hakai profile dataset. Most of the them
     # uses the pandas dataframe to transform the data and apply divers tests.
     # DO CAP DETECTION
-    if any(df["direction_flag"] == "u") and ("do_cap_test" in hakai_tests_config):
+    if "do_cap_test" in hakai_tests_config:
         for key in hakai_tests_config["do_cap_test"]["variable"]:
             logger.info("DO Cap Detection to %s variable", key)
-            hakai_tests.do_cap_test(
+            df = hakai_tests.do_cap_test(
                 df,
                 key,
                 profile_id="hakai_id",
