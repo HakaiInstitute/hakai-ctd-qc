@@ -18,9 +18,9 @@ from ocean_data_parser.read.utils import standardize_dataset
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 
-from hakai_profile_qc import hakai_tests
-from hakai_profile_qc import sentry_warnings
-from hakai_profile_qc.version import __version__
+import hakai_tests
+import sentry_warnings
+from version import __version__
 
 start_time = time()
 
