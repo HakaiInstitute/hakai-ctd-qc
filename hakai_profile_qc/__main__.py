@@ -410,11 +410,14 @@ def qc_profiles(cast_filter_query, output=None):
     logger.info("QC %s drops", len(df_casts))
 
     qced_cast_data = []
+    n_qced = 0
     for chunk in np.array_split(
         df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
     ):
         logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
-        logger.info("Retrieve data from hakai server")
+        logger.info(
+            "Retrieve data from hakai server: %s/%s profile qced", n_qced, len(df_casts)
+        )
         response_data = client.get(
             "%s/%s?hakai_id={%s}&limit=-1"
             % (
@@ -469,6 +472,7 @@ def qc_profiles(cast_filter_query, output=None):
                         "Failed to update %s: %s", row["hakai_id"], response.text
                     )
                     response.raise_for_status()
+        n_qced += len(df_casts)
         if output:
             qced_cast_data += [df_qced]
 
