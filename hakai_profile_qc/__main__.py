@@ -53,6 +53,7 @@ config_from_env = [
     "ENVIRONMENT",
     "HAKAI_API_SERVER_ROOT",
     "UPDATE_SERVER_DATABASE",
+    "SENTRY_EVENT_MINIMUM_DATE",
 ]
 
 
