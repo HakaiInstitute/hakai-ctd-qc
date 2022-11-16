@@ -472,7 +472,7 @@ def qc_profiles(cast_filter_query, output=None):
                         "Failed to update %s: %s", row["hakai_id"], response.text
                     )
                     response.raise_for_status()
-        n_qced += len(df_casts)
+        n_qced += len(chunk)
         if output:
             qced_cast_data += [df_qced]
 
