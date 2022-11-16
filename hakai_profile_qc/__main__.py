@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+from time import time
 
 import gsw
 import numpy as np
@@ -20,6 +21,8 @@ from tqdm import tqdm
 import hakai_tests
 import sentry_warnings
 from version import __version__
+
+start_time = time()
 
 
 def log_to_sentry():
@@ -109,6 +112,7 @@ logging.basicConfig(
     format=config["LOGGING_FORMAT"],
 )
 log_to_sentry()
+logger.info("Start Process")
 # Log to Hakai
 client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 
@@ -725,7 +729,6 @@ if __name__ == "__main__":
 
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
 
-    logger.info("Start Process")
     # Run Query
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
@@ -743,4 +746,5 @@ if __name__ == "__main__":
         sentry_sdk.set_tag("process", "test")
         qc_test_profiles()
 
-    logger.info("End Process")
+end_time = time()
+logger.info("Process completed in %s seconds", end_time - start_time)
