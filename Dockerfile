@@ -48,4 +48,4 @@ ADD . /venv
 # When image is run, run the code within the Python virtual environment "venv"
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT source /venv/bin/activate && \
-    python /venv/hakai_profile_qc --qc_unqced_profiles
+    python /venv/hakai_profile_qc  --update_qc --qc_unqced_profiles
