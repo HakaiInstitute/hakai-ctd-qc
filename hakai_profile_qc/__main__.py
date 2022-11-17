@@ -746,12 +746,12 @@ if __name__ == "__main__":
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
         df = qc_profiles(args.qc_profiles_query)
-    if args.qc_unqced_profiles:
-        sentry_sdk.set_tag("process", "qc unqced")
-        qc_unqced_profiles()
     if args.update_qced_profiles:
         sentry_sdk.set_tag("process", "update_qc")
         update_qced_profiles()
+    if args.qc_unqced_profiles:
+        sentry_sdk.set_tag("process", "qc unqced")
+        qc_unqced_profiles()
     if args.update_provisional:
         sentry_sdk.set_tag("process", "generate_provisional")
         generate_hakai_provisional_netcdf_dataset(**kwargs)
