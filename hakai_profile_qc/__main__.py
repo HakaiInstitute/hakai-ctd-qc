@@ -390,6 +390,14 @@ def update_qced_profiles():
     return qc_profiles(query)
 
 
+def qc_pi_qced_profiles():
+    """Run QC Tests on already qced by PI profiles (processing_stages==10_qc_pi)"""
+    query = "processing_stage=10_qc_pi&limit=-1&fields=%s" % ",".join(
+        minimum_cast_variables
+    )
+    return qc_profiles(query)
+
+
 def qc_profiles(cast_filter_query, output=None):
     """Run Hakai Profile
 
@@ -426,14 +434,14 @@ def qc_profiles(cast_filter_query, output=None):
         logger.info(
             "Retrieve data from hakai server: %s/%s profile qced", n_qced, len(df_casts)
         )
-        response_data = client.get(
-            "%s/%s?hakai_id={%s}&limit=-1"
-            % (
-                config["HAKAI_API_SERVER_ROOT"],
-                config["CTD_CAST_DATA_ENDPOINT"],
-                ",".join(chunk["hakai_id"].values),
-            )
+        query = "%s/%s?hakai_id={%s}&limit=-1" % (
+            config["HAKAI_API_SERVER_ROOT"],
+            config["CTD_CAST_DATA_ENDPOINT"],
+            ",".join(chunk["hakai_id"].values),
         )
+        logging.debug("Run query: %s", query)
+        response_data = client.get(query)
+        logging.debug("Load to dataframe response.json")
         df_qced = pd.DataFrame(response_data.json())
         original_variables = df_qced.columns
         logger.info("Generate derived variables")
@@ -733,6 +741,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--qc_unqced_profiles", action="store_true")
     parser.add_argument("--update_qced_profiles", action="store_true")
+    parser.add_argument("--update_pi_qced_profiles", action="store_true")
     parser.add_argument("--update_provisional", action="store_true")
     parser.add_argument("--update_research", action="store_true")
     parser.add_argument("--run_test_suite", action="store_true")
@@ -752,6 +761,9 @@ if __name__ == "__main__":
     if args.qc_unqced_profiles:
         sentry_sdk.set_tag("process", "qc unqced")
         qc_unqced_profiles()
+    if args.update_pi_qced_profiles:
+        sentry_sdk.set_tag("process", "update_pi_qced")
+        qc_pi_qced_profiles()
     if args.update_provisional:
         sentry_sdk.set_tag("process", "generate_provisional")
         generate_hakai_provisional_netcdf_dataset(**kwargs)
