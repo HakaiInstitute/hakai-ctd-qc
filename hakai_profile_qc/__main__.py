@@ -58,6 +58,7 @@ config_from_env = [
     "HAKAI_API_SERVER_ROOT",
     "UPDATE_SERVER_DATABASE",
     "SENTRY_EVENT_MINIMUM_DATE",
+    "LOGGING_LEVEL",
 ]
 minimum_cast_variables = [
     "ctd_cast_pk",
