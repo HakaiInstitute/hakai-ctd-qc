@@ -17,6 +17,7 @@ from ioos_qc.streams import PandasStream
 from ocean_data_parser.read.utils import standardize_dataset
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 import hakai_tests
 import sentry_warnings
@@ -218,7 +219,7 @@ def run_qc_profiles(df):
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
     if "bad_value_test" in hakai_tests_config:
-        logger.info(
+        logger.debug(
             "Flag Bad Values: %s",
             str(hakai_tests_config["bad_value_test"]["flag_list"]),
         )
@@ -268,9 +269,10 @@ def run_qc_profiles(df):
     # Hakai profile dataset. Most of the them
     # uses the pandas dataframe to transform the data and apply divers tests.
     # DO CAP DETECTION
+    logger.info("Apply Hakai Specific Tests")
     if "do_cap_test" in hakai_tests_config:
         for key in hakai_tests_config["do_cap_test"]["variable"]:
-            logger.info("DO Cap Detection to %s variable", key)
+            logger.debug("DO Cap Detection to %s variable", key)
             df = hakai_tests.do_cap_test(
                 df,
                 key,
@@ -294,7 +296,7 @@ def run_qc_profiles(df):
     #  Find Profiles that were flagged near the bottom and assume this is
     # likely related to having it the bottom.
     if "bottom_hit_detection" in hakai_tests_config:
-        logger.info("Flag Bottom Hit Data")
+        logger.debug("Flag Bottom Hit Data")
         df = hakai_tests.bottom_hit_detection(
             df,
             variables=hakai_tests_config["bottom_hit_detection"]["variable"],
@@ -305,7 +307,7 @@ def run_qc_profiles(df):
 
     # Detect PAR Shadow
     if "par_shadow_test" in hakai_tests_config:
-        logger.info("Flag PAR Shadow Data")
+        logger.debug("Flag PAR Shadow Data")
         df = hakai_tests.par_shadow_test(
             df,
             variable=hakai_tests_config["par_shadow_test"]["variable"],
@@ -318,7 +320,7 @@ def run_qc_profiles(df):
         )
     # Station Maximum Depth Test
     if "depth_range_test" in hakai_tests_config:
-        logger.info("Review maximum depth per profile vs station")
+        logger.debug("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
             df,
             variable=hakai_tests_config["depth_range_test"]["variables"],
@@ -339,7 +341,7 @@ def run_qc_profiles(df):
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tested_variable_list:
-        logger.info("Apply flag results to %s", var)
+        logger.debug("Apply flag results to %s", var)
 
         # Extra flags that apply to all variables
         extra_flags = (
@@ -360,7 +362,7 @@ def run_qc_profiles(df):
 
     # Apply Hakai Grey List
     # Grey List should overwrite the QARTOD Flags
-    logger.info("Apply Hakai Grey List")
+    logger.debug("Apply Hakai Grey List")
     df = hakai_tests.grey_list(df)
     return df
 
@@ -427,70 +429,88 @@ def qc_profiles(cast_filter_query, output=None):
 
     qced_cast_data = []
     n_qced = 0
-    for chunk in np.array_split(
-        df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
-    ):
-        logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
-        logger.info(
-            "Retrieve data from hakai server: %s/%s profile qced", n_qced, len(df_casts)
-        )
-        query = "%s/%s?hakai_id={%s}&limit=-1" % (
-            config["HAKAI_API_SERVER_ROOT"],
-            config["CTD_CAST_DATA_ENDPOINT"],
-            ",".join(chunk["hakai_id"].values),
-        )
-        logging.debug("Run query: %s", query)
-        response_data = client.get(query)
-        logging.debug("Load to dataframe response.json")
-        df_qced = pd.DataFrame(response_data.json())
-        original_variables = df_qced.columns
-        logger.info("Generate derived variables")
-        df_qced = _derived_ocean_variables(df_qced)
-        logger.info("Convert time variables to datetime objects")
-        df_qced = _convert_time_to_datetime(df_qced)
-        logger.info("Run QC Process")
-        df_qced = run_qc_profiles(df_qced)
+    gen_pbar = tqdm(
+        total=len(df_casts),
+        desc="Profiles to qc",
+        unit="profiles",
+        colour="GREEN",
+        dynamic_ncols=True,
+        ncols=100,
+        position=2,
+    )
+    profile_processed = 0
+    with logging_redirect_tqdm():
+        for chunk in np.array_split(
+            df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
+        ):
+            logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
+            logger.debug(
+                "Retrieve data from hakai server: %s/%s profile qced",
+                n_qced,
+                len(df_casts),
+            )
+            query = "%s/%s?hakai_id={%s}&limit=-1" % (
+                config["HAKAI_API_SERVER_ROOT"],
+                config["CTD_CAST_DATA_ENDPOINT"],
+                ",".join(chunk["hakai_id"].values),
+            )
+            logger.info("Retrieve profiles data from hakai server")
+            logger.debug("Run query: %s", query)
+            response_data = client.get(query)
+            logger.info("Load to dataframe response.json")
+            df_qced = pd.DataFrame(response_data.json())
+            logger.info("Data is loaded")
+            original_variables = df_qced.columns
+            logger.debug("Generate derived variables")
+            df_qced = _derived_ocean_variables(df_qced)
+            logger.debug("Convert time variables to datetime objects")
+            df_qced = _convert_time_to_datetime(df_qced)
+            logger.debug("Run QC Process")
+            df_qced = run_qc_profiles(df_qced)
 
-        sentry_warnings.run_sentry_warnings(
-            df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
-        )
+            sentry_warnings.run_sentry_warnings(
+                df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
+            )
 
-        # Convert QARTOD to string temporarily
-        qartod_columns = df_qced.filter(regex="_flag_level_1").columns
-        # TODO Drop once qartod columns are of INT type in hakai DB
-        df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
-        df_qced = df_qced.replace({"": None})
+            # Convert QARTOD to string temporarily
+            qartod_columns = df_qced.filter(regex="_flag_level_1").columns
+            # TODO Drop once qartod columns are of INT type in hakai DB
+            df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
+            df_qced = df_qced.replace({"": None})
 
-        # Update qced casts processing_stage
-        chunk["processing_stage"] = chunk["processing_stage"].replace(
-            {" 8_binAvg": "9_qc_auto", "8_rbr_processed": "9_qc_auto"}
-        )
-        chunk["process_error"] = chunk["process_error"].fillna("")
+            # Update qced casts processing_stage
+            chunk["processing_stage"] = chunk["processing_stage"].replace(
+                {" 8_binAvg": "9_qc_auto", "8_rbr_processed": "9_qc_auto"}
+            )
+            chunk["process_error"] = chunk["process_error"].fillna("")
 
-        # Upload to server
-        if config["UPDATE_SERVER_DATABASE"] in (True, "true"):
-            for _, row in tqdm(
-                chunk.iterrows(),
-                desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
-                unit="profil",
-                total=len(chunk),
-            ):
-                logger.debug("Upload qced %s", row["hakai_id"])
-                json_string = _generate_process_flags_json(
-                    row, df_qced[original_variables]
-                )
-                response = client.post(
-                    f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
-                    json_string,
-                )
-                if response.status_code != 200:
-                    logger.error(
-                        "Failed to update %s: %s", row["hakai_id"], response.text
+            # Upload to server
+            if config["UPDATE_SERVER_DATABASE"] in (True, "true"):
+                for _, row in tqdm(
+                    chunk.iterrows(),
+                    desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
+                    unit="profil",
+                    total=len(chunk),
+                ):
+                    logger.debug("Upload qced %s", row["hakai_id"])
+                    json_string = _generate_process_flags_json(
+                        row, df_qced[original_variables]
                     )
-                    response.raise_for_status()
-        n_qced += len(chunk)
-        if output:
-            qced_cast_data += [df_qced]
+                    response = client.post(
+                        f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
+                        json_string,
+                    )
+                    if response.status_code != 200:
+                        logger.error(
+                            "Failed to update %s: %s", row["hakai_id"], response.text
+                        )
+                        response.raise_for_status()
+            n_qced += len(chunk)
+            if output:
+                qced_cast_data += [df_qced]
+            profile_processed += len(chunk)
+            gen_pbar.update(n=profile_processed)
+            logger.info("Chunk processed")
 
     if output:
         return pd.concat(qced_cast_data), df_casts
@@ -658,7 +678,7 @@ def generate_hakai_ctd_research_dataset():
     df_qc = pd.DataFrame(response.json())
     df_qc.set_index("hakai_id", inplace=True)
     df_qc["depth_flag"].fillna("AV", inplace=True)
-    logging.info("%s qced profiles available", len(df_qc))
+    logger.info("%s qced profiles available", len(df_qc))
     for chunk in np.array_split(
         df_qc, np.ceil(len(df_qc) / config["CTD_CAST_CHUNKSIZE"])
     ):
