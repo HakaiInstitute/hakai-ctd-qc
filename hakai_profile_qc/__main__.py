@@ -436,7 +436,6 @@ def qc_profiles(cast_filter_query, output=None):
         colour="GREEN",
         dynamic_ncols=True,
         ncols=100,
-        position=2,
     )
     profile_processed = 0
     with logging_redirect_tqdm():
