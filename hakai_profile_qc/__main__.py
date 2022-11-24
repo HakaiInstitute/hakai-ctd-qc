@@ -457,6 +457,14 @@ def qc_profiles(cast_filter_query, output=None):
             logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)
             response_data = client.get(query)
+            if response_data.status_code != 200:
+                logger.warning(
+                    "Failed to retrieve profile data from hakai server. Lets try again"
+                )
+                response_data = client.get(query)
+                if response_data.status_code != 200:
+                    response_data.raise_for_status
+
             logger.info("Load to dataframe response.json")
             df_qced = pd.DataFrame(response_data.json())
             logger.info("Data is loaded")
