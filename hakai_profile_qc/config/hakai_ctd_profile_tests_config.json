@@ -8,7 +8,7 @@
         "suspect_threshold": 0.2,
         "fail_threshold": 0.5,
         "ratio_above_threshold": 0.5,
-        "minimum_bins_per_profile": 10
+        "minimum_bins_per_profile": 30
     },
     "bottom_hit_detection": {
         "variable": "sigma0_qartod_density_inversion_test",
