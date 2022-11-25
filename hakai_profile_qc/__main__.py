@@ -462,8 +462,10 @@ def qc_profiles(cast_filter_query, output=None):
                     "Failed to retrieve profile data from hakai server. Lets try again"
                 )
                 response_data = client.get(query)
-                if response_data.status_code != 200:
-                    response_data.raise_for_status
+                
+            if response_data.status_code != 200:
+                logger.error("Failed Query: %s", query)
+                continue
 
             logger.info("Load to dataframe response.json")
             df_qced = pd.DataFrame(response_data.json())
