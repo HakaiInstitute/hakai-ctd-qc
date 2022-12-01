@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from time import time
+from requests.exceptions import JSONDecodeError
 
 import gsw
 import numpy as np
@@ -469,7 +470,14 @@ def qc_profiles(cast_filter_query, output=None):
                 continue
 
             logger.info("Load to dataframe response.json")
-            df_qced = pd.DataFrame(response_data.json())
+            try:
+                df_qced = pd.DataFrame(response_data.json())
+            except JSONDecodeError:
+                logger.error(
+                    "Failed to retrieve data for this query: %s", query, exc_info=True
+                )
+                continue
+
             logger.info("Data is loaded")
             original_variables = df_qced.columns
             logger.debug("Generate derived variables")
