@@ -449,10 +449,11 @@ def qc_profiles(cast_filter_query, output=None):
                 n_qced,
                 len(df_casts),
             )
-            query = "%s/%s?hakai_id={%s}&limit=-1" % (
+            query = "%s/%s?hakai_id={%s}&limit=-1&fields=%s" % (
                 config["HAKAI_API_SERVER_ROOT"],
                 config["CTD_CAST_DATA_ENDPOINT"],
                 ",".join(chunk["hakai_id"].values),
+                ",".join(config["CTD_VARIABLES"]),
             )
             logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)
@@ -462,7 +463,7 @@ def qc_profiles(cast_filter_query, output=None):
                     "Failed to retrieve profile data from hakai server. Lets try again"
                 )
                 response_data = client.get(query)
-                
+
             if response_data.status_code != 200:
                 logger.error("Failed Query: %s", query)
                 continue
