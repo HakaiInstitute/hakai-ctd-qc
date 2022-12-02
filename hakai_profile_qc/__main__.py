@@ -402,6 +402,38 @@ def qc_pi_qced_profiles():
     return qc_profiles(query)
 
 
+def retrieve_hakai_data(query, max_attempts: int = 3):
+    """Run query to hakai api and return a pandas dataframe if sucessfull.
+    A minimum of attemps (default: 3) will be tried if the query fails."""
+    attempts = 0
+    while attempts < max_attempts:
+        response_data = client.get(query)
+        if response_data.status_code != 200:
+            logger.warning(
+                "ERROR %s Failed to retrieve profile data from hakai server. Lets try again: %s",
+                response_data.status_code,
+                response_data.text,
+            )
+            attempts += 1
+            continue
+
+        try:
+            logger.info("Load to dataframe response.json")
+            return pd.DataFrame(response_data.json())
+
+        except JSONDecodeError:
+            logger.error(
+                "Failed to decode json data for this query: %s", query, exc_info=True
+            )
+            attempts += 1
+            continue
+
+    logger.error(
+        "Reached the maximum number of attemps to retrieve data from the hakai server: %s",
+        query,
+    )
+
+
 def qc_profiles(cast_filter_query, output=None):
     """Run Hakai Profile
 
@@ -422,8 +454,7 @@ def qc_profiles(cast_filter_query, output=None):
     # Get the list of hakai_ids to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}"
     logger.info("Retrieve: %s", url)
-    response = client.get(url)
-    df_casts = pd.DataFrame(response.json())
+    df_casts = retrieve_hakai_data(url, max_attempts=3)
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
         return None, None
@@ -457,23 +488,11 @@ def qc_profiles(cast_filter_query, output=None):
             )
             logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)
-            response_data = client.get(query)
-            if response_data.status_code != 200:
-                logger.warning(
-                    "Failed to retrieve profile data from hakai server. Lets try again"
-                )
-                response_data = client.get(query)
-
-            if response_data.status_code != 200:
-                logger.error("Failed Query: %s", query)
-                continue
-
-            logger.info("Load to dataframe response.json")
-            try:
-                df_qced = pd.DataFrame(response_data.json())
-            except JSONDecodeError:
+            df_qced = retrieve_hakai_data(query, max_attempts=3)
+            if df_qced is None:
                 logger.error(
-                    "Failed to retrieve data for this query: %s", query, exc_info=True
+                    "Failed to retrieve profile data for the hakai_ids: %s",
+                    chunk["hakai_id"],
                 )
                 continue
 
