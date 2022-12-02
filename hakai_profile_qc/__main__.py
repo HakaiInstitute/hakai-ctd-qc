@@ -430,7 +430,6 @@ def qc_profiles(cast_filter_query, output=None):
     logger.info("QC %s drops", len(df_casts))
 
     qced_cast_data = []
-    n_qced = 0
     gen_pbar = tqdm(
         total=len(df_casts),
         desc="Profiles to qc",
@@ -447,7 +446,7 @@ def qc_profiles(cast_filter_query, output=None):
             logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
             logger.debug(
                 "Retrieve data from hakai server: %s/%s profile qced",
-                n_qced,
+                profile_processed,
                 len(df_casts),
             )
             query = "%s/%s?hakai_id={%s}&limit=-1&fields=%s" % (
@@ -524,7 +523,6 @@ def qc_profiles(cast_filter_query, output=None):
                             "Failed to update %s: %s", row["hakai_id"], response.text
                         )
                         response.raise_for_status()
-            n_qced += len(chunk)
             if output:
                 qced_cast_data += [df_qced]
             profile_processed += len(chunk)
