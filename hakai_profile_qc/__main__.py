@@ -408,7 +408,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     attempts = 0
     while attempts < max_attempts:
         if post:
-            response_data = client.post(url,post)
+            response_data = client.post(url, post)
         else:
             response_data = client.get(url)
 
@@ -545,15 +545,6 @@ def qc_profiles(cast_filter_query, output=None):
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=json_string,
                     )
-                    # response = client.post(
-                    #     f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
-                    #     json_string,
-                    # )
-                    # if response.status_code != 200:
-                    #     logger.error(
-                    #         "Failed to update %s: %s", row["hakai_id"], response.text
-                    #     )
-                    #     response.raise_for_status()
             if output:
                 qced_cast_data += [df_qced]
             profile_processed += len(chunk)
