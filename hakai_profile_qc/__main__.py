@@ -402,12 +402,16 @@ def qc_pi_qced_profiles():
     return qc_profiles(query)
 
 
-def retrieve_hakai_data(query, max_attempts: int = 3):
+def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     """Run query to hakai api and return a pandas dataframe if sucessfull.
     A minimum of attemps (default: 3) will be tried if the query fails."""
     attempts = 0
     while attempts < max_attempts:
-        response_data = client.get(query)
+        if post:
+            response_data = client.post(url,post)
+        else:
+            response_data = client.get(url)
+
         if response_data.status_code != 200:
             logger.warning(
                 "ERROR %s Failed to retrieve profile data from hakai server. Lets try again: %s",
@@ -416,21 +420,25 @@ def retrieve_hakai_data(query, max_attempts: int = 3):
             )
             attempts += 1
             continue
+        elif post:
+            # sucessfull post to server
+            return
 
+        # attempt to read json return
         try:
             logger.info("Load to dataframe response.json")
             return pd.DataFrame(response_data.json())
 
         except JSONDecodeError:
             logger.error(
-                "Failed to decode json data for this query: %s", query, exc_info=True
+                "Failed to decode json data for this query: %s", url, exc_info=True
             )
             attempts += 1
             continue
 
     logger.error(
         "Reached the maximum number of attemps to retrieve data from the hakai server: %s",
-        query,
+        url,
     )
 
 
@@ -533,15 +541,19 @@ def qc_profiles(cast_filter_query, output=None):
                     json_string = _generate_process_flags_json(
                         row, df_qced[original_variables]
                     )
-                    response = client.post(
+                    retrieve_hakai_data(
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
-                        json_string,
+                        post=json_string,
                     )
-                    if response.status_code != 200:
-                        logger.error(
-                            "Failed to update %s: %s", row["hakai_id"], response.text
-                        )
-                        response.raise_for_status()
+                    # response = client.post(
+                    #     f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
+                    #     json_string,
+                    # )
+                    # if response.status_code != 200:
+                    #     logger.error(
+                    #         "Failed to update %s: %s", row["hakai_id"], response.text
+                    #     )
+                    #     response.raise_for_status()
             if output:
                 qced_cast_data += [df_qced]
             profile_processed += len(chunk)
