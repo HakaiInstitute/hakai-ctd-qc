@@ -806,9 +806,12 @@ if __name__ == "__main__":
     parser.add_argument("--run_test_suite", action="store_true")
     parser.add_argument("--qc_profiles_query", default=None)
     parser.add_argument("--kwargs", default=None)
+    parser.add_argument("--config", default=None)
     args = parser.parse_args()
 
     kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
+    if args.config:
+        config.update(json.loads(args.config))
 
     # Run Query
     if args.qc_profiles_query:
