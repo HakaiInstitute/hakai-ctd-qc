@@ -576,29 +576,6 @@ def _get_hakai_flag_columns(
     return df
 
 
-def _generate_netcdf_attributes(ds):
-
-    for var in ds:
-        if var == "direction_flag":
-            ds[var].attrs["flag_values"] = config["FLAG CONVENTION"][
-                "direction_flag"
-            ].keys()
-            ds[var].attrs["flag_meaning"] = " ".join(
-                config["FLAG CONVENTION"]["direction_flag"].values()
-            )
-        elif var.endswith("_flag"):
-            ds[var].attrs["flag_values"] = config["FLAG CONVENTION"]["Hakai"].keys()
-            ds[var].attrs["flag_meaning"] = " ".join(
-                config["FLAG CONVENTION"]["Hakai"].values()
-            )
-        elif var.endswith("_flag_level_1"):
-            ds[var].attrs["flag_values"] = config["FLAG CONVENTION"]["QARTOD"].keys()
-            ds[var].attrs["flag_meaning"] = " ".join(
-                config["FLAG CONVENTION"]["QARTOD"].values()
-            )
-    return ds
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
