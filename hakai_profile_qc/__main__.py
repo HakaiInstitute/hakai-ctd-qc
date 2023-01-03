@@ -613,7 +613,7 @@ if __name__ == "__main__":
         config.update(json.loads(args.config))
 
     # Run Query
-    if args.qc_profiles_query:
+    if args.hakai_ids:
         sentry_sdk.set_tag("process", "special query")
         df = main(hakai_ids=args.hakai_ids)
     else:
