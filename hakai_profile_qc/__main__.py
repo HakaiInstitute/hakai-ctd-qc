@@ -4,6 +4,7 @@ import logging
 import os
 from time import time
 from requests.exceptions import JSONDecodeError
+import sys
 
 import gsw
 import numpy as np
@@ -838,3 +839,4 @@ if __name__ == "__main__":
 
 end_time = time()
 logger.info("Process completed in %s seconds", end_time - start_time)
+sys.exit(0)
