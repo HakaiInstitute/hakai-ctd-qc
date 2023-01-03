@@ -428,7 +428,7 @@ def main(hakai_ids=None):
             hakai_ids = ",".join(hakai_ids)
         logger.info("Run QC on hakai_ids: %s", hakai_ids)
         cast_filter_query = "hakai_id={%s}" % hakai_ids
-    elif config["RUN_TEST_SUITE"]:
+    elif config["RUN_TEST_SUITE"] or config["RUN_TEST_SUITE"] not in ["false", "False"]:
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
     else:
@@ -443,8 +443,6 @@ def main(hakai_ids=None):
         logger.info("No Drops needs to be QC")
         return None, None
     logger.info("QC %s drops", len(df_casts))
-
-    qced_cast_data = []
     gen_pbar = tqdm(
         total=len(df_casts),
         desc="Profiles to qc",
