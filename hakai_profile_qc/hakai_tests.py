@@ -2,12 +2,13 @@
 Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
 import logging
-import pandas as pd
-import numpy as np
-from ioos_qc.qartod import QartodFlags
-import warnings
-import pkg_resources
 import os
+import warnings
+
+import numpy as np
+import pandas as pd
+import pkg_resources
+from ioos_qc.qartod import QartodFlags
 
 logger = logging.getLogger(__name__)
 # Import Hakai Station List

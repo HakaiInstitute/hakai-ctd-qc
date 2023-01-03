@@ -1,5 +1,6 @@
-from setuptools import setup
 import os
+
+from setuptools import setup
 
 version = {}
 setup_path = os.path.join(os.path.dirname(__file__))

@@ -2,14 +2,15 @@ import argparse
 import json
 import logging
 import os
-from time import time
-from requests.exceptions import JSONDecodeError
 import sys
+from time import time
 
 import gsw
+import hakai_tests
 import numpy as np
 import pandas as pd
 import sentry_sdk
+import sentry_warnings
 import yaml
 from hakai_api import Client
 from ioos_qc.config import Config
@@ -17,12 +18,10 @@ from ioos_qc.qartod import QartodFlags, qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
 from ocean_data_parser.read.utils import standardize_dataset
+from requests.exceptions import JSONDecodeError
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-
-import hakai_tests
-import sentry_warnings
 from version import __version__
 
 start_time = time()
