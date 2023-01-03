@@ -61,6 +61,8 @@ config_from_env = [
     "UPDATE_SERVER_DATABASE",
     "SENTRY_EVENT_MINIMUM_DATE",
     "LOGGING_LEVEL",
+    "RUN_TEST_SUITE",
+    "QC_PROCESSING_STAGES",
 ]
 minimum_cast_variables = [
     "ctd_cast_pk",
@@ -370,39 +372,6 @@ def run_qc_profiles(df):
     return df
 
 
-def qc_test_profiles():
-    """Run Tests on Hakai ID test suite"""
-    query = "hakai_id={%s}&limit=-1&fields=%s" % (
-        ",".join(config["TEST_HAKAI_IDS"]),
-        ",".join(minimum_cast_variables),
-    )
-    return qc_profiles(query)
-
-
-def qc_unqced_profiles():
-    """Run QC Tests on casts associated with the processing_stages 8"""
-    query = "processing_stage={8_rbr_processed,8_binAvg}&limit=-1&fields=%s" % ",".join(
-        minimum_cast_variables
-    )
-    return qc_profiles(query)
-
-
-def update_qced_profiles():
-    """Run QC Tests on casts associated with the processing_stages 8"""
-    query = "processing_stage=9_qc_auto&limit=-1&fields=%s" % ",".join(
-        minimum_cast_variables
-    )
-    return qc_profiles(query)
-
-
-def qc_pi_qced_profiles():
-    """Run QC Tests on already qced by PI profiles (processing_stages==10_qc_pi)"""
-    query = "processing_stage=10_qc_pi&limit=-1&fields=%s" % ",".join(
-        minimum_cast_variables
-    )
-    return qc_profiles(query)
-
-
 def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     """Run query to hakai api and return a pandas dataframe if sucessfull.
     A minimum of attemps (default: 3) will be tried if the query fails."""
@@ -443,25 +412,31 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     )
 
 
-def qc_profiles(cast_filter_query, output=None):
+def main(hakai_ids=None):
     """Run Hakai Profile
 
     Args:
-        cast_filter_query (str): query use to retrieve the list
-            of the profiles to QC. This should correspond to filter
-            query of the Hakai API for the ctd.ctd_cast table.
-        config (str, dict, optional): Config file used to run QC.
-            It can be either a python dictionary or the path to a YAML file
-            See package ./src/config/config.yaml for example.
-            Defaults configuration.
-        output (bool): Output resulting data as pandas dataframes.
+        hakai_ids (str): list of hakai_ids to run qc on. If None run by defined processing stages
 
     Returns:
         (ctd_cast_data,ctd_cast): Resulting data as pandas dataframes.
     """
 
     # Get the list of hakai_ids to qc
-    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}"
+    if hakai_ids:
+        if isinstance(hakai_ids, list):
+            hakai_ids = ",".join(hakai_ids)
+        logger.info("Run QC on hakai_ids: %s", hakai_ids)
+        cast_filter_query = "hakai_id={%s}" % hakai_ids
+    elif config["RUN_TEST_SUITE"]:
+        logger.info("Running test suite")
+        cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
+    else:
+        processing_stages = ",".join(config["QC_PROCESSING_STAGES"])
+        logger.info("Run QC on processing stages: %s", processing_stages)
+        cast_filter_query = "processing_stage={%s}" % processing_stages
+
+    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}&limit=-1&fields={','.join(minimum_cast_variables)}"
     logger.info("Retrieve: %s", url)
     df_casts = retrieve_hakai_data(url, max_attempts=3)
     if df_casts.empty:
@@ -546,14 +521,9 @@ def qc_profiles(cast_filter_query, output=None):
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=json_string,
                     )
-            if output:
-                qced_cast_data += [df_qced]
             profile_processed += len(chunk)
             gen_pbar.update(n=profile_processed)
             logger.info("Chunk processed")
-
-    if output:
-        return pd.concat(qced_cast_data), df_casts
 
 
 def _get_hakai_flag_columns(
@@ -628,214 +598,27 @@ def _generate_netcdf_attributes(ds):
     return ds
 
 
-def generate_hakai_provisional_netcdf_dataset(
-    start_dt=None, low_drop_count_threshold=5, station_list=None
-):
-    """Generate the provisional NetCDF files to be served by ERDDAP."""
-    # Get Hakai Station List
-
-    # Get the list of all the casts available
-    if station_list is None:
-        url = (
-            "%s/%s?limit=-1&(status=null|status='')&work_area={CALVERT,QUADRA,JOHNSTONE STRAIT}&station!={%s}&fields=station,hakai_id"
-            % (
-                config["HAKAI_API_SERVER_ROOT"],
-                config["CTD_CAST_ENDPOINT"],
-                ",".join(config["IGNORED_HAKAI_STATIONS"]),
-            )
-        )
-        if start_dt:
-            url += f"&start_dt>={start_dt}"
-
-        response = client.get(url)
-        if response.status_code != 200:
-            logger.error(response.text)
-            return None
-        df_casts = pd.DataFrame(response.json())
-
-        # Review how many drops exist per station
-        drop_per_station = df_casts.groupby(["station"]).count()
-        low_drop_stations = drop_per_station.query(
-            f"hakai_id<{low_drop_count_threshold}"
-        )
-        station_list = [",".join(low_drop_stations.index)] + drop_per_station.query(
-            "hakai_id>=@low_drop_count_threshold"
-        ).index.tolist()
-
-    for station in station_list:
-        query = (
-            "limit=-1&station={%s}&(status=null|status='')&process_error=null" % station
-        )
-        if start_dt:
-            query += f"&start_dt>={start_dt}"
-
-        df_data, df_casts = qc_profiles(
-            "limit=-1&station={%s}&(status=null|status='')&process_error=null"
-            % station,
-            output=True,
-        )
-        # If no data keep going
-        if df_data is None:
-            continue
-        for (work_area, station), df_station in df_data.groupby(
-            ["work_area", "station"]
-        ):
-            # Generate file name
-            file_name_output = f"./output/HakaiWaterPropertiesInstrumentProfileProvisional/{work_area}/{work_area}_{station}_{df_station['start_dt'].min()}-{df_station['start_dt'].max()}.nc"
-            subdir = os.path.dirname(file_name_output)
-            if not os.path.isdir(subdir):
-                logger.info("Generate directory: %s", subdir)
-                os.makedirs(subdir)
-            logger.info("Generate file: %s", file_name_output)
-
-            # Convert to xarray
-            ds = df_station.to_xarray()
-
-            # Add attributes from config
-            ds.attrs = config["netcdf_attributes"]["GLOBAL"]
-            for var, attrs in config["netcdf_attributes"].items():
-                if var in ds:
-                    ds[var].attrs = attrs
-
-            # Standardize columns and encoding
-            standardize_dataset(ds).to_netcdf(file_name_output)
-
-
-def generate_hakai_ctd_research_dataset():
-    """
-    Tool use to generate research level NetCDF Files to be served by ERDDAP.
-    One file is generated per profiles. The research dataset includes ctd data
-    that successfully Pass (not FAIL) the automated QC and manual QC (see ctd.ctd_qc table) steps.
-    """
-
-    logger.info("Retrieve list of QC profiles")
-    response = client.get(
-        f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_QC_ENDPOINT']}?limit=-1"
-    )
-    if response.status_code != 200:
-        raise RuntimeError(response.text)
-
-    df_qc = pd.DataFrame(response.json())
-    df_qc.set_index("hakai_id", inplace=True)
-    df_qc["depth_flag"].fillna("AV", inplace=True)
-    logger.info("%s qced profiles available", len(df_qc))
-    for chunk in np.array_split(
-        df_qc, np.ceil(len(df_qc) / config["CTD_CAST_CHUNKSIZE"])
-    ):
-        # TODO Replace by a query to ctd_file_cast_data and ctd_file_cast when flags will be available
-        logger.info("Download CTD data and run automated qc")
-        df_data, df_casts = qc_profiles(
-            "hakai_id={%s}&limit=-1" % ",".join(chunk.index), output=True
-        )
-        # Output only downcast
-        df_data = df_data.query("direction_flag=='d'")
-        df_casts = df_casts.set_index(["hakai_id"], drop=False)
-        # Drop values that are flagged as SVD
-        logger.info("Merge auto qc data to manual qc and discard unqced and bad data")
-        df_data_qc = pd.merge(
-            df_data, df_qc, on="hakai_id", suffixes=("", "_manual_qc")
-        )
-        for var in config["RESEARCH_CTD_VARIABLES"]:
-            df_data_qc.loc[
-                df_data_qc[[var + "_flag_level_1", var + "_flag_manual_qc"]]
-                .isin([4, 9, "SVD", "NA", None])
-                .any(axis=1),
-                var,
-            ] = pd.NA
-
-        # Drop flag variables and rows and depth
-        ignored_variables = [
-            var for var in df_data_qc if var not in config["netcdf_attributes"]
-        ]
-        df_data_qc = (
-            df_data_qc.drop(columns=ignored_variables)
-            .dropna(axis=0, how="all", subset=config["RESEARCH_CTD_VARIABLES"])
-            .dropna(axis=0, how="all", subset=["depth"])
-        )
-        logger.info("Save each profiles to a separate NetCDF")
-        for hakai_id, df_hakai_id in df_data_qc.groupby(["hakai_id"]):
-            # Generate file name
-            cast = df_casts.loc[hakai_id]
-            file_name_output = (
-                "./output/HakaiWaterPropertiesInstrumentProfileResearch/"
-                + f"{cast['work_area']}/{cast['station']}/"
-                + f"{hakai_id}_Research_downcast.nc"
-            )
-            subdir = os.path.dirname(file_name_output)
-            if not os.path.isdir(subdir):
-                logger.info("Generate directory: %s", subdir)
-                os.makedirs(subdir)
-
-            # Drop empty variables, index by start_dt and depth and convert to xarray dataset
-            ds = (
-                df_hakai_id.dropna(axis=1, how="all")
-                .set_index(["hakai_id", "depth"])
-                .to_xarray()
-            )
-
-            # Add cast data as either variable or global attribute
-            ds.attrs = config["netcdf_attributes"]["GLOBAL"]
-            for key, value in cast.dropna().to_dict().items():
-                if key in config["netcdf_attributes"]:
-                    if key in ds:
-                        continue
-                    ds[key] = value
-                elif key in ds:
-                    ds = ds.drop(key)
-                    ds.attrs[key] = value
-                elif type(value) in (bool,):
-                    ds.attrs[key] = str(value)
-                else:
-                    ds.attrs[key] = value
-
-            # Add variable attributes
-            for var, attrs in config["netcdf_attributes"].items():
-                if var in ds:
-                    ds[var].attrs = attrs
-
-            # Standardize columns and encoding
-            standardize_dataset(ds).to_netcdf(file_name_output)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--qc_unqced_profiles", action="store_true")
-    parser.add_argument("--update_qced_profiles", action="store_true")
-    parser.add_argument("--update_pi_qced_profiles", action="store_true")
-    parser.add_argument("--update_provisional", action="store_true")
-    parser.add_argument("--update_research", action="store_true")
-    parser.add_argument("--run_test_suite", action="store_true")
-    parser.add_argument("--qc_profiles_query", default=None)
-    parser.add_argument("--kwargs", default=None)
-    parser.add_argument("--config", default=None)
+    parser.add_argument(
+        "--hakai_ids", help="comma separated list of hakai_ids to process", default=None
+    )
+    parser.add_argument(
+        "--config",
+        help="json dictionary configuration to pass and overwrite default",
+        default=None,
+    )
     args = parser.parse_args()
-
-    kwargs = json.loads(args.kwargs.replace("'", '"')) if args.kwargs else {}
     if args.config:
         config.update(json.loads(args.config))
 
     # Run Query
     if args.qc_profiles_query:
         sentry_sdk.set_tag("process", "special query")
-        df = qc_profiles(args.qc_profiles_query)
-    if args.update_qced_profiles:
-        sentry_sdk.set_tag("process", "update_qc")
-        update_qced_profiles()
-    if args.qc_unqced_profiles:
-        sentry_sdk.set_tag("process", "qc unqced")
-        qc_unqced_profiles()
-    if args.update_pi_qced_profiles:
-        sentry_sdk.set_tag("process", "update_pi_qced")
-        qc_pi_qced_profiles()
-    if args.update_provisional:
-        sentry_sdk.set_tag("process", "generate_provisional")
-        generate_hakai_provisional_netcdf_dataset(**kwargs)
-    if args.update_research:
-        sentry_sdk.set_tag("process", "generate_research")
-        generate_hakai_ctd_research_dataset(**kwargs)
-    if args.run_test_suite:
-        sentry_sdk.set_tag("process", "test")
-        qc_test_profiles()
+        df = main(hakai_ids=args.hakai_ids)
+    else:
+        main()
+
 
 end_time = time()
 logger.info("Process completed in %s seconds", end_time - start_time)
