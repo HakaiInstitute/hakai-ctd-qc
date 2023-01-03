@@ -600,4 +600,4 @@ if __name__ == "__main__":
 
 end_time = time()
 logger.info("Process completed in %s seconds", end_time - start_time)
-sys.exit(0)
+# sys.exit(0)
