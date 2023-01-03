@@ -119,6 +119,7 @@ logging.basicConfig(
 )
 log_to_sentry()
 logger.info("Start Process")
+logger.debug("config: %s", config)
 # Log to Hakai
 client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 
@@ -428,7 +429,10 @@ def main(hakai_ids=None):
             hakai_ids = ",".join(hakai_ids)
         logger.info("Run QC on hakai_ids: %s", hakai_ids)
         cast_filter_query = "hakai_id={%s}" % hakai_ids
-    elif config["RUN_TEST_SUITE"] or config["RUN_TEST_SUITE"] not in ["false", "False"]:
+    elif config["RUN_TEST_SUITE"] and config["RUN_TEST_SUITE"] not in [
+        "false",
+        "False",
+    ]:
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
     else:
