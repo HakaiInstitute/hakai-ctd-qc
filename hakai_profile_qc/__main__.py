@@ -502,7 +502,7 @@ def main(hakai_ids=None):
 
             # Update qced casts processing_stage
             chunk["processing_stage"] = chunk["processing_stage"].replace(
-                {" 8_binAvg": "9_qc_auto", "8_rbr_processed": "9_qc_auto"}
+                {"8_binAvg": "9_qc_auto", "8_rbr_processed": "9_qc_auto"}
             )
             chunk["process_error"] = chunk["process_error"].fillna("")
 
