@@ -100,6 +100,7 @@ logging.basicConfig(
 )
 log_to_sentry()
 logger.info("Start Process")
+logger.info("HAKAI_API_TOKEN: %s", config["HAKAI_API_TOKEN"][:10] if config.get("HAKAI_API_TOKEN") else "none")
 logger.debug("config: %s", config)
 client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 
