@@ -4,5 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - HAKAI_API_TOKEN
     ports:
       - '19999:19999'
