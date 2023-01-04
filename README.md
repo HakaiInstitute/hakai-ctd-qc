@@ -29,6 +29,16 @@ Create docker container and execute profile qc based on configuration parameters
 ```terminal
 docker-compose up -d
 ```
+### Caprover app
+Install locally [caprover CLI service](https://caprover.com/docs/cli-commands.html).
+
+Run the `caprover deploy` command and provide the appropriate inputs requested to execute the deployment.
+
+To avoid restarting the process when completed the following command needs to be send to the docker container made available on the server (more details [here](https://blog.alexellis.io/containers-on-swarm/)):
+
+```shell
+sudo docker service update CONTAINER_ID --restart-condition “none"
+```
 
 ## Configuration
 The package configuration can be made through three different levels by order of precedence.
@@ -69,10 +79,3 @@ Any `push` or `pull requests` to the `main` branch will be tested by a linter, b
 
 ### Automated QC of Hakai Profiles
 The tool is deployed as a caprover app [here](https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-production) through a github sheduled [workflow](.github/workflows/cron-job-qc-unqced-profiles-hecate.yml) to query nightly any CTD profiles available within the Hakai CTD Data still associated with the processing stages `8_binAvg` or `8_rbr_processed`.
-
-#### Caprover app setup
-To avoid restarting the process when completed the following command needs to be send to the docker container made available on the server (more details [here](https://blog.alexellis.io/containers-on-swarm/)):
-
-```shell
-sudo docker service update CONTAINER_ID --restart-condition “none"
-```
