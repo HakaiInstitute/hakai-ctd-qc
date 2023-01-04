@@ -2,7 +2,6 @@ import argparse
 import json
 import logging
 import os
-import sys
 from time import time
 
 import gsw
@@ -17,7 +16,6 @@ from ioos_qc.config import Config
 from ioos_qc.qartod import QartodFlags, qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
-from ocean_data_parser.read.utils import standardize_dataset
 from requests.exceptions import JSONDecodeError
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
@@ -594,4 +592,3 @@ if __name__ == "__main__":
 
 end_time = time()
 logger.info("Process completed in %s seconds", end_time - start_time)
-# sys.exit(0)
