@@ -51,16 +51,6 @@ tqdm.pandas()
 PACKAGE_PATH = os.path.join(os.path.dirname(__file__))
 DEFAULT_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "default-config.yaml")
 ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "config.yaml")
-config_from_env = [
-    "HAKAI_API_TOKEN",
-    "ENVIRONMENT",
-    "HAKAI_API_SERVER_ROOT",
-    "UPDATE_SERVER_DATABASE",
-    "SENTRY_EVENT_MINIMUM_DATE",
-    "LOGGING_LEVEL",
-    "RUN_TEST_SUITE",
-    "QC_PROCESSING_STAGES",
-]
 
 
 def read_config_yaml():
@@ -78,7 +68,7 @@ def read_config_yaml():
         parsed_config.update(__parse_config_yaml(ENV_CONFIG_PATH))
     # environment variables
     parsed_config.update(
-        {key: os.environ[key] for key in config_from_env if key in os.environ}
+        {key: os.environ[key] for key in os.environ if key in parsed_config}
     )
 
     # Parse input files
