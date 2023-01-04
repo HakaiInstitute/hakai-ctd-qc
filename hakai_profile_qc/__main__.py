@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from time import time
+import sys
 
 import gsw
 import hakai_tests
@@ -588,3 +589,4 @@ if __name__ == "__main__":
 
 end_time = time()
 logger.info("Process completed in %s seconds", end_time - start_time)
+sys.exit(0)
