@@ -2,13 +2,14 @@ import argparse
 import json
 import logging
 import os
-from time import time
 import sys
+from time import time
 
 import gsw
 import hakai_tests
 import numpy as np
 import pandas as pd
+import requests
 import sentry_sdk
 import sentry_warnings
 import yaml
@@ -22,6 +23,19 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from version import __version__
+
+sentry_checkin_headers = {
+    "Authorization": "DSN https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251"
+}
+monitor_id = "8ac7c3da-4e18-4c7b-9ce9-c0fa22956775"  # Write your monitor_id here
+
+# Create the check-in
+sentry_health_response = requests.post(
+    f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/",
+    headers=sentry_checkin_headers,
+    json={"status": "in_progress"},
+)
+check_in_id = sentry_health_response.json()["id"]
 
 start_time = time()
 
@@ -101,7 +115,10 @@ logging.basicConfig(
 )
 log_to_sentry()
 logger.info("Start Process")
-logger.info("HAKAI_API_TOKEN: %s", config["HAKAI_API_TOKEN"][:10] if config.get("HAKAI_API_TOKEN") else "none")
+logger.info(
+    "HAKAI_API_TOKEN: %s",
+    config["HAKAI_API_TOKEN"][:10] if config.get("HAKAI_API_TOKEN") else "none",
+)
 logger.debug("config: %s", config)
 client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 
@@ -589,4 +606,10 @@ if __name__ == "__main__":
 
 end_time = time()
 logger.info("Process completed in %s seconds", end_time - start_time)
+# Update the check-in status (required) and duration (optional)
+sentry_health_response = requests.put(
+    f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
+    headers=sentry_checkin_headers,
+    json={"status": "ok"},
+)
 sys.exit(0)
