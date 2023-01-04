@@ -1,7 +1,7 @@
 name: QC Cron 10 minutes intervals
 on:
   schedule:
-    - cron: '*/10 0 * * * *'
+    - cron: '*/10 * * * *'
 jobs:
   run-qc:
     name: Run QC cron job on Hecate Database
