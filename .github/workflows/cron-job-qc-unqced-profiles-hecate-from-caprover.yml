@@ -1,0 +1,17 @@
+name: QC Cron 10 minutes intervals
+on:
+  schedule:
+    - cron: '*/10 0 * * * *'
+jobs:
+  run-qc:
+    name: Run QC cron job on Hecate Database
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Caprover CLI
+        run: npm install -g caprover
+      - name: Tell Caprover server to deploy main
+        run: caprover deploy --caproverUrl https://captain.server.hak4i.org --appToken ${{ secrets.CAPROVER_TOKEN_PRODUCTION }} --branch 'main' --appName hakai-profile-qc-production
