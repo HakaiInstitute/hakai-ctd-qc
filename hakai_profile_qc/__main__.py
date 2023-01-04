@@ -404,7 +404,7 @@ def main(hakai_ids=None):
         (ctd_cast_data,ctd_cast): Resulting data as pandas dataframes.
     """
 
-    # Get the list of hakai_ids to qc
+    #  Generate filter query list based on input and configuration
     if hakai_ids:
         if isinstance(hakai_ids, list):
             hakai_ids = ",".join(hakai_ids)
@@ -421,12 +421,15 @@ def main(hakai_ids=None):
         logger.info("Run QC on processing stages: %s", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
 
+    # Retrieve casts to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}&limit=-1&fields={','.join(config['CTD_CAST_VARIABLES'])}"
     logger.info("Retrieve: %s", url)
     df_casts = retrieve_hakai_data(url, max_attempts=3)
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
         return None, None
+
+    # Split cast list to qc into chunks and run qc tests on each chunks.
     logger.info("QC %s drops", len(df_casts))
     gen_pbar = tqdm(
         total=len(df_casts),
@@ -441,6 +444,7 @@ def main(hakai_ids=None):
         for chunk in np.array_split(
             df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
         ):
+            # Retrieve cast data for this chunk
             logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
             logger.debug(
                 "Retrieve data from hakai server: %s/%s profile qced",
@@ -464,14 +468,15 @@ def main(hakai_ids=None):
                 continue
 
             logger.info("Data is loaded")
-            original_variables = df_qced.columns
+            # Generate derived variables and convert time
             logger.debug("Generate derived variables")
             df_qced = _derived_ocean_variables(df_qced)
             logger.debug("Convert time variables to datetime objects")
             df_qced = _convert_time_to_datetime(df_qced)
             logger.debug("Run QC Process")
-            df_qced = run_qc_profiles(df_qced)
 
+            # Run QC Process
+            df_qced = run_qc_profiles(df_qced)
             sentry_warnings.run_sentry_warnings(
                 df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
             )
