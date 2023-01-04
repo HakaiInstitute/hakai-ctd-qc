@@ -460,6 +460,7 @@ def main(hakai_ids=None):
             logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
+            original_variables = df_qced.columns
             if df_qced is None:
                 logger.error(
                     "Failed to retrieve profile data for the hakai_ids: %s",
@@ -495,6 +496,8 @@ def main(hakai_ids=None):
 
             # Upload to server
             if config["UPDATE_SERVER_DATABASE"] in (True, "true"):
+                # Filter out extra variables generated during qc
+                df_upload = df_qced[original_variables]
                 for _, row in tqdm(
                     chunk.iterrows(),
                     desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
@@ -502,9 +505,7 @@ def main(hakai_ids=None):
                     total=len(chunk),
                 ):
                     logger.debug("Upload qced %s", row["hakai_id"])
-                    json_string = _generate_process_flags_json(
-                        row, df_qced[original_variables]
-                    )
+                    json_string = _generate_process_flags_json(row, df_upload)
                     retrieve_hakai_data(
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=json_string,
