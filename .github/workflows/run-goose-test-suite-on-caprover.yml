@@ -1,4 +1,4 @@
-name: Run Caprover Main
+name: Run Test Suite on Goose DB from Caprover
 on:
   push:
     branches:
