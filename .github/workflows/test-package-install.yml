@@ -1,0 +1,27 @@
+name: Install package and run linter
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - hakai_profile_qc
+  pull_request:
+    branches:
+      - main
+    paths:
+      - hakai_profile_qc
+
+jobs:
+  miniconda:
+    name: Miniconda Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Lint Tests
+        shell: bash -l {0}
+        run: |
+          pip install flake8
+          python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Install docker container and load data
+        run: docker-compose up --build
