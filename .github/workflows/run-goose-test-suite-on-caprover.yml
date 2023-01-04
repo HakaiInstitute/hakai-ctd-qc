@@ -5,6 +5,8 @@ on:
       - main
     paths:
       - hakai_profiles_qc
+  workflow_dispatch:
+
 jobs:
   deploy-main:
     runs-on: ubuntu-latest
