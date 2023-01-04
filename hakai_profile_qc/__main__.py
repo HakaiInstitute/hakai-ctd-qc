@@ -63,12 +63,6 @@ config_from_env = [
     "RUN_TEST_SUITE",
     "QC_PROCESSING_STAGES",
 ]
-minimum_cast_variables = [
-    "ctd_cast_pk",
-    "hakai_id",
-    "processing_stage",
-    "process_error",
-] + sentry_warnings.context
 
 
 def read_config_yaml():
@@ -439,7 +433,7 @@ def main(hakai_ids=None):
         logger.info("Run QC on processing stages: %s", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
 
-    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}&limit=-1&fields={','.join(minimum_cast_variables)}"
+    url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}&limit=-1&fields={','.join(config['CTD_CAST_VARIABLES'])}"
     logger.info("Retrieve: %s", url)
     df_casts = retrieve_hakai_data(url, max_attempts=3)
     if df_casts.empty:
@@ -469,7 +463,7 @@ def main(hakai_ids=None):
                 config["HAKAI_API_SERVER_ROOT"],
                 config["CTD_CAST_DATA_ENDPOINT"],
                 ",".join(chunk["hakai_id"].values),
-                ",".join(config["CTD_VARIABLES"]),
+                ",".join(config["CTD_CAST_DATA_VARIABLES"]),
             )
             logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)

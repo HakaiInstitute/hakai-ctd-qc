@@ -73,8 +73,23 @@ RESEARCH_CTD_VARIABLES:
     'c_star_at',
   ]
 
+CTD_CAST_VARIABLES: [
+    "ctd_cast_pk",
+    "hakai_id",
+    "processing_stage",
+    "process_error",
+    "cruise",
+    "vessel",
+    "operators",
+    "comments",
+    "cast_type",
+    "no_cast",
+    "bottle_drop",
+    "processing_software_version"
+]
+
 # Subset of variables to download from CTD_CAST_DATA_ENDPOINT
-CTD_VARIABLES:
+CTD_CAST_DATA_VARIABLES:
   [
     'ctd_file_pk',
     'ctd_cast_pk',
@@ -166,33 +181,7 @@ CTD_VARIABLES:
     'cdom_ppb_flag_level_1',
   ]
 
-# Stations to ignored from Hakai's provisional and research datasets
-IGNORED_HAKAI_STATIONS:
-  [
-    'AB1',
-    'BED1',
-    'BED10',
-    'BED3',
-    'BED4',
-    'BED5',
-    'BED6',
-    'BED7',
-    'BED8',
-    'BED9',
-    'CP1',
-    'CP2',
-    'FCC1',
-    'HER1',
-    'HER2',
-    'HER3',
-    'HER4',
-    'HER5',
-    'MC1',
-    'RC1',
-    'RC2',
-    'RC3',
-  ]
-
+# Hakai ID Test suite liste
 TEST_HAKAI_IDS: [
     # one cast from each instrument per year
     '018032_2012-06-16T17:35:27.166Z',

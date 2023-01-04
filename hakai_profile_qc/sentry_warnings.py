@@ -5,16 +5,6 @@ from sentry_sdk import set_context, set_tag
 
 logger = logging.getLogger(__name__)
 tags = ["work_area", "station", "device_sn", "hakai_id"]
-context = [
-    "cruise",
-    "vessel",
-    "operators",
-    "comments",
-    "cast_type",
-    "no_cast",
-    "bottle_drop",
-    "processing_software_version",
-]
 
 
 def run_sentry_warnings(casts_data, casts, minimum_date=None):
@@ -38,7 +28,7 @@ def run_sentry_warnings(casts_data, casts, minimum_date=None):
         for _, row in drops.iterrows():
             for tag in tags:
                 set_tag(tag, row[tag])
-            set_context("character", casts.loc[row["hakai_id"]][context].to_dict())
+            set_context("character", casts.loc[row["hakai_id"]])
             logger.warning(message)
 
     logger.info("Run Sentry Warnings")
