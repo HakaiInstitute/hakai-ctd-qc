@@ -1,4 +1,4 @@
-name: QC Cron 10 minutes intervals
+name: QC Cron 10 minutes intervals2
 on:
   schedule:
     - cron: '*/10 * * * *'
