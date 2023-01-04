@@ -11,7 +11,7 @@ on:
     paths:
       - hakai_profile_qc
   workflow_dispatch:
-  
+
 jobs:
   miniconda:
     name: Miniconda Build
@@ -25,4 +25,4 @@ jobs:
           python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Install docker container and load data
-        run: docker-compose up --build
+        run: docker-compose up
