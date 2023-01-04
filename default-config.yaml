@@ -14,6 +14,7 @@ CTD_CAST_ENDPOINT: 'ctd/views/file/cast'
 CTD_CAST_DATA_ENDPOINT: 'ctd/views/file/cast/data'
 CTD_CAST_QC_ENDPOINT: 'eims/views/output/ctd_qc'
 HAKAI_STATIONS_ENDPOINT: 'eims/views/output_sites'
+HAKAI_API_TOKEN: null
 
 # Logging
 LOGGING_LEVEL: INFO
@@ -73,20 +74,21 @@ RESEARCH_CTD_VARIABLES:
     'c_star_at',
   ]
 
-CTD_CAST_VARIABLES: [
-    "ctd_cast_pk",
-    "hakai_id",
-    "processing_stage",
-    "process_error",
-    "cruise",
-    "vessel",
-    "operators",
-    "comments",
-    "cast_type",
-    "no_cast",
-    "bottle_drop",
-    "processing_software_version"
-]
+CTD_CAST_VARIABLES:
+  [
+    'ctd_cast_pk',
+    'hakai_id',
+    'processing_stage',
+    'process_error',
+    'cruise',
+    'vessel',
+    'operators',
+    'comments',
+    'cast_type',
+    'no_cast',
+    'bottle_drop',
+    'processing_software_version',
+  ]
 
 # Subset of variables to download from CTD_CAST_DATA_ENDPOINT
 CTD_CAST_DATA_VARIABLES:
