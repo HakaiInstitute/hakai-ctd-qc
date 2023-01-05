@@ -59,6 +59,9 @@ def log_to_sentry():
         environment=config["ENVIRONMENT"],
         release=f"hakai-profile-qc@{__version__}",
         traces_sample_rate=1.0,
+        _experiments={
+            "profiles_sample_rate": 1.0,
+        },
     )
 
 
