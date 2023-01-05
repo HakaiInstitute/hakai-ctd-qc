@@ -116,9 +116,13 @@ logging.basicConfig(
 log_to_sentry()
 logger.info("Start Process")
 logger.info("ENVIRONMENT_VARIABLES: %s", dict(os.environ).keys())
+if "HAKAI_API_TOKEN" in os.environ:
+    logger.info(
+        "HAKAI_API_TOKEN as env variable: %s", len(os.environ["HAKAI_API_TOKEN"])
+    )
 logger.info(
-    "HAKAI_API_TOKEN: %s",
-    config["HAKAI_API_TOKEN"][:10] if config.get("HAKAI_API_TOKEN") else "none",
+    "HAKAI_API_TOKEN: len(%s)",
+    len(config["HAKAI_API_TOKEN"]) if config["HAKAI_API_TOKEN"] else "none",
 )
 logger.debug("config: %s", config)
 client = Client(credentials=config.get("HAKAI_API_TOKEN"))
