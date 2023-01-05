@@ -115,6 +115,7 @@ logging.basicConfig(
 )
 log_to_sentry()
 logger.info("Start Process")
+logger.info("ENVIRONMENT_VARIABLES: %s", dict(os.environ).keys())
 logger.info(
     "HAKAI_API_TOKEN: %s",
     config["HAKAI_API_TOKEN"][:10] if config.get("HAKAI_API_TOKEN") else "none",
