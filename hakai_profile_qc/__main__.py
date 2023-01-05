@@ -85,6 +85,7 @@ def read_config_yaml():
     if os.path.exists(ENV_CONFIG_PATH):
         parsed_config.update(__parse_config_yaml(ENV_CONFIG_PATH))
     # environment variables
+    logger.info("ENVIRONMENT_VARIABLES: %s", dict(os.environ).keys())
     parsed_config.update(
         {key: os.environ[key] for key in os.environ if key in parsed_config}
     )
