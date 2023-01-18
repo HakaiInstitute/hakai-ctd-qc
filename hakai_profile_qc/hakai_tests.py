@@ -2,12 +2,13 @@
 Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
 import logging
-import pandas as pd
-import numpy as np
-from ioos_qc.qartod import QartodFlags
-import warnings
-import pkg_resources
 import os
+import warnings
+
+import numpy as np
+import pandas as pd
+import pkg_resources
+from ioos_qc.qartod import QartodFlags
 
 logger = logging.getLogger(__name__)
 # Import Hakai Station List
@@ -56,15 +57,15 @@ def do_cap_test(
     minimum_bins_per_profile: minimum amount of bins necessary to make the test usable.
 
     ASSUMPTIONS:
-    As of now, the test assume that the input data is already bin averaged for either up or downcast.
+    As of now, the test assume that the input data is already bin averaged for both up or down cast.
 
     OUTPUT:
     The test will generate an extra column [var]_do_cap_test with QARTOD flag.
     """
     # Handle empty inputs or with no upcast data.
-    if df[var].isna().all():
+    if var not in df or df[var].isna().all():
         df[var + flag_name] = QartodFlags.MISSING
-        return
+        return df
     elif all(
         df.groupby(by=[profile_id, depth_var])[var].count() <= 1
     ):  # All the profiles are bad or unknown
@@ -87,13 +88,15 @@ def do_cap_test(
             hakai_id_matching_depth == 0
         ].index.to_list():
             df.loc[df[profile_id] == missing_id, var + flag_name] = QartodFlags.MISSING
-        return
+        return df
 
     # Assign each record to a specific bin id
     df["bin_id"] = ((df[depth_var] / bin_size)).round()
 
     # Group average record associated to each profile,direction and bin_id
-    df_grouped = df.groupby([profile_id, direction_flag, "bin_id"]).mean()
+    df_grouped = df.groupby([profile_id, direction_flag, "bin_id"]).mean(
+        numeric_only=True
+    )
 
     # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
     profile_bin_stats = df_grouped.groupby(by=[profile_id, "bin_id"])[var].agg(

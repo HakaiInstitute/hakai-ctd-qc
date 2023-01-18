@@ -5,6 +5,8 @@ GREY_LIST_PATH: ${PACKAGE_PATH}/HakaiProfileDatasetGreyList.csv
 STATION_LIST_PATH: ${PACKAGE_PATH}/HakaiStationLocations.csv
 
 # Hakai API Endpoints Definition
+RUN_TEST_SUITE: true
+QC_PROCESSING_STAGES: ['8_binAvg', '8_rbr_processed']
 UPDATE_SERVER_DATABASE: false
 CTD_CAST_CHUNKSIZE: 100
 HAKAI_API_SERVER_ROOT: https://goose.hakai.org/api
@@ -12,7 +14,7 @@ CTD_CAST_ENDPOINT: 'ctd/views/file/cast'
 CTD_CAST_DATA_ENDPOINT: 'ctd/views/file/cast/data'
 CTD_CAST_QC_ENDPOINT: 'eims/views/output/ctd_qc'
 HAKAI_STATIONS_ENDPOINT: 'eims/views/output_sites'
-HAKAI_API_ENDPOINT: null
+HAKAI_API_TOKEN: null
 
 # Logging
 LOGGING_LEVEL: INFO
@@ -72,8 +74,24 @@ RESEARCH_CTD_VARIABLES:
     'c_star_at',
   ]
 
+CTD_CAST_VARIABLES:
+  [
+    'ctd_cast_pk',
+    'hakai_id',
+    'processing_stage',
+    'process_error',
+    'cruise',
+    'vessel',
+    'operators',
+    'comments',
+    'cast_type',
+    'no_cast',
+    'bottle_drop',
+    'processing_software_version',
+  ]
+
 # Subset of variables to download from CTD_CAST_DATA_ENDPOINT
-CTD_VARIABLES:
+CTD_CAST_DATA_VARIABLES:
   [
     'ctd_file_pk',
     'ctd_cast_pk',
@@ -165,33 +183,7 @@ CTD_VARIABLES:
     'cdom_ppb_flag_level_1',
   ]
 
-# Stations to ignored from Hakai's provisional and research datasets
-IGNORED_HAKAI_STATIONS:
-  [
-    'AB1',
-    'BED1',
-    'BED10',
-    'BED3',
-    'BED4',
-    'BED5',
-    'BED6',
-    'BED7',
-    'BED8',
-    'BED9',
-    'CP1',
-    'CP2',
-    'FCC1',
-    'HER1',
-    'HER2',
-    'HER3',
-    'HER4',
-    'HER5',
-    'MC1',
-    'RC1',
-    'RC2',
-    'RC3',
-  ]
-
+# Hakai ID Test suite liste
 TEST_HAKAI_IDS: [
     # one cast from each instrument per year
     '018032_2012-06-16T17:35:27.166Z',

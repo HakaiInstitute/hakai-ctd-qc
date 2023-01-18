@@ -2,7 +2,7 @@
 # We do that because the time taken to build both containers from scratch each time adds up to 350s currently - that is too long
 # Docker can cache the "build" image and not rebuild it each time because it doesn't change often
 # However, our source code "./src" does change frequent as we update it. Therefore we cannot cache it.
-FROM --platform=linux/amd64 continuumio/miniconda3:4.12.0 as build
+FROM --platform=linux/amd64 continuumio/miniconda3:latest as build
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     build-essential gcc git
@@ -48,4 +48,4 @@ ADD . /venv
 # When image is run, run the code within the Python virtual environment "venv"
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT source /venv/bin/activate && \
-    python venv/hakai_profile_qc --qc_unqced_profiles
+    python /venv/hakai_profile_qc
