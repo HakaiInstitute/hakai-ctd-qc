@@ -40,6 +40,17 @@ check_in_id = sentry_health_response.json()["id"]
 start_time = time()
 
 
+def check_hakai_database_rebuild():
+    response = client.get(f"{config['HAKAI_API_SERVER_ROOT']}/api/rebuild_status")
+    is_running_rebuilding = response.json()[0]["rebuild_running"]
+    if not is_running_rebuilding:
+        logger.info(
+            "Stop process early since Hakai DB %s is running a rebuild",
+            config["HAKAI_API_SERVER_ROOT"],
+        )
+        sys.exit()
+
+
 def log_to_sentry():
     if config["SENTRY_DSN"] is None:
         return
@@ -126,6 +137,7 @@ logger.info(
 )
 logger.debug("config: %s", config)
 client = Client(credentials=config.get("HAKAI_API_TOKEN"))
+check_hakai_database_rebuild()
 
 
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
