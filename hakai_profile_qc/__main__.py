@@ -44,9 +44,14 @@ def check_hakai_database_rebuild():
     response = client.get(f"{config['HAKAI_API_SERVER_ROOT']}/api/rebuild_status")
     is_running_rebuilding = response.json()[0]["rebuild_running"]
     if is_running_rebuilding:
-        logger.info(
+        logger.warning(
             "Stop process early since Hakai DB %s is running a rebuild",
             config["HAKAI_API_SERVER_ROOT"],
+        )
+        requests.put(
+            f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
+            headers=sentry_checkin_headers,
+            json={"status": "ok"},
         )
         sys.exit()
 
