@@ -43,7 +43,7 @@ start_time = time()
 def check_hakai_database_rebuild():
     response = client.get(f"{config['HAKAI_API_SERVER_ROOT']}/api/rebuild_status")
     is_running_rebuilding = response.json()[0]["rebuild_running"]
-    if not is_running_rebuilding:
+    if is_running_rebuilding:
         logger.info(
             "Stop process early since Hakai DB %s is running a rebuild",
             config["HAKAI_API_SERVER_ROOT"],
