@@ -1,0 +1,388 @@
+Station,Long_DD,Lat_DD,Location,Survey,note,Region,Program,Bot_depth,Bot_depth_,NONNA_10m_,NOAA_3arcs
+AB1,-126.0299,49.1769,Ahous Bay,CEDAR COAST,,Clayoquot,Oceanography,0,16,-23.8,-16.1
+ALCOVE,-128.1162,51.6752,Choked Pass,,,Central Coast,Oceanography,,8,-2.6,-0.1
+BED1,-125.8983333,49.24171667,East of Saranac Island,CEDAR COAST,,Clayoquot,Oceanography,0,6,-33.0,-6.3
+BED10,-125.7793167,49.36201667,Head of Bedwell Sound,CEDAR COAST,,Clayoquot,Oceanography,0,1,0.0,-0.8
+BED2,-125.9175167,49.25005,West of Saranac Island,CEDAR COAST,,Clayoquot,Oceanography,0,41,-42.6,-41.5
+BED3,-125.8902333,49.26603333,Cypre estuary,CEDAR COAST,,Clayoquot,Oceanography,0,53,-24.2,-52.8
+BED4,-125.8628833,49.24973333,Near Cypress Bay,CEDAR COAST,,Clayoquot,Oceanography,0,56,-58.0,-56.2
+BED5,-125.8229333,49.24398333,near Matslet Narrows,CEDAR COAST,,Clayoquot,Oceanography,0,102,-105.9,-99.6
+BED6,-125.8243,49.26971667,Bedwell Sound,CEDAR COAST,,Clayoquot,Oceanography,0,51,-60.6,-52.5
+BED7,-125.8175,49.29286667,Bedwell Sound,CEDAR COAST,,Clayoquot,Oceanography,0,15,-61.7,-20.2
+BED8,-125.8105667,49.30518333,Bedwell Sound,CEDAR COAST,,Clayoquot,Oceanography,0,26,-60.6,-26.5
+BED9,-125.8042,49.33081667,Bedwell Sound near Bare Bluff,CEDAR COAST,,Clayoquot,Oceanography,0,6,-86.0,-6.1
+BRK01,-127.889,51.914,Burke Channel,Burke Channel,,Central Coast,Oceanography,150,141,-143.1,-141.0
+BRK02,-127.843,51.93,Burke Channel,Burke Channel,,Central Coast,Oceanography,135,131,-135.2,-130.0
+BRK03,-127.8,51.946,Burke Channel,Burke Channel,,Central Coast,Oceanography,140,117,-129.8,-115.8
+BRK04,-127.766,51.955,Burke Channel,Burke Channel,,Central Coast,Oceanography,43,38,-37.1,-36.0
+BRK05,-127.698,51.958,Burke Channel,Burke Channel,,Central Coast,Oceanography,208,203,-209.8,-205.4
+BS1,-124.8666667,49.60833333,Baynes Sound,,"Pacific Salmon Foundation's Citizen Science Program, pCO2, TCO2 , Salinity, PSF CTD",,Ocean Acidification,,38,-36.8,-37.9
+BS1_DBOS,-124.8756035,49.61279998,,Deep Bay Oceanography Survey (Sarah Leduc),"Close to BS1 PSF station, north end of Denman",,Ocean Acidification,,38,-34.8,-37.9
+BS14,-124.8990027,49.64500348,Baynes Sound,Deep Bay Oceanography Survey (Sarah Leduc),"North end, near Courtenay, off Manatee Holdings",,Ocean Acidification,,37,-34.6,-36.9
+BS15,-124.857296,49.55585386,Baynes Sound,Deep Bay Oceanography Survey (Sarah Leduc),Mid Channel,,Ocean Acidification,,43,-44.5,-43.4
+BS16,-124.8049054,49.51578679,Baynes Sound,Deep Bay Oceanography Survey (Sarah Leduc),Mid channel off mac's oysters,,Ocean Acidification,,56,-52.6,-56.3
+BS17,-124.7542871,49.47716798,Baynes Sound,Deep Bay Oceanographic Survey (Sarah Leduc),"South end, just south of BS7",,Ocean Acidification,,92,-90.4,-83.8
+BS3,-124.6666667,49.69166667,Baynes Sound,,"Pacific Salmon Foundation's Citizen Science Program pCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,229,-222.1,-229.1
+BS6,-124.6049998,49.48500068,Baynes Sound,,"Pacific Salmon Foundation's Citizen Science Program pCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,71,0.0,-71.2
+BS7,-124.766668,49.48333126,Baynes Sound,,"Pacific Salmon Foundation's Citizen Science Program pCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,63,-58.6,-62.8
+BU1,-125.08,50.37,Bute Inlet,,"Pacific Salmon Foundation's Citizen Science Program pCO2, TCO2, salinity, PSF CTD",,Oceanography,604,597,-601.5,-605.0
+BU2,-125.0767,50.4683,Bute Inlet,,DFO + Achiever 2019,,Oceanography,658,666,-647.3,-650.2
+BU3,-124.9667,50.5283,Bute Inlet,,DFO + Achiever 2019,,Oceanography,658,758,-644.2,-648.8
+BU4,-124.9033,50.5883,Bute Inlet,,DFO + Achiever 2019,,Oceanography,640,662,-630.9,-638.1
+BU5,-124.8888271,50.67769141,Bute Inlet,,DFO + Achiever 2019,,Oceanography,567,563,-561.3,-566.0
+BU6,-124.9,50.755,Bute Inlet,,DFO + Achiever 2019,,Oceanography,485,477,-472.0,-473.5
+BU7,-124.8917,50.83,Bute Inlet,,DFO + Achiever 2019,,Oceanography,366,351,-345.5,-353.3
+BU8,-124.8467,50.8883,Bute Inlet,,DFO + Achiever 2019,,Oceanography,256,241,-262.7,-266.0
+BUR1,-127.9467,51.9033,,BURKE CHANNEL,,Central Coast,Oceanography,,339,-345.6,-349.0
+BUR10,-126.9517,52.3467,,BURKE CHANNEL,,Central Coast,Oceanography,,202,0.0,-200.0
+BUR11,-126.8333,52.38,,BURKE CHANNEL,,Central Coast,Oceanography,,200,0.0,-200.0
+BUR12,-126.9667,52.2867,,BURKE CHANNEL,,Central Coast,Oceanography,,201,0.0,-200.0
+BUR13,-126.9067,52.1917,,BURKE CHANNEL,,Central Coast,Oceanography,,199,0.0,-200.0
+BUR14,-126.785,52.1233,,BURKE CHANNEL,,Central Coast,Oceanography,,200,0.0,-200.0
+BUR15,-126.705,52.0533,,BURKE CHANNEL,,Central Coast,Oceanography,,199,0.0,-200.0
+BUR16,-126.6883,52.0033,,BURKE CHANNEL,,Central Coast,Oceanography,,1,0.0,0.0
+BUR1A,-127.48,52.2,,BURKE CHANNEL,,Central Coast,Oceanography,,596,0.0,-500.0
+BUR2,-127.68,51.9783,,BURKE CHANNEL,,Central Coast,Oceanography,,244,-239.0,-240.1
+BUR3,-127.6567,52.0617,,BURKE CHANNEL,,Central Coast,Oceanography,,200,0.0,-200.0
+BUR4,-127.5867,52.1367,,BURKE CHANNEL,,Central Coast,Oceanography,,199,0.0,-200.0
+BUR5,-127.48,52.2,,BURKE CHANNEL,,Central Coast,Oceanography,,596,0.0,-500.0
+BUR6,-127.3767,52.2383,,BURKE CHANNEL,,Central Coast,Oceanography,,599,0.0,-500.0
+BUR7,-127.2567,52.275,,BURKE CHANNEL,,Central Coast,Oceanography,,599,0.0,-500.0
+BUR8,-127.18,52.33,,BURKE CHANNEL,,Central Coast,Oceanography,,570,0.0,-500.0
+BUR9,-127.0467,52.3217,,BURKE CHANNEL,,Central Coast,Oceanography,,542,0.0,-500.0
+CP1,-125.97865,49.21498333,Calamus Pass,CEDAR COAST,,Clayoquot,Oceanography,0,9,-19.8,-9.0
+CP2,-126.0442,49.21165,West of Vargas,CEDAR COAST,,Clayoquot,Oceanography,0,8,-16.2,-8.2
+D01,-124.747,49.9613,,SEMSP,,Discovery Islands,SEMSP,,100,-72.3,-80.3
+D02,-124.8509,50.07902,,SEMSP,,Discovery Islands,SEMSP,,163,-66.5,
+D03,-125.075117,50.11841667,,SEMSP,,Discovery Islands,SEMSP,,49,0.0,-48.9
+D04,-125.147117,49.996445,,SEMSP,,Discovery Islands,SEMSP,,10,-13.6,-10.0
+D05,-124.8888,50.1659,,SEMSP,,Discovery Islands,SEMSP,,99,-31.5,-123.0
+D06,-125.272652,50.100153,,SEMSP,,Discovery Islands,SEMSP,,49,-31.0,-37.0
+D07,-125.143142,50.190769,,SEMSP,,Discovery Islands,SEMSP,,27,-29.4,0.0
+D08,-125.040963,50.319983,,SEMSP,,Discovery Islands,SEMSP,,110,-92.2,-81.0
+D09,-125.329834,50.307276,Okisollo Channel,SEMSP,,Discovery Islands,SEMSP,,49,-57.9,-36.4
+D10,-125.279,50.44365,Hall Point,SEMSP,,Discovery Islands,SEMSP,,17,0.0,-86.8
+D11,-125.455652,50.348145,,SEMSP,,Discovery Islands,SEMSP,,11,0.0,-49.8
+D12,-125.210626,50.116886,,SEMSP,,Discovery Islands,SEMSP,,51,-65.4,-50.9
+D20,-125.364704,50.462122,,SEMSP,,Discovery Islands,SEMSP,,49,0.0,-54.9
+D21,-125.372675,50.390937,,SEMSP,,Discovery Islands,SEMSP,,48,-59.7,-62.4
+D22,-125.397371,50.244069,McMullen Point,SEMSP,,Discovery Islands,SEMSP,,43,0.0,-108.1
+D24,-125.117914,50.238061,,SEMSP,,Discovery Islands,SEMSP,,50,-57.6,-50.4
+D25,-124.916635,50.022465,,SEMSP,,Discovery Islands,SEMSP,,82,-90.3,-118.8
+D26,-125.164744,49.917057,,SEMSP,,Discovery Islands,SEMSP,,10,0.0,-9.8
+D27,-125.377946,50.274476,Granite Point,SEMSP,,Discovery Islands,SEMSP,,24,0.0,
+D28,-125.613237,50.38992,,SEMSP,,Discovery Islands,SEMSP,,49,0.0,-13.5
+D30,-125.31317,50.291476,Chonat Bay,,,Discovery Islands,SEMSP,,43,-36.5,-35.6
+DAWSONS,-127.5923,51.574,Bickle Channel,Rivers Inlet V2,,Central Coast,Oceanography,30,57,0.0,
+DE1,-127.83167,52.195,,DEAN,,Central Coast,Oceanography,,259,0.0,-445.0
+DE10,-126.9933,52.8333,,DEAN,,Central Coast,Oceanography,,1,0.0,0.0
+DE11,-127.0533,52.8683,,DEAN,,Central Coast,Oceanography,,1,0.0,0.0
+DE2,-127.745883,52.26006,,DEAN,,Central Coast,Oceanography,,201,0.0,-200.0
+DE3,-127.60833,52.28333,,DEAN,,Central Coast,Oceanography,,199,0.0,-200.1
+DE4,-127.4678,52.34206,,DEAN,,Central Coast,Oceanography,,240,0.0,-490.0
+DE5,-127.3984,52.4093,,DEAN,,Central Coast,Oceanography,,529,0.0,-501.5
+DE6,-127.25833,52.45417,,DEAN,,Central Coast,Oceanography,,507,0.0,-501.3
+DE7,-127.20525,52.5532,,DEAN,,Central Coast,Oceanography,,199,0.0,-200.0
+DE8,-127.0719,52.6268,,DEAN,,Central Coast,Oceanography,,200,0.0,-200.0
+DE9,-126.955,52.7333,,DEAN,,Central Coast,Oceanography,,199,0.0,-200.0
+DFO1,-127.6055,51.4593,Rivers Inlet,Rivers Inlet V2,,Central Coast,Oceanography,299,289,0.0,-257.7
+DFO2,-127.5583,51.5208,Rivers Inlet,Rivers Inlet,,Central Coast,Oceanography,333,330,0.0,-330.7
+DFO3,-127.5313,51.6008,Rivers Inlet,Rivers Inlet V2,,Central Coast,Oceanography,324,365,0.0,-326.0
+DFO4,-127.4493,51.6488,Rivers Inlet,Rivers Inlet V2,,Central Coast,Oceanography,300,312,0.0,-301.1
+DFO5,-127.3122,51.6773,Rivers Inlet,Rivers Inlet V2,,Central Coast,Oceanography,198,201,0.0,-200.0
+DI10,-125.3274,50.3036,Okisollo,F,,Discovery Islands,Oceanography,85,77,-81.2,-81.6
+DI11,-125.4309,50.3453,Johnstone Strait,F,,Discovery Islands,Oceanography,300,348,-314.4,-319.1
+DI12,-125.383,50.2397,Discovery Passage,F,,Discovery Islands,Oceanography,220,259,-225.0,-227.3
+DI13,-125.2351,50.0445,Discovery Passage,F,,Discovery Islands,Oceanography,70,51,-78.8,-82.4
+DI18,-125.293333,50.1,,QOM F,,Discovery Islands,Oceanography,70,85,-69.2,-73.5
+DI19,-125.367,50.1972,,QOM F,,Discovery Islands,Oceanography,200,200,-198.2,-189.0
+DI20,-125.38489,50.2614904,,QOM F,aka DFO23,Discovery Islands,Oceanography,247,252,-243.6,-245.9
+DI21,-125.3306,50.2946855,,QOM F,aka OkChan,Discovery Islands,Oceanography,109,111,-105.8,-106.0
+DI24,-125.4008025,50.28188443,,QOM F,,Discovery Islands,Oceanography,,216,-212.3,-215.6
+DI25,-125.2656,50.3207,Barnes Bay,QOMF,,Discovery Islands,Oceanography,,50,-71.5,-70.2
+DI6,-125.1856,50.3974,Dent,F,,Discovery Islands,Oceanography,125,129,0.0,-100.0
+DI7,-125.3006,50.4476,Nodales,F,,Discovery Islands,Oceanography,300,300,-311.9,-314.5
+DI8,-125.3567,50.3726,Nodales,F,,Discovery Islands,Oceanography,210,234,-207.2,-206.8
+FC1,-127.9167,52.0467,,DEAN,,Central Coast,Oceanography,,,0.0,-375.5
+FC2,-127.8811,52.11798333,,DEAN,,Central Coast,Oceanography,,,0.0,-487.9
+FC3,-127.8633,52.165,,DEAN,,Central Coast,Oceanography,,,0.0,-500.0
+FCC1,-125.9286167,49.18348333,Father Charles Channel,CEDAR COAST,,Clayoquot,Oceanography,0,33,-34.7,-32.8
+FHE02,-127.754,51.6139,Fish Egg Inlet,South Herring,,Central Coast,Oceanography,180,40,-180.4,-180.6
+FHE04,-127.8275,51.6559,Illahie Inlet,South Herring,,Central Coast,Oceanography,33,1,0.0,-6.5
+FZH01,-127.8958,51.6394,Fitz Hugh Sound,Kwakshua,,Central Coast,Oceanography,290,299,-293.6,-294.0
+FZH02,-127.8714,51.6683,Fitz Hugh Sound,South Herring,,Central Coast,Oceanography,20,23,0.0,-9.9
+FZH03,-127.884,51.6921,Fitz Hugh Sound,South Herring,,Central Coast,Oceanography,27,27,0.0,-7.0
+FZH04,-127.955,51.821,Fitz Hugh Sound,Koeye,,Central Coast,Oceanography,310,311,-311.2,-313.3
+FZH07,-127.9373,51.7034,Fitz Hugh Sound,Koeye,,Central Coast,Oceanography,374,329,-329.6,-332.0
+FZH08,-127.9436,51.759,Fitz Hugh Sound,Koeye,,Central Coast,Oceanography,420,384,-378.9,-380.2
+FZH09,-127.982,51.896,Fitz Hugh Sound,Burke Channel,,Central Coast,Oceanography,305,280,-301.5,-306.1
+FZH10,-127.935,51.902,Fitz Hugh Sound,Burke Channel,,Central Coast,Oceanography,336,340,-341.1,-342.2
+FZH11,-127.796333,51.49808,Fitz Hugh Sound,,,Central Coast,Oceanography,190,187,-184.7,-185.0
+FZH12,-127.89195,51.5278,Fitz Hugh Sound,,,Central Coast,Oceanography,125,100,-106.7,-100.0
+FZH13,-127.8524,51.5724,Fitz Hugh Sound,,,Central Coast,Oceanography,226,247,-231.2,-230.6
+GOLDEN,-128.2131,51.9032,Golden Islands,,,Central Coast,Oceanography,,48,0.0,-33.3
+GOOSE,-128.4602,51.9197,Goose Island,,,Central Coast,Oceanography,,1,0.0,-5.0
+Ha1,-127.555,51.6967,,,IOS Historical Site,Central Coast,Oceanography,310,310,0.0,-310.7
+HAK1,-128.2313,51.7112,,,"DFO mooring deployed July 6, 2016",Central Coast,Oceanography Sensors,,142,-141.1,-140.0
+HER1,-126.0120167,49.31531667,Mouth of Herbert,CEDAR COAST,,Clayoquot,Oceanography,0,78,-111.2,-80.0
+HER2,-125.9782333,49.3281,Herbert,CEDAR COAST,,Clayoquot,Oceanography,0,120,-133.2,-120.2
+HER3,-125.9571833,49.3489,Herbert,CEDAR COAST,,Clayoquot,Oceanography,0,71,-140.2,-71.4
+HER4,-125.9386333,49.39321667,Herbert,CEDAR COAST,,Clayoquot,Oceanography,0,73,-129.7,-73.0
+HER5,-125.9123667,49.40478333,Head of Herbert,CEDAR COAST,,Clayoquot,Oceanography,0,42,-126.6,-41.7
+HKP01,-128.079,51.7182,Hakai Pass,Koeye,,Central Coast,Oceanography,,302,-301.9,-301.9
+HKP03,-128.1636,51.7015,Hakai Pass,"Queen Charlotte Sound, Ver.1",,Central Coast,Oceanography,120,141,-120.5,-126.4
+HKP04,-128.0068,51.7425,Hakai Pass,Koeye,,Central Coast,Oceanography,470,401,-429.4,-433.2
+IA,-128.1182,51.6727,Choked Pass,,a.k.a. Inner Ang,Central Coast,Oceanography,,7,-4.2,-5.0
+ID,-128.1178,51.6745,Choked Pass,,a.k.a. Inner Derek,Central Coast,Oceanography,,7,-4.3,-2.1
+IS,-128.1145,51.6783,Choked Pass,,a.k.a. Inner Sandspit,Central Coast,Oceanography,,9,-0.3,-0.1
+IT,-128.1195,51.6753,Choked Pass,,a.k.a. Inner Tristan,Central Coast,Oceanography,,6,-4.6,0.0
+J01,-126.721845,50.578487,,SEMSP,,Johnstone Strait,SEMSP,,20,0.0,-5.1
+J02,-126.703364,50.599433,,SEMSP,,Johnstone Strait,SEMSP,,33,0.0,-54.3
+J03,-126.671869,50.546936,,SEMSP,,Johnstone Strait,SEMSP,,40,0.0,-67.1
+J04,-126.38762,50.526352,,SEMSP,,Johnstone Strait,SEMSP,,27,0.0,-6.6
+J05,-126.212568,50.498735,,SEMSP,,Johnstone Strait,SEMSP,,45,0.0,-0.1
+J06,-126.033922,50.475081,,SEMSP,,Johnstone Strait,SEMSP,,14,0.0,0.0
+J07,-126.165533,50.457325,,SEMSP,,Johnstone Strait,SEMSP,,49,0.0,-36.5
+J08,-126.409614,50.480604,,SEMSP,,Johnstone Strait,SEMSP,,24,0.0,
+J09,-126.814611,50.544011,,SEMSP,,Johnstone Strait,SEMSP,,1,0.0,-0.3
+J10,-126.734633,50.558034,,SEMSP,,Johnstone Strait,SEMSP,,28,0.0,-89.7
+J11,-126.777119,50.539058,,SEMSP,,Johnstone Strait,SEMSP,,47,0.0,
+J12,-126.727619,50.526406,,SEMSP,,Johnstone Strait,SEMSP,,23,0.0,
+J13,-126.63191,50.53779,,SEMSP,,Johnstone Strait,SEMSP,,26,0.0,-40.0
+JS1,-126.76469,50.6204,Queen Charlotte Sound,Johnstone Strait,,North Johnstone Strait,Oceanography,145,148,-152.1,-156.8
+JS10,-126.338,50.48476,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,220,235,-258.0,-313.3
+JS11,-126.23723,50.48638,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,360,362,-378.0,-378.3
+JS12,-126.59595,50.51103,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,?,425,-417.8,-418.5
+JS2,-126.696,50.548,Blackney Pass,Johnstone Strait,Year Round Survey Station,North Johnstone Strait,Oceanography,345,318,-354.9,-327.2
+JS3,-126.338,50.501,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,305,298,-312.0,-314.5
+JS4,-126.137,50.47,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,315,314,-319.6,-323.4
+JS5,-126.69857,50.58452,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,140,146,-141.7,-158.5
+JS6,-126.70714,50.52796,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,390,293,-338.7,-406.6
+JS7,-126.50446,50.5,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,385,399,-385.6,-388.5
+JS8,-126.338,50.50912,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,230,250,-258.1,-248.0
+JS9,-126.338,50.49288,Johnstone Stait,Johnstone Strait,,North Johnstone Strait,Oceanography,365,361,-368.6,-371.6
+JSPP,-126.63522,50.53764,Johnstone Strait,Johnstone Strait,,North Johnstone Strait,Oceanography,,57,0.0,-50.7
+KC1,-128.1289,51.6545,Kwakshua Channel,Kwakshua,,Central Coast,Oceanography,8,6,-4.0,
+KC10,-127.9516,51.6505,Fitz Hugh Sound,Kwakshua,,Central Coast,Oceanography,345,288,-357.8,-353.3
+KC10 BUOY,-127.9673342,51.6497607,,,Proposed location as of October 2017,,Oceanography Sensors,283.4,258,-283.6,-284.0
+KC11,-128.0253,51.6507,Kwakshua Channel,SOMS,,Central Coast,Oceanography,78,83,-95.3,
+KC12,-128.07,51.6504,Kwakshua Channel,SOMS,,Central Coast,Oceanography,22,51,0.0,
+KC13,-128.1199,51.6472,Kwakshua Channel,SOMS,,Central Coast,Oceanography,9,7,-4.3,0.0
+KC14,-127.9961,51.6487,Kwakshua Channel,SOMS,,Central Coast,Oceanography,44,33,0.0,
+KC15,-128.0034,51.6569,Kwakshua Channel,SOMS,,Central Coast,Oceanography,28,49,0.0,-41.6
+KC16,-128.0419,51.6563,Kwakshua Channel,SOMS,,Central Coast,Oceanography,35,65,-40.2,-25.7
+KC17,-128.10295,51.65215,Kwakshua Channel,Primary Production,,Central Coast,Oceanography,,38,-38.2,-34.0
+KC4,-128.1149,51.6545,Kwakshua Channel,Kwakshua,,Central Coast,Oceanography,25,22,-22.3,-21.1
+KC7,-128.0464,51.6535,Kwakshua Channel,Kwakshua,,Central Coast,Oceanography,168,146,-168.6,
+KC8,-128.0017,51.6517,Kwakshua Channel,Kwakshua,,Central Coast,Oceanography,212,148,-225.3,-224.8
+KELP08,-128.155367,51.649467,Second,Nearshore,,Central Coast,Oceanography,,10,0.0,-8.4
+KELP09,-128.14035,51.667117,North Beach,Nearshore,,Central Coast,Oceanography,,9,-3.1,-10.4
+KELP10,-128.1999243,51.80123044,Manley,Nearshore,,Central Coast,Oceanography,,43,0.0,
+KFPC01,-128.4319,51.900217,South Tip of Gosling Island,Outer Shores,,Central Coast,Oceanography,25,37,0.0,-25.2
+KFPC04,-128.258567,51.806317,Queens Sound,Outer Shores,,Central Coast,Oceanography,20,34,0.0,-6.0
+KFPC06,-128.233617,51.811267,Lyte Group,Outer Shores,,Central Coast,Oceanography,20,33,0.0,-1.0
+KFPN03,-128.399067,52.045,Golby Passage,Outer Shores,,Central Coast,Oceanography,20,12,0.0,-9.4
+KFPN07,-128.261,51.961,Queens Sound,Outer Shores,,Central Coast,Oceanography,16,50,-16.8,-19.0
+KFPS01,-128.143,51.682,"Starfish Island, off west side",Queen Charlotte Sound,,Central Coast,Oceanography,125,138,-129.6,-142.0
+KFPS04,-128.1171,51.6796,Choked Pass,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,13,9,-11.2,-0.3
+KFPS05,-128.113,51.685,,Queen Charlotte Sound,,Central Coast,Oceanography,29,17,-29.0,-0.2
+KFPS06,-128.1136,51.6944,,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,84,58,-84.8,-92.2
+KFPS07,-128.1136,51.6944,,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,84,59,-84.8,-92.2
+KFPS08,-128.1243,51.6803,,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,14,13,-12.8,-8.0
+KIL03,-128.1542,51.8694,Entrance to Goodlad Bay,North Herring,,Central Coast,Oceanography,65,56,-80.6,-49.9
+KIL07,-128.129,51.8409,Watt Bay,North Herring,,Central Coast,Oceanography,100,106,0.0,-100.0
+Kildidt Sound,-128.079,51.718,Hakai Pass,Koeye,,Central Coast,Oceanography,300,302,-302.4,-301.9
+KME03,-127.8784,51.7044,?,South Herring,,Central Coast,Oceanography,17,10,0.0,0.0
+KN1,-126.4217,50.635,,Achiever 2019,,,Oceanography,,257,-252.9,-256.2
+KN10,-125.5583,50.9767,,Achiever 2019,,,Oceanography,,384,-330.0,-334.7
+KN11,-125.5667,51.0417,,Achiever 2019,,,Oceanography,,1,0.0,-216.3
+KN2,-126.1833,50.655,,Achiever 2019,,,Oceanography,,188,-179.3,-183.0
+KN3,-126.0667,50.67,,Achiever 2019,,,Oceanography,,183,0.0,-175.0
+KN4,-125.9367,50.6817,,Achiever 2019,,,Oceanography,,367,-438.1,-439.4
+KN5,-125.7833,50.6933,,Achiever 2019,,,Oceanography,,420,-394.1,-396.2
+KN6,-125.685,50.755,,Achiever 2019,,,Oceanography,,523,-517.5,-520.8
+KN7,-125.6217,50.8017,,Achiever 2019,,,Oceanography,,519,-513.6,-516.0
+KN8,-125.645,50.8717,,Achiever 2019,,,Oceanography,,500,-486.6,-490.4
+KN9,-125.5467,50.905,,Achiever 2019,,,Oceanography,,423,-410.5,-415.8
+KWY01,-127.8801,51.7747,Koeye River,Koeye,,Central Coast,Oceanography,12,24,0.0,-19.6
+KWY02,-127.8904,51.7724,Fitz Hugh Sound,Koeye,,Central Coast,Oceanography,218,253,-218.4,-217.1
+KWY03,-127.9144,51.7663,Fitz Hugh Sound,Koeye,,Central Coast,Oceanography,405,366,-367.8,-369.0
+LD1,-124.8216667,49.99666612,Lund,,"Pacific Salmon Foundation's Citizen Science Program oCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,189,-116.5,-124.0
+LD2,-124.8566667,49.96333322,Lund,,"Pacific Salmon Foundation's Citizen Science Program oCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,151,-159.8,-165.1
+LD3,-124.8816667,50.01999979,Lund,,"Pacific Salmon Foundation's Citizen Science Program oCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,281,-268.5,-270.5
+LE01,-126.0158,49.11708333,offshore,CEDAR COAST,,Clayoquot,Oceanography,0,51,0.0,-50.1
+LE02,-126.0674167,49.07271667,offshore japan,CEDAR COAST,,Clayoquot,Oceanography,0,55,0.0,-54.7
+MACRO1,-128.2545,51.8035,"Triquet Island, north west side",Macro Survey,,Central Coast,Oceanography,8,29,0.0,0.0
+MACRO10,-128.1518265,51.64910754,West Beach,Nearshore,,Central Coast,Oceanography,,9,0.0,-9.7
+MACRO11,-128.200317,51.802333,Womanley,Nearshore,,Central Coast,Oceanography,,43,0.0,
+MACRO2,-128.0955,51.6645,Meay Channel,Macro Survey,,Central Coast,Oceanography,8,42,0.0,-9.1
+MACRO3,-128.2654,51.8414,"Spider Island, south west side",Macro Survey,,Central Coast,Oceanography,8,30,0.0,
+MACRO4,-128.2126,51.903,Golden Islands,Macro Survey,,Central Coast,Oceanography,8,48,0.0,-37.7
+MACRO5,-128.262,51.959,Simmonds Group,Macro Survey,,Central Coast,Oceanography,8,50,0.0,-14.7
+MACRO6,-128.3646,52.0836,Stryker Group,Macro Survey,,Central Coast,Oceanography,8,20,-4.1,0.0
+MACRO7,-128.3685,52.1497,Thompson Bay,Macro Survey,,Central Coast,Oceanography,8,45,0.0,0.0
+MACRO8,-128.4037,52.0579,McMullins Group,Macro Survey,,Central Coast,Oceanography,8,18,0.0,-7.0
+MACRO9,-128.4599,51.9204,South end of Goose Island,Macro Survey,,Central Coast,Oceanography,8,1,0.0,-5.0
+Manley Pt.,-128.1996,51.80103,,MarineGEO,,Central Coast,MarineGEO,,43,0.0,
+MC1,-126.0435,49.28973333,Millar Channel,CEDAR COAST,,Clayoquot,Oceanography,0,31,-33.9,-31.2
+MEA01,-128.0912,51.6626,Meay Channel,Kwakshua,,Central Coast,Oceanography,40,48,0.0,-26.8
+MEA02,-128.0876,51.6754,Meay Channel,Kwakshua,,Central Coast,Oceanography,54,49,0.0,-43.7
+MEA03,-128.0873,51.6847,Meay Channel,Kwakshua,,Central Coast,Oceanography,55,49,0.0,-33.1
+MEA04,-128.0693,51.6928,Meay Channel,SOMS,,Central Coast,Oceanography,8,52,0.0,0.0
+MEA05,-128.0688,51.69093333,Meay Channel,SOMS,Discontinued,Central Coast,Oceanography,8,,0.0,
+MEAY KK,-128.0954,51.6645,,,,Central Coast,Oceanography,,42,0.0,-15.8
+MG1,-128.41,52.07,,MarineGEO,,Central Coast,MarineGEO,,12,0.0,-18.0
+MG2,-128.3,52.02,,MarineGEO,,Central Coast,MarineGEO,,49,-34.1,-36.4
+MG3,-128,51.73,,MarineGEO,,Central Coast,MarineGEO,,50,0.0,
+MG4,-128.07,51.74,,MarineGEO,,Central Coast,MarineGEO,,60,-53.9,-56.1
+NAVik,-124.71778,49.7011111,Strait of Georgia,,Proposed North Ajax buoy,,Oceanography Sensors,,291,-286.8,-290.6
+NBCH01,-128.1433,51.6678,North East of Surf Island,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,15,9,-11.8,-5.0
+NLU02,-128.0509,51.8161,Nalau Passage,North Herring,,Central Coast,Oceanography,59,50,0.0,-51.9
+NLU03,-128.0512,51.7937,Nalau Passage,North Herring,,Central Coast,Oceanography,55,99,-53.4,-95.2
+NMU01,-127.883,51.8365,Warrior Cove,North Herring,,Central Coast,Oceanography,80,49,0.0,-33.9
+NMU03,-127.8627,51.8672,Namu Harbour,North Herring,,Central Coast,Oceanography,18,10,0.0,0.0
+NMU04,-127.8629,51.8842,Harlequin Basin,North Herring,,Central Coast,Oceanography,42,39,0.0,-16.5
+NP,-128.1222,51.6769,Choked Pass,,,Central Coast,Oceanography,,6,-0.9,-2.9
+PR6,-125.0266667,49.86,Powell River,,"Pacific Salmon Foundation's Citizen Science Program oCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,107,-124.4,-129.9
+PR7,-124.9883334,49.90499993,Powell River,,"Pacific Salmon Foundation's Citizen Science Program oCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,18,0.0,-21.0
+PR8,-124.92,49.92166667,Powell River,,"Pacific Salmon Foundation's Citizen Science Program oCO2, TCO2, salinity, PSF CTD",,Ocean Acidification,,231,-233.8,-240.8
+PRUTH,-128.0913,51.6554,Kwakshua Channel,"Kwakshua, Primary Productivity",,Central Coast,Oceanography,75,51,-72.0,-50.0
+PRUTHMOORING,-128.0912902,51.65640307,Pruth Bay,,Thermistor mooring,,Oceanography Sensors,69.7,51,-67.3,-49.1
+QCS01,-128.2384,51.705,Hakai Pass/ Queen Charlotte Sound,"Queen Charlotte Sound, Ver. 1, West Coast Survey",,Central Coast,Oceanography,125,138,-142.4,-137.0
+QCS02,-128.2931,51.6948,Hakai Pass/ Queen Charlotte Sound,"Queen Charlotte Sound, Ver. 1, West Coast Survey",,Central Coast,Oceanography,143,129,-134.1,-129.0
+QCS03,-128.2634,51.6342,West side of Calvert,West Coast Survey,,Central Coast,Oceanography,130,134,-135.3,-133.8
+QCS04,-128.2397,51.5677,West side of Calvert,West Coast Survey,,Central Coast,Oceanography,128,123,-122.0,-124.0
+QCS05,-128.2058,51.4735,West side of Calvert,West Coast Survey,,Central Coast,Oceanography,110,109,-109.8,-110.0
+QCS06,-128.0568,51.4186,West side of Calvert,West Coast Survey,,Central Coast,Oceanography,123,124,-128.3,-120.0
+QCS07,-127.907733,51.381317,West side of Calvert,West Coast Survey,,Central Coast,Oceanography,134,132,-127.3,-132.3
+QS1,-125.111,50.0498,South Sutil Ch.,QUADS14,,Discovery Islands,Oceanography,275,253,-272.0,-277.1
+QSD01,-128.360883,51.85355,Queens Sound,Outer Shores,,Central Coast,Oceanography,160,160,-156.0,-161.0
+QSD02,-128.3504,51.9581,Queens Sound,Outer Shores,,Central Coast,Oceanography,180,183,-178.4,-180.9
+QSD03,-128.417267,52.019433,Golby Passage,Outer Shores,,Central Coast,Oceanography,35,40,-31.8,-40.0
+QSD04,-128.47215,52.0338,Golby Passage,Outer Shores,,Central Coast,Oceanography,38,41,-34.3,-40.0
+QSD05,-128.5126,52.0625,Golby Passage,Outer Shores,,Central Coast,Oceanography,60,75,-60.1,-77.0
+QU1,-125.141,50.079,Sutil Channel,,Was QS2 from 2012,Discovery Islands,Oceanography,,244,-215.2,-220.9
+QU10,-125.121,50.232,Surge Narrows,D,Was formerly QS 10 (2012),Discovery Islands,Oceanography,75,52,-72.4,-50.0
+QU11,-125.0948,50.2578,Whiterock Passage,E,,Discovery Islands,Oceanography,40,36,-36.4,
+QU12,-125.0814,50.2773,Whiterock Passage,E,,Discovery Islands,Oceanography,100,105,-101.6,-100.0
+QU16,-125.16,50.12,South Sutil Ch.,"A, C",,Discovery Islands,Oceanography,160,155,-159.7,-163.2
+QU17,-125.13,50.12,South Sutil Ch.,"A, B, C",,Discovery Islands,Oceanography,170,239,-179.6,-180.1
+QU18,-125.16,50.08,South Sutil Ch.,C,,Discovery Islands,Oceanography,95,90,-85.8,-90.7
+QU19,-125.13,50.08,South Sutil Ch.,C,,Discovery Islands,Oceanography,250,249,-245.5,-250.8
+QU2,-125.1631,50.0929,South Sutil Ch.,C,Was formerly QS 3 (2012),Discovery Islands,Oceanography,120,101,-100.3,-103.1
+QU20,-125.1,50.08,South Sutil Ch.,"A, C",,Discovery Islands,Oceanography,235,248,-235.6,-238.1
+QU21,-125.08,50.08,South Sutil Ch.,C,,Discovery Islands,Oceanography,90,58,-66.0,-71.0
+QU22,-125.15,50.03,South Sutil Ch.,C,,Discovery Islands,Oceanography,135,115,-136.1,-140.3
+QU23,-125.12,50.03,South Sutil Ch.,C,,Discovery Islands,Oceanography,250,270,-251.2,-254.3
+QU24,-125.08,50.03,South Sutil Ch.,C,Station was Core Station November 2014 - July 2015,Discovery Islands,Oceanography,240,231,-233.5,-235.5
+QU25,-125.05,50.03,South Sutil Ch.,C,,Discovery Islands,Oceanography,20,38,-16.3,-50.0
+QU26,-125.01,50.03,South Sutil Ch.,C,,Discovery Islands,Oceanography,75,51,-74.9,-55.5
+QU27,-125.23,50.125,Hyacinthe Bay,C,,Discovery Islands,Oceanography,12,36,-12.0,0.0
+QU28,-125.1374,50.2169,Hoskyn Channel,D,,Discovery Islands,Oceanography,90,88,-87.1,-83.1
+QU29,-125.1885,50.2536,Lower Okisollo,"D, F",CO2 sampling ended Dec 2016,Discovery Islands,Oceanography,140,118,0.0,-100.2
+QU3,-125.185,50.1154,Hyacinthe Bay,"A, C",Was formerly QS 4 (2012),Discovery Islands,Oceanography,125,126,-125.1,-127.9
+QU30,-125.1720073,50.24099699,,,,Discovery Islands,Oceanography,,105,0.0,-102.2
+QU31,-125.209,50.269,Octopus Islands,D,,Discovery Islands,Oceanography,90,69,0.0,-66.0
+QU32,-125.2492,50.3119,Upper Okisollo,D,,Discovery Islands,Oceanography,108,106,0.0,-99.4
+QU33,-125.089,50.3151,Calm Channel,E,,Discovery Islands,Oceanography,340,343,-342.6,-300.0
+QU34,-125.1,50.12,South Sutil Ch.,"A, C, E",,Discovery Islands,Oceanography,125,161,-126.6,-127.8
+QU35,-125.02,50.241,North Sutil Ch.,E,,Discovery Islands,Oceanography,490,491,-483.7,-399.5
+QU36,-124.996,50.19,North Sutil Ch.,E,,Discovery Islands,Oceanography,500,552,-544.3,-548.0
+QU37,-125.052,50.151,North Sutil Ch.,E,,Discovery Islands,Oceanography,50,336,-422.6,-347.0
+QU38,-125.2226,50.1172,Hyacinthe Bay,Raft,,Discovery Islands,Oceanography,10,41,-5.7,-2.0
+QU39,-125.0992,50.0307,South Sutil Ch.,"A, B, C","Added as Core Station March 2015, DO started Sept 2016",Discovery Islands,Oceanography,265,262,-270.2,-274.3
+QU4,-125.199,50.127,Open Bay,,Need to check when stopped sampling this sampling,Discovery Islands,Oceanography,,49,-50.4,-56.8
+QU40,-125.164,50.092,South Sutil Ch.,A (PP),Location for Primary Production incubations,Discovery Islands,Oceanography,50,95,-92.1,-96.5
+QU41,-125.092,50.3656,Bute Inlet,not assigned,Sampled during Exploratory survey 5/11/2015,Discovery Islands,Oceanography,> 400,584,-595.8,-601.5
+QU42,-125.2111,50.2577,Hoskyn Channel,QOM D,Location of PP incubations for QOM D,Discovery Islands,Oceanography,,49,0.0,-44.0
+QU43,-125.1176375,50.33921037,Calm Channel,QOM E,Deep water station for CO2 and DO sampling,Discovery Islands,Oceanography,520,505,-530.7,-501.6
+QU44,-125.1231615,50.0740327,,QOM F,aka SutChan2,Discovery Islands,Oceanography,240,253,-256.7,-260.5
+QU45,-125.2198833,50.1172664,Hyacinthe Bay,QRAFT,This is the Limpet Node,Discovery Islands,Oceanography Sensors,20,43,-18.6,-13.0
+QU46,-125.1749667,50.09745,Northern Strait Of Georgia,QOM A.2,"Formerly known as ""PP drop"" and ""QUPP""",Discovery Islands/Quadra,Oceanography,55,52,-65.5,-71.9
+QU5,-125.2122,50.1183,Hyacinthe Bay,"A, B, C",Was formerly QS 5 (2012),Discovery Islands,Oceanography,70,50,-66.9,-51.0
+QU6,-125.2258,50.1232,Hyacinthe Bay,"A, C",Was formerly QS 6 (2012),Discovery Islands,Oceanography,25,40,-23.4,0.0
+QU7,-125.231,50.126,Hyacinthe Bay,,Was QS7 - need to check when stopped sampling,Discovery Islands,Oceanography,,35,0.0,0.0
+QU8,-125.1748,50.1463,Hoskyn Channel,D,Was formerly QS 8 (2012),Discovery Islands,Oceanography,145,142,-134.9,-102.0
+QU9,-125.1371,50.1804,Hoskyn Channel,"D, F",Was formerly QS 9 (2012),Discovery Islands,Oceanography,115,102,-109.1,-99.5
+RC1,-126.1153667,49.23641667,N of Bartlett Island's W Islets,CEDAR COAST,,Clayoquot,Oceanography,0,20,-25.2,-19.7
+RC2,-126.07245,49.23653333,NW of Bartlett Island,CEDAR COAST,,Clayoquot,Oceanography,0,12,-13.7,-12.3
+RC3,-126.0323333,49.23941667,SE of Bartlett Island,CEDAR COAST,,Clayoquot,Oceanography,0,10,-11.6,-9.8
+Ri7,-127.3933,51.7783,,,IOS Historical Site,Central Coast,Oceanography,240,230,0.0,-200.3
+RVRS01,-127.8044,51.4414,Fitz Hugh Sound,"Rivers Inlet, Ver. 2, West Coast Survey",,Central Coast,Oceanography,115,116,-119.9,-118.5
+RVRS02,-127.717989,51.43026133,,Rivers Inlet V1,,Central Coast,Oceanography,,170,-152.4,-153.0
+SEA11,-128.2476,51.8091,,MarineGEO,,Central Coast,MarineGEO,,28,0.0,0.0
+SEA15,-128.1192523,51.64532132,Pruth Bay,Nearshore,,Central Coast,Oceanography,,6,0.0,
+SEA2,-128.118,51.6746,,Queen Charlotte Sound V2,,Central Coast,MarineGEO,,7,-4.2,-0.4
+SEA5,-128.4247,52.0018,,MarineGEO,,Central Coast,MarineGEO,,11,0.0,0.0
+SEA6,-128.4501,51.9275,,MarineGEO,,Central Coast,MarineGEO,,1,0.0,-0.1
+SEA7,-128.4645,51.9222,,MarineGEO,,Central Coast,MarineGEO,,1,0.0,-2.1
+SEA8,-128.4119,52.0626,,MarineGEO,,Central Coast,MarineGEO,,17,-4.7,-3.0
+SEA9,-128.4029,52.0506,,MarineGEO,,Central Coast,MarineGEO,,11,0.0,-6.4
+Sentry Shoal,-124.985,49.90666667,Northern Strait of Georgia,,"Environment Canada weather station, location of Hakai SeaFET pH sensor",Discovery Islands,Oceanography Sensors,15,6,0.0,-17.4
+SHORE09,-127.71152,51.9652611,Burke Doc Marker,SSWD,,Central Coast,Nearshore,10,108,0.0,-82.6
+SHORE10,-127.88845,51.9258389,Burke Sagen,SSWD,,Central Coast,Nearshore,10,34,0.0,-36.0
+SHORE20,-127.77545,51.9617544,Burke Eagle Rock,SSWD,,Central Coast,Nearshore,10,37,0.0,-15.4
+SHORE21,-127.74103,51.9517062,Burke Hvidsen,SSWD,,Central Coast,Nearshore,10,23,0.0,
+SHORE22,-127.43015,51.7700497,Rivers Nelson Narrows,SSWD,,Central Coast,Nearshore,10,48,0.0,-23.0
+SHORE23,-127.5598,51.5396992,Rivers Haystacks,SSWD,,Central Coast,Nearshore,10,37,0.0,-8.0
+SP,-128.1225,51.676,Choked Pass,,,Central Coast,Oceanography,,6,-1.7,-2.8
+TO1,-124.7717,50.3033,,Achiever 2019,,,Oceanography,,456,-497.2,-400.0
+TO2,-124.735,50.3383,,Achiever 2019,,,Oceanography,,502,-502.0,-506.2
+TO2A,-124.70885,50.35895,Toba Inlet,,,Quadra,Oceanography,,559,-498.1,-501.9
+TO3,-124.6317,50.4083,,Achiever 2019,,,Oceanography,,469,-471.2,-475.7
+TO3A,-124.653,50.41611,Toba Inlet,,,Quadra,Oceanography,,468,-462.0,-466.0
+TO4,-124.5267,50.42,,Achiever 2019,,,Oceanography,,388,-390.4,-394.1
+TO4A,-124.51479,50.42644,Toba Inlet,,,Quadra,Oceanography,,369,-369.6,-373.6
+TO5,-124.4,50.4633,,Achiever 2019,,,Oceanography,,195,-200.7,-203.8
+UBC7,-127.8182,51.5003,Fitz Hugh Sound,"Rivers Inlet, Fitz Hugh Sound, West Coast Survey",,Central Coast,Oceanography,163,140,-154.9,-139.0
+UBC8,-127.2668,51.6737,Rivers Inlet,"Rivers Inlet, Ver. 2",,Central Coast,Oceanography,20,56,0.0,-58.0
+UWT31,-126.032017,49.236217,Herbert Russell Channel Confluence,UWT_HERBERT,,Clayoquot,Oceanography,12,10,-12.7,-10.0
+UWT32,-126.0381,49.260317,Herbert Sill,UWT_HERBERT,,Clayoquot,Oceanography,8,6,-5.5,-6.0
+UWT33,-126.035367,49.295817,Herbert Mouth South,UWT_HERBERT,,Clayoquot,Oceanography,51,38,-51.0,-38.9
+UWT34,-126.012017,49.312917,Herbert Mouth,UWT_HERBERT,,Clayoquot,Oceanography,114,65,-115.2,-75.1
+UWT35,-125.977683,49.328183,Herbert,UWT_HERBERT,,Clayoquot,Oceanography,135,125,-133.3,-124.7
+UWT36,-125.945017,49.360883,Herbert,UWT_HERBERT,,Clayoquot,Oceanography,142,86,-142.5,-86.1
+UWT37,-125.93865,49.392583,Herbert,UWT_HERBERT,,Clayoquot,Oceanography,131,65,-130.1,-78.7
+UWT38,-125.90695,49.4089,Herbert Head,UWT_HERBERT,,Clayoquot,Oceanography,110,46,-109.4,-46.5
+UWT39,-126.068383,49.337,Millar Channel South,UWT_HERBERT,,Clayoquot,Oceanography,105,39,-101.8,-28.2
+UWT40,-125.788317,49.352517,Bedwell Head,UWT_BEDWELL,,Clayoquot,Oceanography,75,7,-75.5,-6.6
+UWT41,-125.8046,49.3359,Bedwell,UWT_BEDWELL,,Clayoquot,Oceanography,70,2,-70.8,-1.8
+UWT42,-125.821283,49.270267,Bedwell Mouth,UWT_BEDWELL,,Clayoquot,Oceanography,60,55,-60.4,-54.6
+UWT43,-125.757533,49.237517,Warn Bay,UWT_BEDWELL,,Clayoquot,Oceanography,145,143,-143.1,-143.1
+UWT44,-125.762633,49.185617,Fortune Channel,UWT_BEDWELL,,Clayoquot,Oceanography,70,80,-77.9,-79.8
+UWT45,-125.7641,49.125683,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,47,42,-45.1,-42.1
+UWT46,-125.716567,49.134517,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,60,56,-58.0,-55.8
+UWT47,-125.690317,49.1654,Tranquil Mouth,UWT_TOFINO,,Clayoquot,Oceanography,75,66,-69.1,-66.2
+UWT48,-125.674767,49.196433,Tranquil Head,UWT_TOFINO,,Clayoquot,Oceanography,50,20,-49.4,-20.3
+UWT49,-125.6647,49.161283,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,83,,-81.0,
+UWT50,-125.64935,49.195817,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,122,15,-121.7,-20.7
+UWT51,-125.5982,49.22785,Tofino Head,UWT_TOFINO,,Clayoquot,Oceanography,50,,-47.9,
+UWT52,-125.598817,49.22525,Tofino Head,UWT_TOFINO,,Clayoquot,Oceanography,50,,-49.0,
+UWT53,-125.61045,49.208633,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,94,,-93.9,
+UWT54,-125.647567,49.18175,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,108,68,-106.7,-68.3
+UWT55,-125.6932,49.150917,Tofino,UWT_TOFINO,,Clayoquot,Oceanography,70,64,-67.1,-63.6
+UWT56,-125.797233,49.119433,Tofino Browning Passage,UWT_TOFINO,,Clayoquot,Oceanography,46,0,-43.9,-0.4
+UWT57,-125.8458,49.129467,Tofino Browning Passage,UWT_TOFINO,,Clayoquot,Oceanography,18,6,-17.0,-6.9
+UWT58,-125.875933,49.141583,Tofino Browning Passage,UWT_TOFINO,,Clayoquot,Oceanography,15,13,-12.9,-12.9
+UWT59,-125.91525,49.151517,Tofino Mouth Templar Channel,UWT_TOFINO,,Clayoquot,Oceanography,27,4,-25.1,-4.2
+UWT63,-126.24365,49.39965,Sydney & Shelter Confluence,UST_SYDNEY,,,Oceanography,68,82,-66.1,-82.5
+UWT64,-126.243967,49.426717,Sydney,UST_SYDNEY,,,Oceanography,69,27,-68.1,-26.6
+UWT65,-126.259567,49.437733,Sydney,UST_SYDNEY,,,Oceanography,68,,-76.1,
+UWT66,-126.270433,49.452383,Sydney & Stewardson Confluence,UST_SYDNEY,,,Oceanography,123,27,-122.6,-26.9
+UWT69,-126.2752,49.469967,Sydney,UST_SYDNEY,,,Oceanography,132,8,-132.5,-8.0
+UWT70,-126.284767,49.487633,Sydney,UST_SYDNEY,,,Oceanography,111,2,-110.4,-1.7
+UWT71,-126.29265,49.502467,Sydney Head,UST_SYDNEY,,,Oceanography,82,0,-81.3,0.0
+UWT72,-126.2156,49.398533,Shelter Mouth,UST_SYDNEY,,,Oceanography,73,0,-71.1,-0.4
+UWT73,-126.185617,49.38935,Shelter,UST_SYDNEY,,,Oceanography,81,74,-79.7,-72.3
+UWT74,-126.162283,49.39395,Shelter,UST_SYDNEY,,,Oceanography,92,53,-88.0,-59.0
+UWT75,-126.136483,49.400533,Shelter Millar Confluence,UST_SYDNEY,,,Oceanography,131,112,-128.3,-111.8
+UWT81,-126.085617,49.380133,Millar Channel North,UWT_HERBERT,,Clayoquot,Oceanography,157,29,-155.0,-29.1
+UWT82,-125.810917,49.297833,Bedwell,UWT_BEDWELL,,Clayoquot,Oceanography,60,48,-58.2,-48.9
+UWT85,-125.875533,49.249517,Cypress Bay,UWT_BEDWELL,,Clayoquot,Oceanography,50,50,-50.9,-49.7
+UWT86,-125.94095,49.235567,Hecate Bay,UWT_BEDWELL,,Clayoquot,Oceanography,25,22,-26.2,-21.7
+VIKINGBUOY,-128.2387131,51.56554522,,,Proposed future location of DFO Viking Buoy,,Oceanography Sensors,,121,-120.4,-122.0
+WBCH01,-128.1493,51.6535,West Beach,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,8,10,-8.7,-10.0
+WBCH02,-128.1657,51.6524,West Beach,"Queen Charlotte Sound, Ver. 2",,Central Coast,Oceanography,29,29,-27.8,-31.0
+WEST BEA,-128.151,51.6482,,,,Central Coast,Oceanography,,9,0.0,-8.0
+WHVik,-128.235917,51.711953,,,Proposed West Hakai buoy,Central Coast,Oceanography Sensors,,140,-141.5,-140.0
+YSI,-128.1201,51.6749,,,,Central Coast,Oceanography,,6,-5.2,-2.3
