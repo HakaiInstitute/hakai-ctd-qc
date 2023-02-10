@@ -45,7 +45,7 @@
         ],
         "suspect_exceedance_percentage": 1.10,
         "fail_exceedance_percentage": 1.25,
-        "suspect_exceedance_range": 10,
-        "fail_exceedance_range": 30
+        "suspect_exceedance_range": 30,
+        "fail_exceedance_range": 50
     }
 }
