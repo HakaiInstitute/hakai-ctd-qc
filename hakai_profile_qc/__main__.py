@@ -582,11 +582,9 @@ def _get_hakai_flag_columns(
         flag_values_to_consider = [3, 4]
 
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=var + "_" + extra_flag_list)
-
-    # Drop Hakai already existing flags, this will be dropped once we get the right flag columns
-    #  available on the database side
-    var_flag_results = var_flag_results.drop(var + "_flag", axis=1, errors="ignore")
+    var_flag_results = df.filter(regex=var + "_" + extra_flag_list).drop(
+        columns=[var + "_flag", var + "_flag_level_1"], errors="ignore"
+    )
 
     # Generete Level 1 Aggregated flag columns
     df[var + level_1_flag_suffix] = qartod_compare(
@@ -597,10 +595,6 @@ def _get_hakai_flag_columns(
     df[var + level_2_flag_suffix] = var_flag_results.apply(
         __generate_level2_flag, axis="columns"
     )
-
-    # Make sure that empty records are flagged as MISSING
-    if var in df:
-        df.loc[df[var].isna(), var + level_1_flag_suffix] = QartodFlags.MISSING
     return df
 
 
