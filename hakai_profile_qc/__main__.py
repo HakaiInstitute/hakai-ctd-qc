@@ -457,7 +457,7 @@ def main(hakai_ids=None):
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
     else:
-        processing_stages = ",".join(config["QC_PROCESSING_STAGES"])
+        processing_stages = config["QC_PROCESSING_STAGES"]
         logger.info("Run QC on processing stages: %s", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
 

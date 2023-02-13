@@ -62,12 +62,12 @@ python hakai_profile_qc --hakai_ids "080217_2017-01-08T18:03:05.167Z,080217_2017
 To QC profiles associated with a specific processing stage, you generate locally through a config.yaml file or through environment variables the following 
 ``` yaml
 RUN_TEST_SUITE: False
-QC_PROCESSING_STAGES: ['8_binAvg', '8_rbr_processed']
+QC_PROCESSING_STAGES: '8_binAvg,8_rbr_processed'
 UPDATE_SERVER_DATABASE: True
 ```
 To overwrite already qced profiles, add the associated processing stages:
 ```yaml
-QC_PROCESSING_STAGES: ['8_binAvg', '8_rbr_processed','9_qc_auto','10_qc_pi']
+QC_PROCESSING_STAGES: '8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi'
 ```
 
 ## CI and Deployment
