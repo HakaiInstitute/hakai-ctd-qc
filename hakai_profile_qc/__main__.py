@@ -550,8 +550,7 @@ def main(hakai_ids=None):
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=json_string,
                     )
-            profile_processed += len(chunk)
-            gen_pbar.update(n=profile_processed)
+            gen_pbar.update(n=len(chunk))
             logger.info("Chunk processed")
 
 
