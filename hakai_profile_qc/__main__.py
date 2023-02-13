@@ -248,12 +248,12 @@ def run_qc_profiles(df):
     if "bad_value_test" in hakai_tests_config:
         logger.debug(
             "Flag Bad Values: %s",
-            str(hakai_tests_config["bad_value_test"]["flag_list"]),
+            str(hakai_tests_config["bad_value_test"]["flag_mapping"]),
         )
         df = hakai_tests.bad_value_test(
             df,
             variables=hakai_tests_config["bad_value_test"]["variables"],
-            flag_list=hakai_tests_config["bad_value_test"]["flag_list"],
+            flag_mapping=hakai_tests_config["bad_value_test"]["flag_mapping"],
         )
 
     # Run QARTOD tests
