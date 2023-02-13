@@ -244,4 +244,5 @@ TEST_HAKAI_IDS: [
     '080217_2015-09-20T17:35:17.000Z', # Used to ouput bottom_depth==NaN
     '080217_2019-08-29T19:11:57.666Z', # RBR Oxygen do data with Ruskin issue for 2.5.8 to <2.10
     '204949_2021-10-26T04:54:42.000Z', # Skeena CTD IN fresh water
+    '01907674_2016-10-20T16:29:29Z', # -9.99E-29 flag present
   ]
