@@ -524,7 +524,6 @@ def main(hakai_ids=None):
 
             # Convert QARTOD to string temporarily
             qartod_columns = df_qced.filter(regex="_flag_level_1").columns
-            # TODO Drop once qartod columns are of INT type in hakai DB
             df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
             df_qced = df_qced.replace({"": None})
 
