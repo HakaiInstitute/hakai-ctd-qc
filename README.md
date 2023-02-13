@@ -79,3 +79,13 @@ Any `push` or `pull requests` to the `main` branch will be tested by a linter, b
 
 ### Automated QC of Hakai Profiles
 The tool is deployed as a caprover app [here](https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-production) through a github sheduled [workflow](.github/workflows/cron-job-qc-unqced-profiles-hecate.yml) to query nightly any CTD profiles available within the Hakai CTD Data still associated with the processing stages `8_binAvg` or `8_rbr_processed`. Any of those profiles will be qced and upgraded to the `9_qc_auto` once completed.
+
+### Automated flag tests rebuild
+A full rebuild of the test flags can be performed through the following caprover apps:
+
+#### Development database hakaidev
+Rebuild is completed from https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-dev-rebuild 
+and can be manually triggered by the github action workflow https://github.com/HakaiInstitute/hakai-profile-qaqc/actions/workflows/run-qc-rebuild-hakaidev-development.yml
+
+#### Production databse hakai
+Hakai production database rebuild is handled by https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-production-rebuild and can be manually triggered by the github action workflow: https://github.com/HakaiInstitute/hakai-profile-qaqc/actions/workflows/run-qc-rebuild-hakai-production.yml
