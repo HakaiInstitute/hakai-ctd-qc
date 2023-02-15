@@ -485,19 +485,12 @@ def main(hakai_ids=None):
             df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
         ):
             # Retrieve cast data for this chunk
-            logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
-            logger.debug(
-                "Retrieve data from hakai server: %s/%s profile qced",
-                profile_processed,
-                len(df_casts),
-            )
             query = "%s/%s?hakai_id={%s}&limit=-1&fields=%s" % (
                 config["HAKAI_API_SERVER_ROOT"],
                 config["CTD_CAST_DATA_ENDPOINT"],
                 ",".join(chunk["hakai_id"].values),
                 ",".join(config["CTD_CAST_DATA_VARIABLES"]),
             )
-            logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
             original_variables = df_qced.columns
@@ -508,15 +501,12 @@ def main(hakai_ids=None):
                 )
                 continue
 
-            logger.info("Data is loaded")
             # Generate derived variables and convert time
-            logger.debug("Generate derived variables")
             df_qced = _derived_ocean_variables(df_qced)
-            logger.debug("Convert time variables to datetime objects")
             df_qced = _convert_time_to_datetime(df_qced)
-            logger.debug("Run QC Process")
 
             # Run QC Process
+            logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced)
             sentry_warnings.run_sentry_warnings(
                 df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
@@ -537,20 +527,15 @@ def main(hakai_ids=None):
             if config["UPDATE_SERVER_DATABASE"] in (True, "true"):
                 # Filter out extra variables generated during qc
                 df_upload = df_qced[original_variables]
-                for _, row in tqdm(
-                    chunk.iterrows(),
-                    desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
-                    unit="profil",
-                    total=len(chunk),
-                ):
-                    logger.debug("Upload qced %s", row["hakai_id"])
+                logger.debug("Upload results to %s", config["HAKAI_API_SERVER_ROOT"])
+                for _, row in chunk.iterrows():
                     json_string = _generate_process_flags_json(row, df_upload)
                     retrieve_hakai_data(
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=json_string,
                     )
             gen_pbar.update(n=len(chunk))
-            logger.info("Chunk processed")
+            logger.debug("Chunk processed")
 
 
 def _get_hakai_flag_columns(
