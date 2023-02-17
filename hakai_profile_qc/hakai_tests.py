@@ -420,7 +420,7 @@ def hakai_station_maximum_depth_test(
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] * suspect_exceedance_percentage
         )
-        | (
+        & (
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] + suspect_exceedance_range
         ),
@@ -433,7 +433,7 @@ def hakai_station_maximum_depth_test(
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] * fail_exceedance_percentage
         )
-        | (
+        & (
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] + fail_exceedance_range
         ),
