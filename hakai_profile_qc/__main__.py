@@ -15,7 +15,7 @@ import sentry_warnings
 import yaml
 from hakai_api import Client
 from ioos_qc.config import Config
-from ioos_qc.qartod import QartodFlags, qartod_compare
+from ioos_qc.qartod import qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
 from requests.exceptions import JSONDecodeError
@@ -479,7 +479,6 @@ def main(hakai_ids=None):
         dynamic_ncols=True,
         ncols=100,
     )
-    profile_processed = 0
     with logging_redirect_tqdm():
         for chunk in np.array_split(
             df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
@@ -547,12 +546,14 @@ def _get_hakai_flag_columns(
     level_2_flag_suffix="_flag",
 ):
     """
-    Generate the different Level1 and Level2 flag columns by grouping the different tests results.
+    Generate the different Level1 and Level2 flag columns by
+    grouping the different tests results.
     """
 
     def __generate_level2_flag(row):
         """
-        Regroup together tests results in "flag_value_to_consider" as a json string to be outputed as a level2 flag
+        Regroup together tests results in "flag_value_to_consider" as a
+        json string to be outputed as a level2 flag
         """
         level2 = [
             f"{hakai_tests.qartod_to_hakai_flag[value]}: {item}"
