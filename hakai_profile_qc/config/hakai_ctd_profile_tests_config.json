@@ -1,18 +1,15 @@
 {
   "do_cap_test": {
     "variable": ["dissolved_oxygen_ml_l", "rinko_do_ml_l"],
-    "bin_size": 1,
     "suspect_threshold": 0.2,
     "fail_threshold": 0.5,
     "ratio_above_threshold": 0.5,
     "minimum_bins_per_profile": 30
   },
   "bottom_hit_detection": {
-    "variable": "sigma0_qartod_density_inversion_test",
-    "profile_direction_variable": "direction_flag"
+    "variables": "sigma0_qartod_density_inversion_test"
   },
   "par_shadow_test": {
-    "variable": "par",
     "min_par_for_shadow_detection": 5
   },
   "bad_value_test": {
@@ -37,7 +34,6 @@
     }
   },
   "depth_range_test": {
-    "variables": ["depth"],
     "suspect_exceedance_percentage": 1.1,
     "fail_exceedance_percentage": 1.25,
     "suspect_exceedance_range": 30,

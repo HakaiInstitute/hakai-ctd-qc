@@ -27,9 +27,9 @@ hakai_stations = pd.read_csv(
 def do_cap_test(
     df,
     var,
-    profile_id,
-    direction_flag,
-    depth_var,
+    profile_id="hakai_id",
+    direction_flag="direction_flag",
+    depth_var="depth",
     bin_size=1,
     suspect_threshold=0.2,
     fail_threshold=0.5,
@@ -395,7 +395,6 @@ def hakai_station_maximum_depth_test(
     df_max_depth = (
         df.groupby(["station", "hakai_id"])[variable]
         .max()
-        .max(axis="columns")
         .rename("max_depth")
         .to_frame()
     )

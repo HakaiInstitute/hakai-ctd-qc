@@ -246,14 +246,9 @@ def run_qc_profiles(df):
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
     if "bad_value_test" in hakai_tests_config:
-        logger.debug(
-            "Flag Bad Values: %s",
-            str(hakai_tests_config["bad_value_test"]["flag_mapping"]),
-        )
         df = hakai_tests.bad_value_test(
             df,
-            variables=hakai_tests_config["bad_value_test"]["variables"],
-            flag_mapping=hakai_tests_config["bad_value_test"]["flag_mapping"],
+            **hakai_tests_config["bad_value_test"],
         )
 
     # Run QARTOD tests
@@ -298,25 +293,12 @@ def run_qc_profiles(df):
     # DO CAP DETECTION
     logger.info("Apply Hakai Specific Tests")
     if "do_cap_test" in hakai_tests_config:
-        for key in hakai_tests_config["do_cap_test"]["variable"]:
+        for key in hakai_tests_config["do_cap_test"].pop("variable", []):
             logger.debug("DO Cap Detection to %s variable", key)
             df = hakai_tests.do_cap_test(
                 df,
                 key,
-                profile_id="hakai_id",
-                depth_var="depth",
-                direction_flag="direction_flag",
-                bin_size=hakai_tests_config["do_cap_test"]["bin_size"],
-                suspect_threshold=hakai_tests_config["do_cap_test"][
-                    "suspect_threshold"
-                ],
-                fail_threshold=hakai_tests_config["do_cap_test"]["fail_threshold"],
-                ratio_above_threshold=hakai_tests_config["do_cap_test"][
-                    "ratio_above_threshold"
-                ],
-                minimum_bins_per_profile=hakai_tests_config["do_cap_test"][
-                    "minimum_bins_per_profile"
-                ],
+                **hakai_tests_config["do_cap_test"],
             )
 
     # BOTTOM HIT DETECTION
@@ -325,11 +307,7 @@ def run_qc_profiles(df):
     if "bottom_hit_detection" in hakai_tests_config:
         logger.debug("Flag Bottom Hit Data")
         df = hakai_tests.bottom_hit_detection(
-            df,
-            variables=hakai_tests_config["bottom_hit_detection"]["variable"],
-            profile_id="hakai_id",
-            depth_variable="depth",
-            profile_direction_variable="direction_flag",
+            df, **hakai_tests_config["bottom_hit_detection"]
         )
 
     # Detect PAR Shadow
@@ -337,32 +315,13 @@ def run_qc_profiles(df):
         logger.debug("Flag PAR Shadow Data")
         df = hakai_tests.par_shadow_test(
             df,
-            variable=hakai_tests_config["par_shadow_test"]["variable"],
-            min_par_for_shadow_detection=hakai_tests_config["par_shadow_test"][
-                "min_par_for_shadow_detection"
-            ],
-            profile_id="hakai_id",
-            direction_flag="direction_flag",
-            depth_var="depth",
+            **hakai_tests_config["par_shadow_test"],
         )
     # Station Maximum Depth Test
     if "depth_range_test" in hakai_tests_config:
         logger.debug("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
-            df,
-            variable=hakai_tests_config["depth_range_test"]["variables"],
-            suspect_exceedance_percentage=hakai_tests_config["depth_range_test"][
-                "suspect_exceedance_percentage"
-            ],
-            fail_exceedance_percentage=hakai_tests_config["depth_range_test"][
-                "fail_exceedance_percentage"
-            ],
-            suspect_exceedance_range=hakai_tests_config["depth_range_test"][
-                "suspect_exceedance_range"
-            ],
-            fail_exceedance_range=hakai_tests_config["depth_range_test"][
-                "fail_exceedance_range"
-            ],
+            df, **hakai_tests_config["depth_range_test"]
         )
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
