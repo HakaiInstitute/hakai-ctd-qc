@@ -201,16 +201,27 @@ def _generate_process_flags_json(cast, data):
 
 def _derived_ocean_variables(df):
     """Compute Derived Variables with TEOS-10 equations"""
+
+    def _drop_sbe_flag(x):
+        return x.replace({-9.99e-29: np.nan})
+
     longitude = df["station_longitude"].fillna(df["longitude"])
     latitude = df["station_latitude"].fillna(df["latitude"])
     df["absolute salinity"] = gsw.SA_from_SP(
-        df["salinity"], df["pressure"], longitude, latitude
+        _drop_sbe_flag(df["salinity"]),
+        _drop_sbe_flag(df["pressure"]),
+        longitude,
+        latitude,
     )
     df["conservative temperature"] = gsw.CT_from_t(
-        df["absolute salinity"], df["temperature"], df["pressure"]
+        df["absolute salinity"],
+        _drop_sbe_flag(df["temperature"]),
+        df["pressure"],
     )
     df["density"] = gsw.rho(
-        df["absolute salinity"], df["conservative temperature"], df["pressure"]
+        df["absolute salinity"],
+        df["conservative temperature"],
+        _drop_sbe_flag(df["pressure"]),
     )
     df["sigma0"] = gsw.sigma0(df["absolute salinity"], df["conservative temperature"])
     return df
