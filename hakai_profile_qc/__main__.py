@@ -15,7 +15,7 @@ import sentry_warnings
 import yaml
 from hakai_api import Client
 from ioos_qc.config import Config
-from ioos_qc.qartod import QartodFlags, qartod_compare
+from ioos_qc.qartod import qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
 from requests.exceptions import JSONDecodeError
@@ -44,9 +44,14 @@ def check_hakai_database_rebuild():
     response = client.get(f"{config['HAKAI_API_SERVER_ROOT']}/api/rebuild_status")
     is_running_rebuilding = response.json()[0]["rebuild_running"]
     if is_running_rebuilding:
-        logger.info(
+        logger.warning(
             "Stop process early since Hakai DB %s is running a rebuild",
             config["HAKAI_API_SERVER_ROOT"],
+        )
+        requests.put(
+            f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
+            headers=sentry_checkin_headers,
+            json={"status": "ok"},
         )
         sys.exit()
 
@@ -196,16 +201,27 @@ def _generate_process_flags_json(cast, data):
 
 def _derived_ocean_variables(df):
     """Compute Derived Variables with TEOS-10 equations"""
+
+    def _drop_sbe_flag(x):
+        return x.replace({-9.99e-29: np.nan})
+
     longitude = df["station_longitude"].fillna(df["longitude"])
     latitude = df["station_latitude"].fillna(df["latitude"])
     df["absolute salinity"] = gsw.SA_from_SP(
-        df["salinity"], df["pressure"], longitude, latitude
+        _drop_sbe_flag(df["salinity"]),
+        _drop_sbe_flag(df["pressure"]),
+        longitude,
+        latitude,
     )
     df["conservative temperature"] = gsw.CT_from_t(
-        df["absolute salinity"], df["temperature"], df["pressure"]
+        df["absolute salinity"],
+        _drop_sbe_flag(df["temperature"]),
+        df["pressure"],
     )
     df["density"] = gsw.rho(
-        df["absolute salinity"], df["conservative temperature"], df["pressure"]
+        df["absolute salinity"],
+        df["conservative temperature"],
+        _drop_sbe_flag(df["pressure"]),
     )
     df["sigma0"] = gsw.sigma0(df["absolute salinity"], df["conservative temperature"])
     return df
@@ -241,14 +257,9 @@ def run_qc_profiles(df):
     # Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
     #  Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
     if "bad_value_test" in hakai_tests_config:
-        logger.debug(
-            "Flag Bad Values: %s",
-            str(hakai_tests_config["bad_value_test"]["flag_list"]),
-        )
         df = hakai_tests.bad_value_test(
             df,
-            variables=hakai_tests_config["bad_value_test"]["variables"],
-            flag_list=hakai_tests_config["bad_value_test"]["flag_list"],
+            **hakai_tests_config["bad_value_test"],
         )
 
     # Run QARTOD tests
@@ -293,25 +304,12 @@ def run_qc_profiles(df):
     # DO CAP DETECTION
     logger.info("Apply Hakai Specific Tests")
     if "do_cap_test" in hakai_tests_config:
-        for key in hakai_tests_config["do_cap_test"]["variable"]:
+        for key in hakai_tests_config["do_cap_test"].pop("variable", []):
             logger.debug("DO Cap Detection to %s variable", key)
             df = hakai_tests.do_cap_test(
                 df,
                 key,
-                profile_id="hakai_id",
-                depth_var="depth",
-                direction_flag="direction_flag",
-                bin_size=hakai_tests_config["do_cap_test"]["bin_size"],
-                suspect_threshold=hakai_tests_config["do_cap_test"][
-                    "suspect_threshold"
-                ],
-                fail_threshold=hakai_tests_config["do_cap_test"]["fail_threshold"],
-                ratio_above_threshold=hakai_tests_config["do_cap_test"][
-                    "ratio_above_threshold"
-                ],
-                minimum_bins_per_profile=hakai_tests_config["do_cap_test"][
-                    "minimum_bins_per_profile"
-                ],
+                **hakai_tests_config["do_cap_test"],
             )
 
     # BOTTOM HIT DETECTION
@@ -320,11 +318,7 @@ def run_qc_profiles(df):
     if "bottom_hit_detection" in hakai_tests_config:
         logger.debug("Flag Bottom Hit Data")
         df = hakai_tests.bottom_hit_detection(
-            df,
-            variables=hakai_tests_config["bottom_hit_detection"]["variable"],
-            profile_id="hakai_id",
-            depth_variable="depth",
-            profile_direction_variable="direction_flag",
+            df, **hakai_tests_config["bottom_hit_detection"]
         )
 
     # Detect PAR Shadow
@@ -332,55 +326,24 @@ def run_qc_profiles(df):
         logger.debug("Flag PAR Shadow Data")
         df = hakai_tests.par_shadow_test(
             df,
-            variable=hakai_tests_config["par_shadow_test"]["variable"],
-            min_par_for_shadow_detection=hakai_tests_config["par_shadow_test"][
-                "min_par_for_shadow_detection"
-            ],
-            profile_id="hakai_id",
-            direction_flag="direction_flag",
-            depth_var="depth",
+            **hakai_tests_config["par_shadow_test"],
         )
     # Station Maximum Depth Test
     if "depth_range_test" in hakai_tests_config:
         logger.debug("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
-            df,
-            variable=hakai_tests_config["depth_range_test"]["variables"],
-            suspect_exceedance_percentage=hakai_tests_config["depth_range_test"][
-                "suspect_exceedance_percentage"
-            ],
-            fail_exceedance_percentage=hakai_tests_config["depth_range_test"][
-                "fail_exceedance_percentage"
-            ],
-            suspect_exceedance_range=hakai_tests_config["depth_range_test"][
-                "suspect_exceedance_range"
-            ],
-            fail_exceedance_range=hakai_tests_config["depth_range_test"][
-                "fail_exceedance_range"
-            ],
+            df, **hakai_tests_config["depth_range_test"]
         )
 
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tested_variable_list:
         logger.debug("Apply flag results to %s", var)
-
-        # Extra flags that apply to all variables
-        extra_flags = (
-            "|bottom_hit_test|depth_in_station_range_test"
-            + "|pressure_qartod_gross_range_test|depth_qartod_gross_range_test"
+        consirederd_flag_columns = "|".join(
+            hakai_tests_config["flag_aggregation"]["default"]
+            + hakai_tests_config["flag_aggregation"].get(var, [])
         )
-
-        # Add Density Inversion to selected variables
-        if var in ["temperature", "salinity", "conductivity"]:
-            extra_flags = extra_flags + "|sigma0_qartod_density_inversion_test"
-
-        # Add DO Cap Flag
-        if var in ["dissolved_oxygen_ml_l", "rinko_ml_l"]:
-            extra_flags = extra_flags + "|" + var + "_do_cap_test"
-
-        # Create Hakai Flag Columns
-        df = _get_hakai_flag_columns(df, var, extra_flags)
+        df = _get_hakai_flag_columns(df, var, consirederd_flag_columns)
 
     # Apply Hakai Grey List
     # Grey List should overwrite the QARTOD Flags
@@ -452,7 +415,7 @@ def main(hakai_ids=None):
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
     else:
-        processing_stages = ",".join(config["QC_PROCESSING_STAGES"])
+        processing_stages = config["QC_PROCESSING_STAGES"]
         logger.info("Run QC on processing stages: %s", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
 
@@ -474,25 +437,17 @@ def main(hakai_ids=None):
         dynamic_ncols=True,
         ncols=100,
     )
-    profile_processed = 0
     with logging_redirect_tqdm():
         for chunk in np.array_split(
             df_casts, np.ceil(len(df_casts) / config["CTD_CAST_CHUNKSIZE"])
         ):
             # Retrieve cast data for this chunk
-            logger.debug("QC hakai_ids: %s", str(chunk["hakai_id"]))
-            logger.debug(
-                "Retrieve data from hakai server: %s/%s profile qced",
-                profile_processed,
-                len(df_casts),
-            )
             query = "%s/%s?hakai_id={%s}&limit=-1&fields=%s" % (
                 config["HAKAI_API_SERVER_ROOT"],
                 config["CTD_CAST_DATA_ENDPOINT"],
                 ",".join(chunk["hakai_id"].values),
                 ",".join(config["CTD_CAST_DATA_VARIABLES"]),
             )
-            logger.info("Retrieve profiles data from hakai server")
             logger.debug("Run query: %s", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
             original_variables = df_qced.columns
@@ -503,15 +458,12 @@ def main(hakai_ids=None):
                 )
                 continue
 
-            logger.info("Data is loaded")
             # Generate derived variables and convert time
-            logger.debug("Generate derived variables")
             df_qced = _derived_ocean_variables(df_qced)
-            logger.debug("Convert time variables to datetime objects")
             df_qced = _convert_time_to_datetime(df_qced)
-            logger.debug("Run QC Process")
 
             # Run QC Process
+            logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced)
             sentry_warnings.run_sentry_warnings(
                 df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
@@ -519,7 +471,6 @@ def main(hakai_ids=None):
 
             # Convert QARTOD to string temporarily
             qartod_columns = df_qced.filter(regex="_flag_level_1").columns
-            # TODO Drop once qartod columns are of INT type in hakai DB
             df_qced[qartod_columns] = df_qced[qartod_columns].astype(str)
             df_qced = df_qced.replace({"": None})
 
@@ -533,21 +484,15 @@ def main(hakai_ids=None):
             if config["UPDATE_SERVER_DATABASE"] in (True, "true"):
                 # Filter out extra variables generated during qc
                 df_upload = df_qced[original_variables]
-                for _, row in tqdm(
-                    chunk.iterrows(),
-                    desc=f"Upload flags to {config['HAKAI_API_SERVER_ROOT']}",
-                    unit="profil",
-                    total=len(chunk),
-                ):
-                    logger.debug("Upload qced %s", row["hakai_id"])
+                logger.debug("Upload results to %s", config["HAKAI_API_SERVER_ROOT"])
+                for _, row in chunk.iterrows():
                     json_string = _generate_process_flags_json(row, df_upload)
                     retrieve_hakai_data(
                         f"{config['HAKAI_API_SERVER_ROOT']}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=json_string,
                     )
-            profile_processed += len(chunk)
-            gen_pbar.update(n=profile_processed)
-            logger.info("Chunk processed")
+            gen_pbar.update(n=len(chunk))
+            logger.debug("Chunk processed")
 
 
 def _get_hakai_flag_columns(
@@ -559,12 +504,14 @@ def _get_hakai_flag_columns(
     level_2_flag_suffix="_flag",
 ):
     """
-    Generate the different Level1 and Level2 flag columns by grouping the different tests results.
+    Generate the different Level1 and Level2 flag columns by
+    grouping the different tests results.
     """
 
     def __generate_level2_flag(row):
         """
-        Regroup together tests results in "flag_value_to_consider" as a json string to be outputed as a level2 flag
+        Regroup together tests results in "flag_value_to_consider" as a
+        json string to be outputed as a level2 flag
         """
         level2 = [
             f"{hakai_tests.qartod_to_hakai_flag[value]}: {item}"
@@ -577,11 +524,9 @@ def _get_hakai_flag_columns(
         flag_values_to_consider = [3, 4]
 
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=var + "_" + extra_flag_list)
-
-    # Drop Hakai already existing flags, this will be dropped once we get the right flag columns
-    #  available on the database side
-    var_flag_results = var_flag_results.drop(var + "_flag", axis=1, errors="ignore")
+    var_flag_results = df.filter(regex=var + "_" + extra_flag_list).drop(
+        columns=[var + "_flag", var + "_flag_level_1"], errors="ignore"
+    )
 
     # Generete Level 1 Aggregated flag columns
     df[var + level_1_flag_suffix] = qartod_compare(
@@ -592,10 +537,6 @@ def _get_hakai_flag_columns(
     df[var + level_2_flag_suffix] = var_flag_results.apply(
         __generate_level2_flag, axis="columns"
     )
-
-    # Make sure that empty records are flagged as MISSING
-    if var in df:
-        df.loc[df[var].isna(), var + level_1_flag_suffix] = QartodFlags.MISSING
     return df
 
 

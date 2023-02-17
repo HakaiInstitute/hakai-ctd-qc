@@ -15,23 +15,21 @@ logger = logging.getLogger(__name__)
 
 qartod_to_hakai_flag = {1: "AV", 2: "NA", 3: "SVC", 4: "SVD", 9: "MV"}
 
+# Retrieve from Arcgis table view from
+# https://hakai.maps.arcgis.com/apps/webappviewer/index.html?id=38e1b1da8d16466bbe5d7c7a713d2678
 hakai_stations = pd.read_csv(
-    os.path.join(os.path.dirname(__file__), "HakaiStationLocations.csv"),
+    os.path.join(os.path.dirname(__file__), "StationLocations.csv"),
     sep=";",
     na_values=[" ", "?"],
-)
-hakai_stations["station_depth"] = hakai_stations["Bot_depth"].fillna(
-    hakai_stations["Bot_depth_GIS"]
-)
-hakai_stations["station"] = hakai_stations["Station"]
+).rename(columns={"Bot_depth_GIS": "station_depth", "Station": "station"})
 
 
 def do_cap_test(
     df,
     var,
-    profile_id,
-    direction_flag,
-    depth_var,
+    profile_id="hakai_id",
+    direction_flag="direction_flag",
+    depth_var="depth",
     bin_size=1,
     suspect_threshold=0.2,
     fail_threshold=0.5,
@@ -250,26 +248,34 @@ def par_shadow_test(
 
 
 def bad_value_test(
-    df, variables, flag_list=None, flag_column_suffix="_hakai_bad_value_test"
+    df, variables, flag_mapping=None, flag_column_suffix="_hakai_bad_value_test"
 ):
     """
-    Find Flag values present in the data, attach a FAIL QARTOD Flag to them and replace them by NaN.
-    Hakai database ingested some seabird flags -9.99E-29 which need to be recognized and removed.
+    Find Flag values present in the data, attach a given QARTOD Flag to them and replace them by NaN.
     """
     # Default Hakai Bad data
-    if flag_list is None:
-        flag_list = [np.nan, pd.NA, -9.99e-29]
+    if flag_mapping is None:
+        flag_mapping = {"MISSING": [np.nan, pd.NA], "FAIL": [-9.99e-29]}
 
     for column in variables:
         # Assign everything as good first
         logger.debug("Generate flag column: %s%s", column, flag_column_suffix)
         df[column + flag_column_suffix] = QartodFlags.GOOD
-        df.loc[
-            df[column].isna() | df[column].isin(flag_list), column + flag_column_suffix
-        ] = QartodFlags.MISSING
-
-    # Replace bad data in dataframe to an empty value
-    df = df.replace(flag_list, np.nan)
+        for level, values in flag_mapping.items():
+            is_na_values = [
+                value
+                for value in values
+                if pd.isna(value) or value in [".isna", "NaN", "nan"]
+            ]
+            if any(is_na_values):
+                df.loc[
+                    df[column].isna(), column + flag_column_suffix
+                ] = QartodFlags.__dict__[level]
+                values = set(values).difference(is_na_values)
+            df.loc[
+                df[column].isin(values), column + flag_column_suffix
+            ] = QartodFlags.__dict__[level]
+            df[column] = df[column].replace({value: np.nan for value in values})
     return df
 
 
@@ -389,7 +395,6 @@ def hakai_station_maximum_depth_test(
     df_max_depth = (
         df.groupby(["station", "hakai_id"])[variable]
         .max()
-        .max(axis="columns")
         .rename("max_depth")
         .to_frame()
     )
@@ -415,7 +420,7 @@ def hakai_station_maximum_depth_test(
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] * suspect_exceedance_percentage
         )
-        | (
+        & (
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] + suspect_exceedance_range
         ),
@@ -428,7 +433,7 @@ def hakai_station_maximum_depth_test(
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] * fail_exceedance_percentage
         )
-        | (
+        & (
             df_max_depth["max_depth"]
             > df_max_depth["station_depth"] + fail_exceedance_range
         ),
