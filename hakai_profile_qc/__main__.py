@@ -85,7 +85,10 @@ ENV_CONFIG_PATH = os.path.join(PACKAGE_PATH, "..", "config.yaml")
 
 
 def read_config_yaml():
-    """YAML Config reader replace any ${PACKAGE_PATH} by the package actual path"""
+    """
+    YAML Config reader replace any ${PACKAGE_PATH} by the
+    package actual path
+    """
 
     def __parse_config_yaml(config_path):
         with open(config_path, encoding="UTF-8") as f:
@@ -147,7 +150,7 @@ check_hakai_database_rebuild()
 
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
     """
-    Apply ioos_qc configuration to a Pandas DataFrame by using the 
+    Apply ioos_qc configuration to a Pandas DataFrame by using the
     PandasStream mand PandasStore methods from ioos_qc
     """
     # Reset index ioos_qc failed otherwise
