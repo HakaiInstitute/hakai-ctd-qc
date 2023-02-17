@@ -18,11 +18,10 @@ qartod_to_hakai_flag = {1: "AV", 2: "NA", 3: "SVC", 4: "SVD", 9: "MV"}
 # Retrieve from Arcgis table view from
 # https://hakai.maps.arcgis.com/apps/webappviewer/index.html?id=38e1b1da8d16466bbe5d7c7a713d2678
 hakai_stations = pd.read_csv(
-    os.path.join(os.path.dirname(__file__), "HakaiStationLocations.csv"),
+    os.path.join(os.path.dirname(__file__), "StationLocations.csv"),
     sep=";",
     na_values=[" ", "?"],
-).rename(columns={"Bot_depth_GIS":"station_depth","Station":"station"})
-
+).rename(columns={"Bot_depth_GIS": "station_depth", "Station": "station"})
 
 
 def do_cap_test(
