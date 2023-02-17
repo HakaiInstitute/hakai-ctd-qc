@@ -147,7 +147,8 @@ check_hakai_database_rebuild()
 
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
     """
-    Apply ioos_qc configuration to a Pandas DataFrame by using the PandasStream mand PandasStore methods from ioos_qc
+    Apply ioos_qc configuration to a Pandas DataFrame by using the 
+    PandasStream mand PandasStore methods from ioos_qc
     """
     # Reset index ioos_qc failed otherwise
     original_index = list(df.index.names)
