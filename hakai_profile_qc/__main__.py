@@ -339,23 +339,11 @@ def run_qc_profiles(df):
     # Generate Hakai Flags
     for var in tested_variable_list:
         logger.debug("Apply flag results to %s", var)
-
-        # Extra flags that apply to all variables
-        extra_flags = (
-            "|bottom_hit_test|depth_in_station_range_test"
-            + "|pressure_qartod_gross_range_test|depth_qartod_gross_range_test"
+        consirederd_flag_columns = "|".join(
+            hakai_tests_config["flag_aggregation"]["default"]
+            + hakai_tests_config["flag_aggregation"].get(var, [])
         )
-
-        # Add Density Inversion to selected variables
-        if var in ["temperature", "salinity", "conductivity"]:
-            extra_flags = extra_flags + "|sigma0_qartod_density_inversion_test"
-
-        # Add DO Cap Flag
-        if var in ["dissolved_oxygen_ml_l", "rinko_ml_l"]:
-            extra_flags = extra_flags + "|" + var + "_do_cap_test"
-
-        # Create Hakai Flag Columns
-        df = _get_hakai_flag_columns(df, var, extra_flags)
+        df = _get_hakai_flag_columns(df, var, consirederd_flag_columns)
 
     # Apply Hakai Grey List
     # Grey List should overwrite the QARTOD Flags
