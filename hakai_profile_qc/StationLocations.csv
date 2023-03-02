@@ -1,4 +1,4 @@
-﻿Station;Long_DD;Lat_DD;Bot_depth;Bot_depth_GIS;Location;Survey;Site_Statu;Site_start;Site_end;note;Region;Program;DataAvaila;POINT_X;POINT_Y;workarea;Organization;CreationDate;Creator;EditDate;Editor;depth_src;x;y
+Station;Long_DD;Lat_DD;Bot_depth;Bot_depth_GIS;Location;Survey;Site_Statu;Site_start;Site_end;note;Region;Program;DataAvaila;POINT_X;POINT_Y;workarea;Organization;CreationDate;Creator;EditDate;Editor;depth_src;x;y
 ALCOVE;"-128,116";"51,675"; ;"3";Choked Pass; ; ;;; ;Central Coast;Oceanography; ;"-128,116";"51,675";CALVERT;HAKAI;janvier 31, 2020;will.mcinnes;février 14, 2023;will.mcinnes;nonna10m;"-128,116";"51,675"
 BRK01;"-127,889";"51,914";150;"143";Burke Channel;Burke Channel;Not Active;12/31/2013;; ;Central Coast;Oceanography; ;"-127,889";"51,914";CALVERT;HAKAI;janvier 31, 2020;will.mcinnes;février 14, 2023;will.mcinnes;nonna10m;"-127,889";"51,914"
 BRK02;"-127,843";"51,93";135;"135";Burke Channel;Burke Channel;Not Active;12/31/2013;; ;Central Coast;Oceanography; ;"-127,843";"51,93";CALVERT;HAKAI;janvier 31, 2020;will.mcinnes;février 14, 2023;will.mcinnes;nonna10m;"-127,843";"51,93"
