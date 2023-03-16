@@ -346,6 +346,7 @@ def run_qc_profiles(df):
         consirederd_flag_columns = "|".join(
             hakai_tests_config["flag_aggregation"]["default"]
             + hakai_tests_config["flag_aggregation"].get(var, [])
+            + [f"{var}_qartod_.*|{var}_hakai_.*"]
         )
         df = _get_hakai_flag_columns(df, var, consirederd_flag_columns)
 
@@ -528,9 +529,16 @@ def _get_hakai_flag_columns(
         flag_values_to_consider = [3, 4]
 
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=var + "_" + extra_flag_list).drop(
-        columns=[var + "_flag", var + "_flag_level_1"], errors="ignore"
-    )
+    var_flag_results = df.filter(regex=extra_flag_list)
+
+    if f"{var}_flag" in var_flag_results:
+        raise RuntimeError(
+            "Variable grouped flag considered in flag columns to compare"
+        )
+    if f"{var}_flag_level_1" in var_flag_results:
+        raise RuntimeError(
+            "Variable flag level 1 considered in flag columns to compare"
+        )
 
     # Generete Level 1 Aggregated flag columns
     df[var + level_1_flag_suffix] = qartod_compare(
