@@ -266,6 +266,8 @@ def run_qc_profiles(df):
             df,
             **hakai_tests_config["bad_value_test"],
         )
+        # Replace all bad values by np.nan
+        df = df.replace({value: np.nan for value in [None, pd.NA, -9.99e-29]})
 
     # Run QARTOD tests
     # On profiles
