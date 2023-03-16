@@ -6,15 +6,19 @@ on:
       - development
     paths:
       - setup.py
-      - environment.yaml
+      - docker-environment.yaml
       - Dockerfile
+      - .github/workflows/test-docker-build.yml
+      - docker-compose.yaml
   pull_request:
     branches:
       - main
     paths:
       - setup.py
-      - environment.yaml
+      - docker-environment.yaml
       - Dockerfile
+      - .github/workflows/test-docker-build.yml
+      - docker-compose.yaml
   workflow_dispatch:
 
 jobs:
