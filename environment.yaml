@@ -12,6 +12,6 @@ dependencies:
   - ioos_qc==2.0.1
   - gsw
   - pip:
-      - sentry_sdk==1.11.0
+      - sentry_sdk==1.12.1
       - hakai_api
       - git+https://github.com/HakaiInstitute/ocean-data-parser.git
