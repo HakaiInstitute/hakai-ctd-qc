@@ -6,11 +6,13 @@ on:
       - development
     paths:
       - hakai_profile_qc/**
+      - tests/**
   pull_request:
     branches:
       - main
     paths:
       - hakai_profile_qc/**
+      - tests/**
   workflow_dispatch:
 
 jobs:
@@ -24,8 +26,12 @@ jobs:
       - name: Lint Tests
         shell: bash -l {0}
         run: |
-          pip install flake8
+          pip install flake8 pytest pyarrow fastparquet
           python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Install docker container and load data
+      - name: Install package locally
+        run: pip install -e .
+      - name: Pytest
+        run: pytest
+      - name: Test docker container and load data
         run: docker-compose up

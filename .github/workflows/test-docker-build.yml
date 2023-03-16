@@ -1,0 +1,28 @@
+name: Install package and run linter
+on:
+  push:
+    branches:
+      - main
+      - development
+    paths:
+      - setup.py
+      - environment.yaml
+      - Dockerfile
+  pull_request:
+    branches:
+      - main
+    paths:
+      - setup.py
+      - environment.yaml
+      - Dockerfile
+  workflow_dispatch:
+
+jobs:
+  miniconda:
+    name: Run linter and test suite
+    runs-on: ubuntu-latest
+    env:
+      HAKAI_API_TOKEN: ${{ secrets.HAKAI_API_TOKEN }}
+    steps:
+      - name: Test docker container and load data
+        run: docker-compose up
