@@ -6,12 +6,10 @@ import sys
 from time import time
 
 import gsw
-import hakai_tests
 import numpy as np
 import pandas as pd
 import requests
 import sentry_sdk
-import sentry_warnings
 import yaml
 from hakai_api import Client
 from ioos_qc.config import Config
@@ -22,7 +20,9 @@ from requests.exceptions import JSONDecodeError
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from version import __version__
+
+from hakai_profile_qc import hakai_tests, sentry_warnings
+from hakai_profile_qc.version import __version__
 
 sentry_checkin_headers = {
     "Authorization": "DSN https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251"
@@ -30,14 +30,15 @@ sentry_checkin_headers = {
 monitor_id = "8ac7c3da-4e18-4c7b-9ce9-c0fa22956775"  # Write your monitor_id here
 
 # Create the check-in
-sentry_health_response = requests.post(
-    f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/",
-    headers=sentry_checkin_headers,
-    json={"status": "in_progress"},
-)
-check_in_id = sentry_health_response.json()["id"]
+if __name__ == "__main__":
+    sentry_health_response = requests.post(
+        f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/",
+        headers=sentry_checkin_headers,
+        json={"status": "in_progress"},
+    )
+    check_in_id = sentry_health_response.json()["id"]
 
-start_time = time()
+    start_time = time()
 
 
 def check_hakai_database_rebuild():
@@ -573,13 +574,12 @@ if __name__ == "__main__":
     else:
         main()
 
-
-end_time = time()
-logger.info("Process completed in %s seconds", end_time - start_time)
-# Update the check-in status (required) and duration (optional)
-sentry_health_response = requests.put(
-    f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
-    headers=sentry_checkin_headers,
-    json={"status": "ok"},
-)
-sys.exit(0)
+    end_time = time()
+    logger.info("Process completed in %s seconds", end_time - start_time)
+    # Update the check-in status (required) and duration (optional)
+    sentry_health_response = requests.put(
+        f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
+        headers=sentry_checkin_headers,
+        json={"status": "ok"},
+    )
+    sys.exit(0)
