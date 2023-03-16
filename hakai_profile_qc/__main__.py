@@ -16,7 +16,7 @@ from ioos_qc.config import Config
 from ioos_qc.qartod import qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
-from requests.exceptions import JSONDecodeError
+from json import JSONDecodeError
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
