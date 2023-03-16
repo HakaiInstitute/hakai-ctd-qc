@@ -473,9 +473,10 @@ def main(hakai_ids=None):
             # Run QC Process
             logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced)
-            sentry_warnings.run_sentry_warnings(
-                df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
-            )
+            if config.get('SENTRY_RUN_WARNINGS'):
+                sentry_warnings.run_sentry_warnings(
+                    df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
+                )
 
             # Convert QARTOD to string temporarily
             qartod_columns = df_qced.filter(regex="_flag_level_1").columns
