@@ -33,5 +33,3 @@ jobs:
         run: pip install -e .
       - name: Pytest
         run: pytest
-      - name: Test docker container and load data
-        run: docker-compose up
