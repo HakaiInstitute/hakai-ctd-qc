@@ -275,7 +275,6 @@ def bad_value_test(
             df.loc[
                 df[column].isin(values), column + flag_column_suffix
             ] = QartodFlags.__dict__[level]
-            df[column] = df[column].replace({value: np.nan for value in values})
     return df
 
 
