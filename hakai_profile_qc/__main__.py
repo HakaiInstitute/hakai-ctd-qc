@@ -357,6 +357,15 @@ def run_qc_profiles(df):
     # Grey List should overwrite the QARTOD Flags
     logger.debug("Apply Hakai Grey List")
     df = hakai_tests.grey_list(df)
+
+    # Make sure that missing values and bad values are appropriately flagged
+    for variable in df.columns:
+        bad_value_flag = f"{variable}_hakai_bad_value_test"
+        if bad_value_flag in df.columns:
+            df.loc[
+                df[bad_value_flag].isin([3, 4, 9]), f"{variable}_flag_level_1"
+            ] = df.loc[df[bad_value_flag].isin([3, 4, 9]), bad_value_flag]
+
     return df
 
 
@@ -473,7 +482,7 @@ def main(hakai_ids=None):
             # Run QC Process
             logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced)
-            if config.get('SENTRY_RUN_WARNINGS'):
+            if config.get("SENTRY_RUN_WARNINGS"):
                 sentry_warnings.run_sentry_warnings(
                     df_qced, chunk, config["SENTRY_EVENT_MINIMUM_DATE"]
                 )
