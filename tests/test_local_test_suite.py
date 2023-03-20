@@ -12,10 +12,10 @@ from hakai_profile_qc.__main__ import (
 
 MODULE_PATH = os.path.dirname(__file__)
 df_local = pd.read_parquet(f"{MODULE_PATH}/test_data/ctd_test_suite.parquet")
-df_initial = df_local.set_index('ctd_data_pk').copy()
+df_initial = df_local.set_index("ctd_data_pk").copy()
 df_local = _derived_ocean_variables(df_local)
 df_local = run_qc_profiles(df_local)
-df_local = df_local.set_index('ctd_data_pk')
+df_local = df_local.set_index("ctd_data_pk")
 
 
 class TestDerivedVariables:
@@ -49,7 +49,7 @@ class TestHakaiTests:
         assert (
             (df == -9.99e-29).any().any()
         ), "No seabird flag value -9.99E-29 is present in local test suite"
-        
+
         df_flagged = df_local.loc[df.loc[(df == -9.99e-29).any(axis=1)].index]
         flagged_columns = [
             "descent_rate",
