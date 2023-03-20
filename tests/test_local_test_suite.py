@@ -97,3 +97,67 @@ class TestHakaiTests:
             .all()
             .all()
         ), "Not all the values -9.99E-29 *_flag column contains the expression 'hakai_bad_value_test'"
+
+    def test_missing_whole_profile_bad_value_test(self):
+        df = df_local.query("hakai_id == '01907674_2018-10-31T19:10:18Z'")
+        assert (
+            not df.empty
+        ), "Missing hakai_id=='01907674_2018-10-31T19:10:18Z' from local test suite"
+        assert (
+            df["dissolved_oxygen_ml_l_hakai_bad_value_test"] == 9
+        ).all(), "Not all oxygen missing bad_value_test are flagged as MISSING=9"
+        assert (
+            df.loc[
+                df["dissolved_oxygen_ml_l_hakai_bad_value_test"] == 9,
+                "dissolved_oxygen_ml_l_flag_level_1",
+            ]
+            == 9
+        ).all(), "Not all oxygen missing bad_value_test are flagged as MISSING=9"
+
+    def test_missing_value_bad_value_test(self):
+        for variable in df_local.columns:
+            qartod_flag_variable = f"{variable}_hakai_bad_value_test"
+            if qartod_flag_variable in df_local.columns:
+                assert (
+                    df_local.loc[df_local[variable].isna(), qartod_flag_variable]
+                    .isin([4, 9])
+                    .all(),
+                    f"Not all '{variable}'.isna() is flagged as FAIL=4 or MISSING=9",
+                )
+                is_bad_value_flagged = df_local[qartod_flag_variable].isin([4, 9])
+                assert (
+                    df_local.loc[is_bad_value_flagged, qartod_flag_variable]
+                    == df_local.loc[is_bad_value_flagged, f"{variable}_flag_level_1"],
+                    "Bad value flag isn't matching flag_level_1",
+                )
+
+
+class TestQARTODTests:
+    def test_gross_range_results(self):
+        df = df_local.query("hakai_id == '01907674_2016-10-18T18:09:33Z'")
+        assert (
+            not df.empty
+        ), "Missing test hakai_id=='01907674_2016-10-18T18:09:33Z' in local test suite"
+        assert (
+            len(df.loc[df["dissolved_oxygen_ml_l_qartod_gross_range_test"] == 4])
+            == 249,
+            "Missing qartod gross range result in dissolved_oxygen_ml_l_flag_level_1",
+        )
+        assert (
+            df.loc[
+                df["dissolved_oxygen_ml_l_qartod_gross_range_test"] == 4,
+                "dissolved_oxygen_ml_l_flag_level_1",
+            ]
+            == 4
+        ).all(), (
+            "Missing qartod gross range result in dissolved_oxygen_ml_l_flag_level_1"
+        )
+        assert (
+            (
+                df.loc[
+                    df["dissolved_oxygen_ml_l_qartod_gross_range_test"] == 4,
+                    "dissolved_oxygen_ml_l_flag",
+                ].str.contains("SVD: dissolved_oxygen_ml_l_qartod_gross_range_test")
+            ).all(),
+            "Missing qartod gross range result in dissolved_oxygen_ml_l_flag_level_1",
+        )
