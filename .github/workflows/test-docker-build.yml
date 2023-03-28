@@ -1,4 +1,4 @@
-name: Install package and run linter
+name: Test Docker Build
 on:
   push:
     branches:
