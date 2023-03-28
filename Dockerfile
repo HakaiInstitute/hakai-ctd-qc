@@ -44,6 +44,7 @@ COPY --from=build /venv /venv
 # Add our project code and copy docker.env as .env
 ADD . /venv
 
+RUN pip install -e /venv/.
 
 # When image is run, run the code within the Python virtual environment "venv"
 SHELL ["/bin/bash", "-c"]
