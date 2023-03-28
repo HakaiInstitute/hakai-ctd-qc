@@ -13,4 +13,4 @@ jobs:
       - name: Install Caprover CLI
         run: npm install -g caprover
       - name: Tell Caprover server to deploy main
-        run: caprover deploy --caproverUrl https://captain.server.hak4i.org --appToken ${{ secrets.CAPROVER_TOKEN_REBUILD_HAKAIDEV }} --branch 'main' --appName hakai-profile-qc-hakai-dev-rebuild
+        run: caprover deploy --caproverUrl https://captain.server.hak4i.org --appToken ${{ secrets.CAPROVER_TOKEN_REBUILD_HAKAIDEV }} --branch 'development' --appName hakai-profile-qc-hakai-dev-rebuild
