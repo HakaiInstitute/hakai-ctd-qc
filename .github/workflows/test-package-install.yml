@@ -1,16 +1,9 @@
 name: Install package and run linter
 on:
-  push:
-    branches:
-      - main
-      - development
-    paths:
-      - hakai_profile_qc/**
-      - tests/**
-      - .github/workflows/**
   pull_request:
     branches:
       - main
+      - development
     paths:
       - hakai_profile_qc/**
       - tests/**
