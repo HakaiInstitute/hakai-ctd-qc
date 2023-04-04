@@ -43,7 +43,7 @@ class TestTimeConversion:
         ), "Dataframe start_dt is not a datetime object"
 
 
-class TestHakaiTests:
+class TestHakaiBadValueTests:
     def test_seabird_hakai_bad_value_test(self):
         df = df_initial.query("hakai_id == '01907674_2016-10-20T16:29:29Z'")
         assert (
@@ -130,6 +130,73 @@ class TestHakaiTests:
                     == df_local.loc[is_bad_value_flagged, f"{variable}_flag_level_1"]
                 ).all(), "Bad value flag isn't matching flag_level_1"
 
+
+class TestHakaiQueryTests:
+    def test_nature_trust_mid_sensors_submerged_flags(self):
+        query = "organization=='NATURE TRUST' and sensors_submerged=='Mid'"
+        df = df_local.query(query)
+        assert not df.empty, "Missing {query}"
+        assert (
+            df["par_hakai_sensor_mid_submerged_test"] == 4
+        ).all(), "Failed to flag nature trust par sensors_submberged=='Mid' -> 4"
+        assert (
+            df["par_flag"].str.startswith("SVD").all()
+        ), "Failed to flag the par_flag to SVD"
+        assert (
+            df["dissolved_oxygen_ml_l_flag_level_1"].isin([1, 9]).all()
+        ), "Failed to flag the dissolved_oxygen_ml_l_flag_level_1 to GOOD=1"
+        assert (
+            df["dissolved_oxygen_ml_l_flag"] == ""
+        ).all(), "Failed to flag dissolved_oxygen_ml_l_flag_level_1 to AV (empty)"
+        assert (
+            df["dissolved_oxygen_percent_flag_level_1"].isin([1, 9]).all()
+        ), "Failed to flag the dissolved_oxygen_percent_flag_level_1 to GOOD=1"
+        assert (
+            df["dissolved_oxygen_percent_flag"] == ""
+        ).all(), "Failed to flag dissolved_oxygen_percent_flag to AV (empty)"
+
+    def test_nature_trust_bottom_sensors_submerged_flags(self):
+        query = "organization=='NATURE TRUST' and sensors_submerged=='Bottom'"
+        df = df_local.query(query)
+        assert not df.empty, "Missing {query}"
+        assert (
+            (
+                df[
+                    [
+                        "par_hakai_sensor_bottom_submerged_test",
+                        "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
+                        "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test",
+                    ]
+                ]
+                == 4
+            )
+            .all()
+            .all()
+        ), "Failed to flag nature trust par and oxygen sensors_submberged=='Bottom' -> 4"
+        assert (
+            df[
+                [
+                    "par_flag",
+                    "dissolved_oxygen_ml_l_flag",
+                    "dissolved_oxygen_percent_flag",
+                ]
+            ]
+            .applymap(lambda x: x.startswith("SVD"))
+            .all()
+            .all()
+        ), "Failed to flag the par and dissolved oxygen aggregated flags to SVD"
+        assert (
+            df[
+                [
+                    "par_flag_level_1",
+                    "dissolved_oxygen_ml_l_flag_level_1",
+                    "dissolved_oxygen_percent_flag_level_1",
+                ]
+            ]
+            .isin([4, 9])
+            .all()
+            .all()
+        ), "Failed to flag the par and dissolved oxygen aggregated level 1 flags to 4"
 
 class TestQARTODTests:
     def test_gross_range_results(self):
