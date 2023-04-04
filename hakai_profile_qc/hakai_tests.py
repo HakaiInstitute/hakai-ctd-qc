@@ -443,3 +443,29 @@ def hakai_station_maximum_depth_test(
         df_max_depth.reset_index()[["station", "hakai_id", flag_column]],
         on=["station", "hakai_id"],
     )
+
+
+def query_based_flag_test(df: pd.DataFrame, query_list: list):
+    """
+    Run each respective queries and apply associated flag to each respective matching results
+    Arguments:
+        df: dataframe of the data
+        query_list: list of query objects ->
+            {
+                "query": run by pandas query,
+                "flag_value": QARTOD value,
+                "flag_columns": list of column names to generate
+            }
+    Output:  dataframe
+    """
+
+    for query in query_list:
+        for flag_column in query["flag_columns"]:
+            if flag_column not in df:
+                df[flag_column] = 1  # GOOD
+
+        df.loc[df.query(query["query"]).index, query["flag_columns"]] = query[
+            "flag_value"
+        ]
+
+    return df
