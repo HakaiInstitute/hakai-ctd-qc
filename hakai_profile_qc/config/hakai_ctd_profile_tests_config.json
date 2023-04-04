@@ -2,7 +2,7 @@
   "do_cap_test": {
     "variable": ["dissolved_oxygen_ml_l", "rinko_do_ml_l"],
     "suspect_threshold": 0.2,
-    "fail_threshold": 0.5,
+    "fail_threshold": 1.0,
     "ratio_above_threshold": 0.5,
     "minimum_bins_per_profile": 30
   },

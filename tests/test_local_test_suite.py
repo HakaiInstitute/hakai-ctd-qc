@@ -131,6 +131,39 @@ class TestHakaiTests:
                 ).all(), "Bad value flag isn't matching flag_level_1"
 
 
+do_cap_fail_hakai_ids = [
+    "080217_2014-08-13T13:49:30.167Z",
+    "080217_2017-11-10T19:33:01.833Z",
+    "080217_2017-01-15T17:57:21.667Z",
+    "018066_2012-08-10T17:41:33.000Z",
+    "080217_2020-02-09T18:36:46.834Z",
+    "080217_2016-11-26T20:23:06.500Z",
+]
+
+
+class TestHakaiDOCapTest:
+    def test_do_cap_test_svd_locally(self):
+        assert (
+            "dissolved_oxygen_ml_l_do_cap_test" in df_local
+        ), "Missing dissolved_oxygen_ml_l_do_cap_test"
+        df = df_local.query("dissolved_oxygen_ml_l_do_cap_test==4")
+        assert (
+            not df.empty
+        ), "No hakai_id has dissolved_oxygen_ml_l_hakai_do_cap_test=FAIL=4)"
+        assert all(
+            [hakai_id in df["hakai_id"].values for hakai_id in do_cap_fail_hakai_ids]
+        ), "Not all do cap test failed profiles are present"
+        assert (
+            df["dissolved_oxygen_ml_l_do_cap_test"].isin([4]).all()
+        ), "Not all the dissolved_oxygen_ml_l_do_cap_test failed hakai_ids were flagged as FAIL=4"
+            df["dissolved_oxygen_ml_l_flag"].str.startswith("SVD").all()
+        assert (
+        ), "Not all the dissolved_oxygen_ml_l_flag failed hakai_ids were flagged as SVD"
+        assert (
+            df["dissolved_oxygen_ml_l_flag_level_1"].isin([4]).all()
+        ), "Not all the dissolved_oxygen_ml_l_flag_level_1 failed hakai_ids were flagged as FAIL=4"
+
+
 class TestQARTODTests:
     def test_gross_range_results(self):
         df = df_local.query("hakai_id == '01907674_2016-10-18T18:09:33Z'")

@@ -536,7 +536,13 @@ def _get_hakai_flag_columns(
             for item, value in row.items()
             if value in flag_values_to_consider
         ]
-        return "; ".join(level2) if level2 != {} else ""
+        if any(row == 4):
+            max_flag = "SVD"
+        elif any(row == 3):
+            max_flag = "SVC"
+        else:
+            max_flag = ""
+        return f"{max_flag}: [{'; '.join(level2)}]" if level2 != {} else ""
 
     if flag_values_to_consider is None:
         flag_values_to_consider = [3, 4]
