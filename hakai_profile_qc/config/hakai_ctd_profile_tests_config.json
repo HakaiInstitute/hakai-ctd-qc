@@ -55,15 +55,15 @@
   "query_based_flag": [
     {
       "query": "organization == 'NATURE TRUST' & sensors_submerged=='Mid'",
-      "flag_columns": ["par_hakai_sensor_mid_submerged_flag"],
+      "flag_columns": ["par_hakai_sensor_mid_submerged_test"],
       "flag_value": 4
     },
     {
       "query": "organization == 'NATURE TRUST' & sensors_submerged=='Bottom'",
       "flag_columns": [
-        "par_hakai_sensor_bottom_submerged_flag",
-        "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_flag",
-        "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_flag"
+        "par_hakai_sensor_bottom_submerged_test",
+        "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
+        "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test"
       ],
       "flag_value": 4
     }
