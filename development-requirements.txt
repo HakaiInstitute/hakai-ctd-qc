@@ -2,3 +2,5 @@ pyarrow
 fastparquet
 black
 isort
+sqlalchemy
+tabulate
