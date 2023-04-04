@@ -8,16 +8,14 @@ engine = create_engine(
     connect_args={"connect_timeout": 120},
 )
 
-with engine.connect( ) as conn:
-    df = pd.read_sql('SELECT top 10 * FROM ctd.ctd_file_cast_data')
 
 def get_station_range_depth_test():
-    # with open("review/get_depth_in_station_range_test_results.sql") as query_file:
-    #     query = query_file.read()
+    with open("review/get_depth_in_station_range_test_results.sql") as query_file:
+        query = query_file.read()
 
-    # with engine.connect() as con:
-    #     df = pd.read_sql(query, con=con)
-    df = pd.read_csv("review/results.csv")
+    with engine.connect() as con:
+        df = pd.read_sql(text(query), con=con)
+
     station_info = pd.read_csv(
         "hakai_profile_qc/StationLocations.csv", delimiter=";"
     ).rename(columns={"Station": "station"})
@@ -31,4 +29,4 @@ def get_station_range_depth_test():
 if __name__ == "__main__":
     df = get_station_range_depth_test()
     with open("review/get_depth_in_station_range_test.md", "w") as result_file:
-        df.to_markdown(result_file)
+        df.to_markdown(result_file,index=False)
