@@ -156,8 +156,8 @@ class TestHakaiDOCapTest:
         assert (
             df["dissolved_oxygen_ml_l_do_cap_test"].isin([4]).all()
         ), "Not all the dissolved_oxygen_ml_l_do_cap_test failed hakai_ids were flagged as FAIL=4"
-            df["dissolved_oxygen_ml_l_flag"].str.startswith("SVD").all()
         assert (
+            df["dissolved_oxygen_ml_l_flag"].str.startswith("SVD").all()
         ), "Not all the dissolved_oxygen_ml_l_flag failed hakai_ids were flagged as SVD"
         assert (
             df["dissolved_oxygen_ml_l_flag_level_1"].isin([4]).all()
