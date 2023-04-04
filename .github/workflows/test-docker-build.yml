@@ -1,14 +1,5 @@
 name: Test Docker Build
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - setup.py
-      - docker-environment.yaml
-      - Dockerfile
-      - .github/workflows/test-docker-build.yml
-      - docker-compose.yaml
   pull_request:
     branches:
       - main
