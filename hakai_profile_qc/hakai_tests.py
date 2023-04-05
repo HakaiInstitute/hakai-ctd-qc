@@ -60,116 +60,64 @@ def do_cap_test(
     OUTPUT:
     The test will generate an extra column [var]_do_cap_test with QARTOD flag.
     """
+
+    def _get_do_cap_flag(result):
+        if result["is_missing"] == 1:
+            return QartodFlags.MISSING
+        elif (
+            result["nGoodBinsPerProfile"] < minimum_bins_per_profile
+            or result["is_missing"] + result["is_unknown"] == 1
+        ):
+            return QartodFlags.UNKNOWN
+        elif result["is_fail"] > ratio_above_threshold:
+            return QartodFlags.FAIL
+        elif result["is_suspect"] > ratio_above_threshold:
+            return QartodFlags.SUSPECT
+        return QartodFlags.GOOD
+
     # Handle empty inputs or with no upcast data.
     if var not in df or df[var].isna().all():
         df[var + flag_name] = QartodFlags.MISSING
         return df
-    elif all(
-        df.groupby(by=[profile_id, depth_var])[var].count() <= 1
-    ):  # All the profiles are bad or unknown
-        # Find the maximum count of matching pressure bin per profile_id
-        hakai_id_matching_depth = (
-            df.groupby(by=[profile_id, depth_var])[var]
-            .count()
-            .groupby(by=profile_id)
-            .max()
-        )
-        if not hakai_id_matching_depth.isin([0, 1]).all():
-            assert (
-                RuntimeWarning
-            ), "matching pressure bin count is different than 0 or 1"
-        for unknown_id in hakai_id_matching_depth[
-            hakai_id_matching_depth == 1
-        ].index.to_list():
-            df.loc[df[profile_id] == unknown_id, var + flag_name] = QartodFlags.UNKNOWN
-        for missing_id in hakai_id_matching_depth[
-            hakai_id_matching_depth == 0
-        ].index.to_list():
-            df.loc[df[profile_id] == missing_id, var + flag_name] = QartodFlags.MISSING
-        return df
 
-    # Assign each record to a specific bin id
-    df["bin_id"] = ((df[depth_var] / bin_size)).round()
-
-    # Group average record associated to each profile,direction and bin_id
-    df_grouped = df.groupby([profile_id, direction_flag, "bin_id"]).mean(
-        numeric_only=True
+    # Bin average average record associated to each profile,direction and bin_id
+    # and then calculate the difference between the two direction
+    profile_bin_stats = (
+        df.assign(bin_id=(df[depth_var] / bin_size).round())
+        .groupby([profile_id, direction_flag, "bin_id"])[var]
+        .mean(numeric_only=True)
+        .groupby([profile_id, "bin_id"])
+        .agg([np.ptp, "count"])
     )
 
-    # Count how many values are available for each profile and pressure bin and get their range max-min (ptp)
-    profile_bin_stats = df_grouped.groupby(by=[profile_id, "bin_id"])[var].agg(
-        [np.ptp, "count"]
+    # Define missing, unknown, suspect and missing values from bin statistics
+    profile_bin_stats = profile_bin_stats.assign(
+        is_missing=profile_bin_stats["ptp"].isnull()
+        & (profile_bin_stats["count"] == 0),
+        is_unknown=profile_bin_stats["count"] == 1,
+        is_suspect=(profile_bin_stats["ptp"] > suspect_threshold)
+        & (profile_bin_stats["count"] > 1),
+        is_fail=(profile_bin_stats["ptp"] > fail_threshold)
+        & (profile_bin_stats["count"] > 1),
     )
 
-    profile_bin_stats["is_missing"] = profile_bin_stats["ptp"].isnull() & (
-        profile_bin_stats["count"] == 0
-    )  # no value available
-
-    # Difference between values higher than thresholds
-    profile_bin_stats["is_suspect"] = (profile_bin_stats["ptp"] > suspect_threshold) & (
-        profile_bin_stats["count"] > 1
+    # Get each flag ration per profile
+    profile_stats = profile_bin_stats.groupby(by=[profile_id]).agg(
+        lambda x: sum(x) / len(x)
     )
-    profile_bin_stats["is_fail"] = (profile_bin_stats["ptp"] > fail_threshold) & (
-        profile_bin_stats["count"] > 1
-    )
-    profile_bin_stats["is_unknown"] = (
-        profile_bin_stats["count"] == 1
-    )  # Only downcast or upcast available
-
-    # Sum each flag per depth bin for each profiles per profile
-    profile_stats = profile_bin_stats.groupby(by=[profile_id]).sum()
-
-    # Get the amount of the vertical bin available total and the amount with value in up and downcast
-    profile_stats["nBinsPerProfile"] = (
-        profile_bin_stats["ptp"].replace({pd.NA: -1}).groupby(by=[profile_id]).count()
-    )
+    profile_stats["nBinsPerProfile"] = profile_bin_stats.groupby(by=[profile_id])[
+        "count"
+    ].count()
     profile_stats["nGoodBinsPerProfile"] = (
-        profile_bin_stats[profile_bin_stats["ptp"] > 0]["ptp"]
-        .groupby(by=[profile_id])
-        .count()
+        profile_bin_stats.query("ptp>0")["ptp"].groupby("hakai_id").count()
     )
 
-    # Get Ratio of each flag generated vs the amount of bins available
-    for flag_test in ["is_unknown", "is_suspect", "is_fail", "is_missing"]:
-        profile_stats[flag_test + "_ratio"] = (
-            profile_stats[flag_test] / profile_stats["nGoodBinsPerProfile"]
-        )
+    # Generate quartod flag
+    profile_stats[var + flag_name] = profile_stats.apply(
+        _get_do_cap_flag, axis="columns"
+    )
 
-    # Detect profiles for which test can be applied (missing up or downcast or not enough vertical bins)
-    unknown_profile_id = profile_stats.index[
-        (profile_stats["nGoodBinsPerProfile"] < minimum_bins_per_profile)
-        | (profile_stats["nGoodBinsPerProfile"].isnull())
-    ]
-
-    # Get the list of index for each flag type
-    suspect_profile_id = profile_stats[
-        (profile_stats["is_suspect_ratio"] > ratio_above_threshold)
-    ].index
-    fail_profile_id = profile_stats[
-        (profile_stats["is_fail_ratio"] > ratio_above_threshold)
-    ].index
-    missing_profile_id = profile_stats[
-        (profile_stats["nGoodBinsPerProfile"].isnull())
-        & (profile_stats["is_missing"] == profile_stats["nBinsPerProfile"])
-    ].index
-
-    # Start with everything passing
-    df[var + flag_name] = QartodFlags.GOOD
-    if any(suspect_profile_id):
-        df.loc[
-            df[profile_id].isin(suspect_profile_id), var + flag_name
-        ] = QartodFlags.SUSPECT
-    if any(fail_profile_id):
-        df.loc[df[profile_id].isin(fail_profile_id), var + flag_name] = QartodFlags.FAIL
-    if any(unknown_profile_id):
-        df.loc[
-            df[profile_id].isin(unknown_profile_id), var + flag_name
-        ] = QartodFlags.UNKNOWN
-    if any(missing_profile_id):
-        df.loc[
-            df[profile_id].isin(missing_profile_id), var + flag_name
-        ] = QartodFlags.MISSING
-    return df
+    return df.merge(profile_stats[var + flag_name], how="left", on="hakai_id")
 
 
 def bottom_hit_detection(
