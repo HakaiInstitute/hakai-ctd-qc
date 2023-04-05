@@ -9,6 +9,7 @@ from hakai_profile_qc.__main__ import (
     _derived_ocean_variables,
     run_qc_profiles,
 )
+from hakai_profile_qc import hakai_tests
 
 MODULE_PATH = os.path.dirname(__file__)
 df_local = pd.read_parquet(f"{MODULE_PATH}/test_data/ctd_test_suite.parquet")
@@ -135,24 +136,37 @@ do_cap_fail_hakai_ids = [
     "080217_2014-08-13T13:49:30.167Z",
     "080217_2017-11-10T19:33:01.833Z",
     "080217_2017-01-15T17:57:21.667Z",
-    "018066_2012-08-10T17:41:33.000Z",
     "080217_2020-02-09T18:36:46.834Z",
+    "018066_2012-08-10T17:41:33.000Z",
     "080217_2016-11-26T20:23:06.500Z",
 ]
 
 
 class TestHakaiDOCapTest:
+    def test_do_cap_static_drop(self):
+        hakai_tests.do_cap_test(
+            df_local.query("direction_flag=='s'"), "dissolved_oxygen_ml_l"
+        )
+
     def test_do_cap_test_svd_locally(self):
-        assert (
-            "dissolved_oxygen_ml_l_do_cap_test" in df_local
-        ), "Missing dissolved_oxygen_ml_l_do_cap_test"
+        assert "dissolved_oxygen_ml_l_do_cap_test" in df_local.columns, (
+            "Missing dissolved_oxygen_ml_l_do_cap_test from dataframe: %s"
+            % df_local.filter(like="dissolved_oxygen").columns
+        )
         df = df_local.query("dissolved_oxygen_ml_l_do_cap_test==4")
-        assert (
-            not df.empty
-        ), "No hakai_id has dissolved_oxygen_ml_l_hakai_do_cap_test=FAIL=4)"
+        assert not df.empty, "No hakai_id has dissolved_oxygen_ml_l_do_cap_test=FAIL=4)"
         assert all(
-            [hakai_id in df["hakai_id"].values for hakai_id in do_cap_fail_hakai_ids]
+            hakai_id in df_local["hakai_id"].values
+            for hakai_id in do_cap_fail_hakai_ids
         ), "Not all do cap test failed profiles are present"
+        not_flagged_do_cap_failed = [
+            hakai_id
+            for hakai_id in do_cap_fail_hakai_ids
+            if hakai_id not in df["hakai_id"].values
+        ]
+        assert not any(
+            not_flagged_do_cap_failed
+        ), f"The following hakai_ids do cap test weren't flagged as FAIl: {not_flagged_do_cap_failed}"
         assert (
             df["dissolved_oxygen_ml_l_do_cap_test"].isin([4]).all()
         ), "Not all the dissolved_oxygen_ml_l_do_cap_test failed hakai_ids were flagged as FAIL=4"
