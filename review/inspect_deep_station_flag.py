@@ -19,9 +19,7 @@ def get_station_range_depth_test():
     station_info = pd.read_csv(
         "hakai_profile_qc/StationLocations.csv", delimiter=";"
     ).rename(columns={"Station": "station"})
-    df = station_info[["station", "Bot_depth", "Bot_depth_GIS"]].merge(
-        df, how="right", on="station"
-    )
+    df = station_info[["station", "Depth"]].merge(df, how="right", on="station")
 
     return df
 
