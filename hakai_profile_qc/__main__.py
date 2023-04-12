@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from time import time
+import smtplib
 
 import gsw
 import numpy as np
@@ -77,6 +78,35 @@ def log_to_sentry():
         release=f"hakai-profile-qc@{__version__}",
         traces_sample_rate=1.0,
     )
+
+
+def send_email(config, to, email_content, subject="Hakai CTD QC report"):
+    """Send email to specified address
+    inputs:
+        config: configuration dictionary
+        to: commad separated list of email addresses
+        email_text: text string containing the email text to be sent
+        subject: title of the email message (default: "Hakai CTD QC report")
+    """
+
+    msg = f"""
+    From: {config['CTDQC_emailFromAddress']}
+    To: {to}
+    Subject: {subject}
+    {email_content}
+    """
+
+    try:
+        smtp_server = smtplib.SMTP_SSL(
+            config["CTDQC_emailSmtpHost"], config["CTDQC_emailSmtpPort"]
+        )
+        smtp_server.ehlo()
+        smtp_server.login(config["CTDQC_emailUserName"], config["CTDQC_emailPassowrd"])
+        smtp_server.sendmail(config["CTDQC_emailFromAddress"], ",".split(to), msg)
+        smtp_server.close()
+        print("Email sent successfully!")
+    except Exception:
+        logger.error("Failed to send email!", exc_info=True)
 
 
 tqdm.pandas()
@@ -511,6 +541,19 @@ def main(hakai_ids=None):
                     )
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
+
+    if (
+        config.get("CTDQC_emailToAdresses")
+        and config["CTDQC_emailToAdresses"]
+        != "comma.separated@email.list,like@that.com"
+        and config["QC_PROCESSING_STAGES"]
+        == "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi"
+    ):
+        send_email(
+            config,
+            config["CTDQC_emailToAdresses"],
+            f"Full Rebuild via api_root={config['HAKAI_API_SERVER_ROOT']} was completed from env={config['ENVIRONMENT']}",
+        )
 
 
 def _get_hakai_flag_columns(

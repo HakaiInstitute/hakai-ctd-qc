@@ -16,6 +16,14 @@ CTD_CAST_QC_ENDPOINT: 'eims/views/output/ctd_qc'
 HAKAI_STATIONS_ENDPOINT: 'eims/views/output_sites'
 HAKAI_API_TOKEN: null
 
+CTDQC_emailToAdresses: comma.separated@email.list,like@that.com
+CTDQC_emailFromAddress: hakai_ctd_notification@hakai.org
+CTDQC_emailUserName: hakai_ctd_notification@hakai.org
+CTDQC_emailPassowrd: password
+CTDQC_emailSmtpHost: smtp.gmail.com
+CTDQC_emailSmtpPort: 587
+CTDQC_emailProperties: mail.smtp.starttls.enable|true
+
 # Logging
 LOGGING_LEVEL: INFO
 LOGGING_FORMAT: '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
