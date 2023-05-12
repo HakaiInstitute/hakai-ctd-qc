@@ -5,8 +5,7 @@ jobs:
   run-qc:
     name: Update QC on Goose Database
     runs-on: ubuntu-latest
-    environment:
-      - 'main'
+    environment: 'main'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
