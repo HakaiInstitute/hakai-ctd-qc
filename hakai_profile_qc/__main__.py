@@ -342,6 +342,11 @@ def run_qc_profiles(df):
             df, **hakai_tests_config["depth_range_test"]
         )
 
+    if "query_based_flag" in hakai_tests_config:
+        logger.debug("Run Query Based flag test")
+        df = hakai_tests.query_based_flag_test(
+            df, hakai_tests_config["query_based_flag"]
+        )
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tested_variable_list:

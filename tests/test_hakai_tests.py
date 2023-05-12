@@ -51,6 +51,28 @@ class TestHakaiBadValues:
         ), "Other records were not flag as GOOD=1"
 
 
+df_query_test = pd.DataFrame(
+    {"x": [1, 2, 3, 4, 5, 6], "y": ["a", "b", "c", "d", "e", "f"]}
+)
+
+
+class TestQueryFlag:
+    def test_query_number(self):
+        df = hakai_tests.query_based_flag_test(
+            df_query_test,
+            [{"query": "x==1", "flag_columns": ["result_test"], "flag_value": 4}],
+        )
+        assert "result_test" in df.columns, "Failed to create flag column"
+        assert not df.query("x==1").empty, "Missing query result"
+        assert len(df.query("x==1")) == 1, "More than 1 value match the test query"
+        assert (
+            df.loc[df["x"] == 1, "result_test"] == 4
+        ).all(), "Flag value wasn't approriately applied"
+        assert (
+            df.loc[df["x"] != 1, "result_test"].isin([1]).all()
+        ), "not matching values are not empty"
+
+
 class TestEmptyInput:
     def test_empty_dataframe_bad_values(self):
         df = pd.DataFrame({"x": []})
