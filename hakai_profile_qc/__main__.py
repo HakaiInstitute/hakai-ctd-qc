@@ -161,10 +161,8 @@ def get_hakai_station_list():
     response = client.get(
         "https://hecate.hakai.org/api/eims/views/output/sites?limit=-1"
     )
-    return (
-        pd.DataFrame(response.json())
-        .rename(columns={"name": "station", "depth": "station_depth"})
-        .set_index("station")
+    return pd.DataFrame(response.json()).rename(
+        columns={"name": "station", "depth": "station_depth"}
     )
 
 
