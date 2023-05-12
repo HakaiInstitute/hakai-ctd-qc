@@ -1,4 +1,4 @@
-name: Install package and run linter
+name: Install package, run linter and run test suite
 on:
   pull_request:
     branches:
