@@ -154,7 +154,7 @@ def get_hakai_station_list():
         Retrieve station list available within the Hakai production database.
 
     Returns:
-        dataframe: full dataframe list of stations and 
+        dataframe: full dataframe list of stations and
             associated depth, latitude, and longitude
     """
     client = Client(credentials=config.get("HAKAI_API_TOKEN"))
