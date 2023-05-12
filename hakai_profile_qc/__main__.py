@@ -426,6 +426,7 @@ def main(hakai_ids=None):
 
     #  Generate filter query list based on input and configuration
     if hakai_ids:
+        run_type = f"hakai_ids={hakai_ids}"
         if isinstance(hakai_ids, list):
             hakai_ids = ",".join(hakai_ids)
         logger.info("Run QC on hakai_ids: %s", hakai_ids)
@@ -434,12 +435,20 @@ def main(hakai_ids=None):
         "false",
         "False",
     ]:
+        run_type = "Test Suite"
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
     else:
         processing_stages = config["QC_PROCESSING_STAGES"]
         logger.info("Run QC on processing stages: %s", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
+        run_type = cast_filter_query
+
+    # Create warning if rebuild
+    if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
+        logger.warning(
+            "Full CTD QC rebuild is started on %s", config["HAKAI_API_SERVER_ROOT"]
+        )
 
     # Retrieve casts to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}&limit=-1&fields={','.join(config['CTD_CAST_VARIABLES'])}"
@@ -516,6 +525,11 @@ def main(hakai_ids=None):
                     )
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
+
+    if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
+        logger.warning(
+            "Full CTD QC rebuild is completed on %s", config["HAKAI_API_SERVER_ROOT"]
+        )
 
 
 def _get_hakai_flag_columns(
