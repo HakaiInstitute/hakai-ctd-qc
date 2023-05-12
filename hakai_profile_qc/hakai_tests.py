@@ -21,7 +21,7 @@ hakai_stations = pd.read_csv(
     os.path.join(os.path.dirname(__file__), "StationLocations.csv"),
     sep=";",
     na_values=[" ", "?"],
-).rename(columns={"Bot_depth_GIS": "station_depth", "Station": "station"})
+).rename(columns={"Depth": "station_depth", "Station": "station"})
 
 
 def do_cap_test(
