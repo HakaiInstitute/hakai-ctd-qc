@@ -149,6 +149,24 @@ client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 check_hakai_database_rebuild()
 
 
+def get_hakai_station_list():
+    """get_hakai_station_list
+        Retrieve station list available within the Hakai production database.
+
+    Returns:
+        dataframe: full dataframe list of stations and 
+            associated depth, latitude, and longitude
+    """
+    client = Client(credentials=config.get("HAKAI_API_TOKEN"))
+    response = client.get(
+        "https://hecate.hakai.org/api//eims/views/output/sites?limit=-1"
+    )
+    return pd.DataFrame(response.json()).rename(columns={"depth": "station_depth"})
+
+
+hakai_stations = get_hakai_station_list()
+
+
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
     """
     Apply ioos_qc configuration to a Pandas DataFrame by using the
@@ -339,7 +357,7 @@ def run_qc_profiles(df):
     if "depth_range_test" in hakai_tests_config:
         logger.debug("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
-            df, **hakai_tests_config["depth_range_test"]
+            df, hakai_stations, **hakai_tests_config["depth_range_test"]
         )
 
     if "query_based_flag" in hakai_tests_config:
