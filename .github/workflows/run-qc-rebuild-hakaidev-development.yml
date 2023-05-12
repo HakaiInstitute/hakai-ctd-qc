@@ -1,4 +1,4 @@
-name: Rerun full auto qc on hakaidev
+name: Rebuild Hakai Development CTD QC
 on:
   workflow_dispatch:
 jobs:
