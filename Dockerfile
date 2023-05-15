@@ -17,7 +17,7 @@ RUN conda env create -f docker-environment.yaml
 # Try install gsw from source on arm64
 SHELL ["conda", "run", "-n", "hakai_qc", "/bin/bash", "-c"]
 RUN git clone https://github.com/TEOS-10/GSW-Python.git
-RUN cd GSW-Python && conda install .
+RUN cd GSW-Python && pip install .
 
 # Install conda-pack:
 RUN conda install -c conda-forge conda-pack
@@ -43,10 +43,6 @@ COPY --from=build /venv /venv
 
 # Add our project code and copy docker.env as .env
 ADD . /venv
-
-# Install package 
-SHELL ["/bin/bash", "-c"]
-RUN source /venv/bin/activate && pip install -e /venv/.
 
 # When image is run, run the code within the Python virtual environment "venv"
 SHELL ["/bin/bash", "-c"]
