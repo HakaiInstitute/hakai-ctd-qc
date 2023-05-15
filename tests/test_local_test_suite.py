@@ -147,13 +147,13 @@ class TestHakaiQueryTests:
             df["dissolved_oxygen_ml_l_flag_level_1"].isin([1, 9]).all()
         ), "Failed to flag the dissolved_oxygen_ml_l_flag_level_1 to GOOD=1"
         assert (
-            df["dissolved_oxygen_ml_l_flag"] == ""
+            df["dissolved_oxygen_ml_l_flag"].isna()
         ).all(), "Failed to flag dissolved_oxygen_ml_l_flag_level_1 to AV (empty)"
         assert (
             df["dissolved_oxygen_percent_flag_level_1"].isin([1, 9]).all()
         ), "Failed to flag the dissolved_oxygen_percent_flag_level_1 to GOOD=1"
         assert (
-            df["dissolved_oxygen_percent_flag"] == ""
+            df["dissolved_oxygen_percent_flag"].isna()
         ).all(), "Failed to flag dissolved_oxygen_percent_flag to AV (empty)"
 
     def test_nature_trust_bottom_sensors_submerged_flags(self):
@@ -198,6 +198,7 @@ class TestHakaiQueryTests:
             .all()
             .all()
         ), "Failed to flag the par and dissolved oxygen aggregated level 1 flags to 4"
+
 
 do_cap_fail_hakai_ids = [
     "080217_2014-08-13T13:49:30.167Z",
