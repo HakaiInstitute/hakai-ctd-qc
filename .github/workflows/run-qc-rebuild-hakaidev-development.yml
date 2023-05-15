@@ -1,10 +1,13 @@
-name: Rerun full auto qc on hakaidev
+name: Rebuild Hakai Development CTD QC
 on:
   workflow_dispatch:
 jobs:
   run-qc:
     name: Update QC on Goose Database
     runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-dev-rebuild
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3

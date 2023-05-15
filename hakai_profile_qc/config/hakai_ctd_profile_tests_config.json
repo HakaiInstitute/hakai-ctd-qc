@@ -51,5 +51,21 @@
     "conductivity": ["sigma0_qartod_density_inversion_test"],
     "dissolved_oxygen_ml_l": ["dissolved_oxygen_ml_l_do_cap_test"],
     "rinko_ml_l": ["rinko_ml_l_do_cap_test"]
-  }
+  },
+  "query_based_flag": [
+    {
+      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Mid'",
+      "flag_columns": ["par_hakai_sensor_mid_submerged_test"],
+      "flag_value": 4
+    },
+    {
+      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Bottom'",
+      "flag_columns": [
+        "par_hakai_sensor_bottom_submerged_test",
+        "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
+        "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test"
+      ],
+      "flag_value": 4
+    }
+  ]
 }

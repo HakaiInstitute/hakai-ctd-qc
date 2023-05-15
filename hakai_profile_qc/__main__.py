@@ -149,6 +149,26 @@ client = Client(credentials=config.get("HAKAI_API_TOKEN"))
 check_hakai_database_rebuild()
 
 
+def get_hakai_station_list():
+    """get_hakai_station_list
+        Retrieve station list available within the Hakai production database.
+
+    Returns:
+        dataframe: full dataframe list of stations and
+            associated depth, latitude, and longitude
+    """
+    client = Client(credentials=config.get("HAKAI_API_TOKEN"))
+    response = client.get(
+        "https://hecate.hakai.org/api/eims/views/output/sites?limit=-1"
+    )
+    return pd.DataFrame(response.json()).rename(
+        columns={"name": "station", "depth": "station_depth"}
+    )
+
+
+hakai_stations = get_hakai_station_list()
+
+
 def _run_ioosqc_on_dataframe(df, qc_config, tinp="t", zinp="z", lat="lat", lon="lon"):
     """
     Apply ioos_qc configuration to a Pandas DataFrame by using the
@@ -339,9 +359,14 @@ def run_qc_profiles(df):
     if "depth_range_test" in hakai_tests_config:
         logger.debug("Review maximum depth per profile vs station")
         df = hakai_tests.hakai_station_maximum_depth_test(
-            df, **hakai_tests_config["depth_range_test"]
+            df, hakai_stations, **hakai_tests_config["depth_range_test"]
         )
 
+    if "query_based_flag" in hakai_tests_config:
+        logger.debug("Run Query Based flag test")
+        df = hakai_tests.query_based_flag_test(
+            df, hakai_tests_config["query_based_flag"]
+        )
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tested_variable_list:
@@ -421,6 +446,7 @@ def main(hakai_ids=None):
 
     #  Generate filter query list based on input and configuration
     if hakai_ids:
+        run_type = f"hakai_ids={hakai_ids}"
         if isinstance(hakai_ids, list):
             hakai_ids = ",".join(hakai_ids)
         logger.info("Run QC on hakai_ids: %s", hakai_ids)
@@ -429,12 +455,20 @@ def main(hakai_ids=None):
         "false",
         "False",
     ]:
+        run_type = "Test Suite"
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(config["TEST_HAKAI_IDS"])
     else:
         processing_stages = config["QC_PROCESSING_STAGES"]
         logger.info("Run QC on processing stages: %s", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
+        run_type = cast_filter_query
+
+    # Create warning if rebuild
+    if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
+        logger.warning(
+            "Full CTD QC rebuild is started on %s", config["HAKAI_API_SERVER_ROOT"]
+        )
 
     # Retrieve casts to qc
     url = f"{config['HAKAI_API_SERVER_ROOT']}/{config['CTD_CAST_ENDPOINT']}?{cast_filter_query}&limit=-1&fields={','.join(config['CTD_CAST_VARIABLES'])}"
@@ -511,6 +545,11 @@ def main(hakai_ids=None):
                     )
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
+
+    if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
+        logger.warning(
+            "Full CTD QC rebuild is completed on %s", config["HAKAI_API_SERVER_ROOT"]
+        )
 
 
 def _get_hakai_flag_columns(
