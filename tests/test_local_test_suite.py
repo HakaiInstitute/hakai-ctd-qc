@@ -1,15 +1,13 @@
 import os
 
-import numpy as np
 import pandas as pd
-import pytest
 
+from hakai_profile_qc import hakai_tests
 from hakai_profile_qc.__main__ import (
     _convert_time_to_datetime,
     _derived_ocean_variables,
     run_qc_profiles,
 )
-from hakai_profile_qc import hakai_tests
 
 MODULE_PATH = os.path.dirname(__file__)
 df_local = pd.read_parquet(f"{MODULE_PATH}/test_data/ctd_test_suite.parquet")

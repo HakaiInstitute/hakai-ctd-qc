@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import sys
+from json import JSONDecodeError
 from time import time
 
 import gsw
@@ -16,7 +17,6 @@ from ioos_qc.config import Config
 from ioos_qc.qartod import qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
-from json import JSONDecodeError
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm

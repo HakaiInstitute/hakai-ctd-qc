@@ -2,14 +2,12 @@
 Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
 import logging
-import os
 import warnings
 
 import numpy as np
 import pandas as pd
 import pkg_resources
 from ioos_qc.qartod import QartodFlags
-from hakai_api import Client
 
 logger = logging.getLogger(__name__)
 # Import Hakai Station List
