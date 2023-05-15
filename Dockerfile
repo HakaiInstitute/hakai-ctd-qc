@@ -17,7 +17,7 @@ RUN conda env create -f docker-environment.yaml
 # Try install gsw from source on arm64
 SHELL ["conda", "run", "-n", "hakai_qc", "/bin/bash", "-c"]
 RUN git clone https://github.com/TEOS-10/GSW-Python.git
-RUN cd GSW-Python && pip install .
+RUN cd GSW-Python && conda install .
 
 # Install conda-pack:
 RUN conda install -c conda-forge conda-pack
