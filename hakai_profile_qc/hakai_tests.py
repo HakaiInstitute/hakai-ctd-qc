@@ -9,19 +9,12 @@ import numpy as np
 import pandas as pd
 import pkg_resources
 from ioos_qc.qartod import QartodFlags
+from hakai_api import Client
 
 logger = logging.getLogger(__name__)
 # Import Hakai Station List
 
 qartod_to_hakai_flag = {1: "AV", 2: "NA", 3: "SVC", 4: "SVD", 9: "MV"}
-
-# Retrieve from Arcgis table view from
-# https://hakai.maps.arcgis.com/apps/webappviewer/index.html?id=38e1b1da8d16466bbe5d7c7a713d2678
-hakai_stations = pd.read_csv(
-    os.path.join(os.path.dirname(__file__), "StationLocations.csv"),
-    sep=";",
-    na_values=[" ", "?"],
-).rename(columns={"Depth": "station_depth", "Station": "station"})
 
 
 def do_cap_test(
@@ -379,6 +372,7 @@ def grey_list(
 
 def hakai_station_maximum_depth_test(
     df,
+    hakai_stations,
     variable="depth",
     flag_column="depth_in_station_range_test",
     suspect_exceedance_percentage=None,
