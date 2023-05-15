@@ -65,15 +65,11 @@ class TestHakaiBadValueTests:
             # "oxygen_voltage",
         ]
         assert (
-            (
-                df_flagged.filter(regex="|".join(flagged_columns)).filter(
-                    regex="hakai_bad_value_test$"
-                )
-                == 4
+            df_flagged.filter(regex="|".join(flagged_columns)).filter(
+                regex="hakai_bad_value_test$"
             )
-            .all()
-            .all()
-        ), "Not all the values -9.99E-29 were not flagged as FAIL=4"
+            == 4
+        ).all(axis=None), "Not all the values -9.99E-29 were not flagged as FAIL=4"
         assert (
             (
                 df_flagged.filter(regex="|".join(flagged_columns)).filter(
@@ -81,22 +77,20 @@ class TestHakaiBadValueTests:
                 )
                 == 4
             )
-            .all()
+            .all(axis=None)
             .all()
         ), "Not all the values -9.99E-29 were not flagged as *_flag_level_1=FAIL(=4)"
         assert (
             df_flagged.filter(regex="|".join(flagged_columns))
             .filter(regex="_flag$")
             .applymap(lambda x: str(x).startswith("SVD"))
-            .all()
-            .all()
+            .all(axis=None)
         ), "Not all the values -9.99E-29 were not flagged as *_flag=SVD"
         assert (
             df_flagged.filter(regex="|".join(flagged_columns))
             .filter(regex="_flag$")
             .applymap(lambda x: "hakai_bad_value_test" in str(x))
-            .all()
-            .all()
+            .all(axis=None)
         ), "Not all the values -9.99E-29 *_flag column contains the expression 'hakai_bad_value_test'"
 
     def test_missing_whole_profile_bad_value_test(self):
@@ -161,18 +155,16 @@ class TestHakaiQueryTests:
         df = df_local.query(query)
         assert not df.empty, "Missing {query}"
         assert (
-            (
-                df[
-                    [
-                        "par_hakai_sensor_bottom_submerged_test",
-                        "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
-                        "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test",
-                    ]
+            df[
+                [
+                    "par_hakai_sensor_bottom_submerged_test",
+                    "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
+                    "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test",
                 ]
-                == 4
-            )
-            .all()
-            .all()
+            ]
+            == 4
+        ).all(
+            axis=None
         ), "Failed to flag nature trust par and oxygen sensors_submberged=='Bottom' -> 4"
         assert (
             df[
@@ -183,8 +175,7 @@ class TestHakaiQueryTests:
                 ]
             ]
             .applymap(lambda x: x.startswith("SVD"))
-            .all()
-            .all()
+            .all(axis=None)
         ), "Failed to flag the par and dissolved oxygen aggregated flags to SVD"
         assert (
             df[
@@ -195,8 +186,7 @@ class TestHakaiQueryTests:
                 ]
             ]
             .isin([4, 9])
-            .all()
-            .all()
+            .all(axis=None)
         ), "Failed to flag the par and dissolved oxygen aggregated level 1 flags to 4"
 
 
