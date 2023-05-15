@@ -1,9 +1,8 @@
 import os
 
-import numpy as np
 import pandas as pd
-import pytest
 
+from hakai_profile_qc import hakai_tests
 from hakai_profile_qc.__main__ import (
     _convert_time_to_datetime,
     _derived_ocean_variables,
@@ -64,15 +63,11 @@ class TestHakaiBadValueTests:
             # "oxygen_voltage",
         ]
         assert (
-            (
-                df_flagged.filter(regex="|".join(flagged_columns)).filter(
-                    regex="hakai_bad_value_test$"
-                )
-                == 4
+            df_flagged.filter(regex="|".join(flagged_columns)).filter(
+                regex="hakai_bad_value_test$"
             )
-            .all()
-            .all()
-        ), "Not all the values -9.99E-29 were not flagged as FAIL=4"
+            == 4
+        ).all(axis=None), "Not all the values -9.99E-29 were not flagged as FAIL=4"
         assert (
             (
                 df_flagged.filter(regex="|".join(flagged_columns)).filter(
@@ -80,22 +75,20 @@ class TestHakaiBadValueTests:
                 )
                 == 4
             )
-            .all()
+            .all(axis=None)
             .all()
         ), "Not all the values -9.99E-29 were not flagged as *_flag_level_1=FAIL(=4)"
         assert (
             df_flagged.filter(regex="|".join(flagged_columns))
             .filter(regex="_flag$")
             .applymap(lambda x: str(x).startswith("SVD"))
-            .all()
-            .all()
+            .all(axis=None)
         ), "Not all the values -9.99E-29 were not flagged as *_flag=SVD"
         assert (
             df_flagged.filter(regex="|".join(flagged_columns))
             .filter(regex="_flag$")
             .applymap(lambda x: "hakai_bad_value_test" in str(x))
-            .all()
-            .all()
+            .all(axis=None)
         ), "Not all the values -9.99E-29 *_flag column contains the expression 'hakai_bad_value_test'"
 
     def test_missing_whole_profile_bad_value_test(self):
@@ -146,13 +139,13 @@ class TestHakaiQueryTests:
             df["dissolved_oxygen_ml_l_flag_level_1"].isin([1, 9]).all()
         ), "Failed to flag the dissolved_oxygen_ml_l_flag_level_1 to GOOD=1"
         assert (
-            df["dissolved_oxygen_ml_l_flag"] == ""
+            df["dissolved_oxygen_ml_l_flag"].isna()
         ).all(), "Failed to flag dissolved_oxygen_ml_l_flag_level_1 to AV (empty)"
         assert (
             df["dissolved_oxygen_percent_flag_level_1"].isin([1, 9]).all()
         ), "Failed to flag the dissolved_oxygen_percent_flag_level_1 to GOOD=1"
         assert (
-            df["dissolved_oxygen_percent_flag"] == ""
+            df["dissolved_oxygen_percent_flag"].isna()
         ).all(), "Failed to flag dissolved_oxygen_percent_flag to AV (empty)"
 
     def test_nature_trust_bottom_sensors_submerged_flags(self):
@@ -160,18 +153,16 @@ class TestHakaiQueryTests:
         df = df_local.query(query)
         assert not df.empty, "Missing {query}"
         assert (
-            (
-                df[
-                    [
-                        "par_hakai_sensor_bottom_submerged_test",
-                        "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
-                        "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test",
-                    ]
+            df[
+                [
+                    "par_hakai_sensor_bottom_submerged_test",
+                    "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
+                    "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test",
                 ]
-                == 4
-            )
-            .all()
-            .all()
+            ]
+            == 4
+        ).all(
+            axis=None
         ), "Failed to flag nature trust par and oxygen sensors_submberged=='Bottom' -> 4"
         assert (
             df[
@@ -182,8 +173,7 @@ class TestHakaiQueryTests:
                 ]
             ]
             .applymap(lambda x: x.startswith("SVD"))
-            .all()
-            .all()
+            .all(axis=None)
         ), "Failed to flag the par and dissolved oxygen aggregated flags to SVD"
         assert (
             df[
@@ -194,9 +184,55 @@ class TestHakaiQueryTests:
                 ]
             ]
             .isin([4, 9])
-            .all()
-            .all()
+            .all(axis=None)
         ), "Failed to flag the par and dissolved oxygen aggregated level 1 flags to 4"
+
+
+do_cap_fail_hakai_ids = [
+    "080217_2014-08-13T13:49:30.167Z",
+    "080217_2017-11-10T19:33:01.833Z",
+    "080217_2017-01-15T17:57:21.667Z",
+    "080217_2020-02-09T18:36:46.834Z",
+    "018066_2012-08-10T17:41:33.000Z",
+    "080217_2016-11-26T20:23:06.500Z",
+]
+
+
+class TestHakaiDOCapTest:
+    def test_do_cap_static_drop(self):
+        hakai_tests.do_cap_test(
+            df_local.query("direction_flag=='s'"), "dissolved_oxygen_ml_l"
+        )
+
+    def test_do_cap_test_svd_locally(self):
+        assert "dissolved_oxygen_ml_l_do_cap_test" in df_local.columns, (
+            "Missing dissolved_oxygen_ml_l_do_cap_test from dataframe: %s"
+            % df_local.filter(like="dissolved_oxygen").columns
+        )
+        df = df_local.query("dissolved_oxygen_ml_l_do_cap_test==4")
+        assert not df.empty, "No hakai_id has dissolved_oxygen_ml_l_do_cap_test=FAIL=4)"
+        assert all(
+            hakai_id in df_local["hakai_id"].values
+            for hakai_id in do_cap_fail_hakai_ids
+        ), "Not all do cap test failed profiles are present"
+        not_flagged_do_cap_failed = [
+            hakai_id
+            for hakai_id in do_cap_fail_hakai_ids
+            if hakai_id not in df["hakai_id"].values
+        ]
+        assert not any(
+            not_flagged_do_cap_failed
+        ), f"The following hakai_ids do cap test weren't flagged as FAIl: {not_flagged_do_cap_failed}"
+        assert (
+            df["dissolved_oxygen_ml_l_do_cap_test"].isin([4]).all()
+        ), "Not all the dissolved_oxygen_ml_l_do_cap_test failed hakai_ids were flagged as FAIL=4"
+        assert (
+            df["dissolved_oxygen_ml_l_flag"].str.startswith("SVD").all()
+        ), "Not all the dissolved_oxygen_ml_l_flag failed hakai_ids were flagged as SVD"
+        assert (
+            df["dissolved_oxygen_ml_l_flag_level_1"].isin([4]).all()
+        ), "Not all the dissolved_oxygen_ml_l_flag_level_1 failed hakai_ids were flagged as FAIL=4"
+
 
 class TestQARTODTests:
     def test_gross_range_results(self):

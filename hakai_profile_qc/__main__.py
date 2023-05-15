@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import sys
+from json import JSONDecodeError
 from time import time
 
 import gsw
@@ -16,7 +17,6 @@ from ioos_qc.config import Config
 from ioos_qc.qartod import qartod_compare
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
-from json import JSONDecodeError
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -39,6 +39,8 @@ if __name__ == "__main__":
     check_in_id = sentry_health_response.json()["id"]
 
     start_time = time()
+
+qartod_dtype = pd.CategoricalDtype([9, 2, 1, 3, 4], ordered=True)
 
 
 def check_hakai_database_rebuild():
@@ -570,12 +572,18 @@ def _get_hakai_flag_columns(
         Regroup together tests results in "flag_value_to_consider" as a
         json string to be outputed as a level2 flag
         """
-        level2 = [
-            f"{hakai_tests.qartod_to_hakai_flag[value]}: {item}"
-            for item, value in row.items()
-            if value in flag_values_to_consider
-        ]
-        return "; ".join(level2) if level2 != {} else ""
+        return (
+            "; ".join(
+                [
+                    f"{hakai_tests.qartod_to_hakai_flag[flag]}: {test}"
+                    for test, flag in row.astype(qartod_dtype)
+                    .sort_values(ascending=False)
+                    .dropna()
+                    .items()
+                ]
+            )
+            or None
+        )
 
     if flag_values_to_consider is None:
         flag_values_to_consider = [3, 4]
@@ -598,8 +606,13 @@ def _get_hakai_flag_columns(
     )
 
     # Generete Level 2 Flag Description for failed flag
-    df[var + level_2_flag_suffix] = var_flag_results.apply(
-        __generate_level2_flag, axis="columns"
+    df[var + level_2_flag_suffix] = (
+        var_flag_results.astype(qartod_dtype)
+        .replace({9: None, 2: None, 1: None})
+        .apply(
+            __generate_level2_flag,
+            axis=1,
+        )
     )
     return df
 

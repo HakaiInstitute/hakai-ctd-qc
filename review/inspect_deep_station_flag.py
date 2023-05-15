@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, text
 import pandas as pd
 from dotenv import dotenv_values
+from sqlalchemy import create_engine, text
 
 config = dotenv_values(".env")  # load shared development variables
 engine = create_engine(

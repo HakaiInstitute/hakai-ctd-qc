@@ -1,16 +1,8 @@
-import os
-
 import numpy as np
 import pandas as pd
 import pytest
 
 from hakai_profile_qc import hakai_tests
-from hakai_profile_qc.__main__ import _derived_ocean_variables, run_qc_profiles
-
-MODULE_PATH = os.path.dirname(__file__)
-df_local = pd.read_parquet(f"{MODULE_PATH}/test_data/ctd_test_suite.parquet")
-df_local = _derived_ocean_variables(df_local)
-df_local = run_qc_profiles(df_local)
 
 
 @pytest.mark.parametrize(
