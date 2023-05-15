@@ -25,7 +25,7 @@ RUN conda install -c conda-forge conda-pack
 # Use conda-pack to create a standalone environment
 # in /venv:
 # Our environment is named "sensor_network"; see the `environment.yml` file
-RUN conda-pack --name hakai_qc --output /tmp/env.tar && \
+RUN conda-pack --name hakai_qc --output /tmp/env.tar --ignore-missing-files && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
     rm /tmp/env.tar
 
@@ -47,6 +47,7 @@ ADD . /venv
 # Install package 
 SHELL ["/bin/bash", "-c"]
 RUN source /venv/bin/activate && pip install -e /venv/.
+
 
 # When image is run, run the code within the Python virtual environment "venv"
 SHELL ["/bin/bash", "-c"]
