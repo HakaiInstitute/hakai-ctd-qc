@@ -1,0 +1,23 @@
+name: Test Docker Build
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - setup.py
+      - docker-environment.yaml
+      - Dockerfile
+      - .github/workflows/test-docker-build.yml
+      - docker-compose.yaml
+  workflow_dispatch:
+
+jobs:
+  miniconda:
+    name: Run linter and test suite
+    runs-on: ubuntu-latest
+    env:
+      HAKAI_API_TOKEN: ${{ secrets.HAKAI_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test docker container and load data
+        run: docker-compose up

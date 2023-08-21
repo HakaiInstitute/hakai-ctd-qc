@@ -1,16 +1,13 @@
-name: Install package and run linter
+name: Install package, run linter and run test suite
 on:
-  push:
+  pull_request:
     branches:
       - main
       - development
     paths:
       - hakai_profile_qc/**
-  pull_request:
-    branches:
-      - main
-    paths:
-      - hakai_profile_qc/**
+      - tests/**
+      - .github/workflows/**
   workflow_dispatch:
 
 jobs:
@@ -18,14 +15,23 @@ jobs:
     name: Run linter and test suite
     runs-on: ubuntu-latest
     env:
+      HAKAI_API_SERVER_ROOT: https://goose.hakai.org/api
       HAKAI_API_TOKEN: ${{ secrets.HAKAI_API_TOKEN }}
+      RUN_TEST_SUITE": true
+      UPDATE_SERVER_DATABASE: true
+      ENVIRONMENT: github
+      SENTRY_DSN: null
     steps:
       - uses: actions/checkout@v2
       - name: Lint Tests
         shell: bash -l {0}
         run: |
-          pip install flake8
+          pip install flake8 pytest pyarrow fastparquet
           python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Install docker container and load data
-        run: docker-compose up
+      - name: Install package locally
+        run: pip install -e .
+      - name: Pytest
+        run: pytest
+      - name: Run test suite on Hakai Goose
+        run: python hakai_profile_qc

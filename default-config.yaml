@@ -25,7 +25,8 @@ ENVIRONMENT: DEFAULT
 SENTRY_DSN: https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251
 SENTRY_LEVEL: INFO
 SENTRY_EVENT_LEVEL: WARNING
-SENTRY_EVENT_MINIMUM_DATE: 2022-08-01T00:00:00Z
+SENTRY_EVENT_MINIMUM_DATE: 2023-03-01T00:00:00Z
+SENTRY_RUN_WARNINGS: false
 
 # NETCDF Attributes
 HAKAI_CTD_ATTRIBUTES: ${PACKAGE_PATH}/config/hakai_profile_default_attributes.json
@@ -77,6 +78,7 @@ RESEARCH_CTD_VARIABLES:
 CTD_CAST_VARIABLES:
   [
     'ctd_cast_pk',
+    'organization',
     'hakai_id',
     'processing_stage',
     'process_error',
@@ -95,12 +97,14 @@ CTD_CAST_DATA_VARIABLES:
   [
     'ctd_file_pk',
     'ctd_cast_pk',
+    'organization',
     'hakai_id',
     'ctd_data_pk',
     'filename',
     'device_model',
     'device_sn',
     'device_firmware',
+    'sensors_submerged',
     'file_processing_stage',
     'work_area',
     'cruise',
@@ -245,4 +249,25 @@ TEST_HAKAI_IDS: [
     '080217_2019-08-29T19:11:57.666Z', # RBR Oxygen do data with Ruskin issue for 2.5.8 to <2.10
     '204949_2021-10-26T04:54:42.000Z', # Skeena CTD IN fresh water
     '01907674_2016-10-20T16:29:29Z', # -9.99E-29 flag present
+    '01907674_2018-10-31T19:10:18Z', # no oxygen data
+    '01907674_2016-10-18T18:09:33Z', # negative oxygen data
+    # Nature Trust Mid sensors_submerged
+    '203654_2021-04-21T21:53:21.000Z',
+    '205019_2022-06-11T21:52:21.000Z',
+    '203866_2020-05-21T21:26:34.000Z',
+    # Nature Trust Bottom sensors_submerged
+    '203656_2022-02-25T00:41:35.000Z',
+    '203654_2020-10-20T01:26:43.000Z',
+    '203657_2021-09-16T17:16:22.000Z',
+    # Nature Trust Full sensors_submerged
+    '203620_2021-02-25T18:12:15.000Z',
+    '203619_2020-08-25T21:06:26.000Z',
+    '205019_2022-03-14T18:49:47.000Z',
+    # SVD DO CAP issue
+    '080217_2014-08-13T13:49:30.167Z',
+    '080217_2017-11-10T19:33:01.833Z',
+    '080217_2016-11-26T20:23:06.500Z',
+    '018066_2012-08-10T17:41:33.000Z',
+    '080217_2020-02-09T18:36:46.834Z',
+    '080217_2017-01-15T17:57:21.667Z',
   ]
