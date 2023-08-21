@@ -14,4 +14,3 @@ dependencies:
   - pip:
       - sentry_sdk==1.12.1
       - hakai_api
-      - git+https://github.com/HakaiInstitute/ocean-data-parser.git
