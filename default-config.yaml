@@ -5,11 +5,8 @@ GREY_LIST_PATH: ${PACKAGE_PATH}/HakaiProfileDatasetGreyList.csv
 STATION_LIST_PATH: ${PACKAGE_PATH}/HakaiStationLocations.csv
 
 # Hakai API Endpoints Definition
-RUN_TEST_SUITE: true
-QC_PROCESSING_STAGES: '8_binAvg,8_rbr_processed'
-UPDATE_SERVER_DATABASE: false
-CTD_CAST_CHUNKSIZE: 100
-HAKAI_API_SERVER_ROOT: https://goose.hakai.org/api
+
+
 CTD_CAST_ENDPOINT: 'ctd/views/file/cast'
 CTD_CAST_DATA_ENDPOINT: 'ctd/views/file/cast/data'
 CTD_CAST_QC_ENDPOINT: 'eims/views/output/ctd_qc'
