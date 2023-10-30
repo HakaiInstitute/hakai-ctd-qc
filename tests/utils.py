@@ -4,6 +4,7 @@ import pandas as pd
 from hakai_api import Client
 
 from hakai_profile_qc.__main__ import read_config_yaml
+from hakai_profile_qc.variables import CTD_CAST_DATA_VARIABLES
 
 config = read_config_yaml()
 MODULE_PATH = os.path.dirname(__file__)
@@ -16,7 +17,7 @@ def get_hakai_test_suite_data_locally():
         + "/ctd/views/file/cast/data?hakai_id={"
         + ",".join(config["TEST_HAKAI_IDS"])
         + "}&fields="
-        + ",".join(config["CTD_CAST_DATA_VARIABLES"])
+        + ",".join(CTD_CAST_DATA_VARIABLES)
         + "&limit=-1"
     )
     response = client.get(query)
