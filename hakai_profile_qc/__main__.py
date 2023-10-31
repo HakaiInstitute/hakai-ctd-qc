@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import requests
 import sentry_sdk
+from dotenv import load_dotenv
 from hakai_api import Client
 from ioos_qc.config import Config
 from ioos_qc.stores import PandasStore
@@ -27,6 +28,7 @@ sentry_checkin_headers = {
     "Authorization": "DSN https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251"
 }
 monitor_id = "8ac7c3da-4e18-4c7b-9ce9-c0fa22956775"  # Write your monitor_id here
+load_dotenv()
 
 # Create the check-in
 if __name__ == "__main__":
