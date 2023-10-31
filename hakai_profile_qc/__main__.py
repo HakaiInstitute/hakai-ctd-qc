@@ -438,6 +438,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     "--api-root",
     help="Hakai API root to use",
     default="https://goose.hakai.org/api",
+    show_default=True,
     envvar="HAKAI_API_SERVER_ROOT",
 )
 @click.option(
@@ -445,6 +446,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     help="Update database flags",
     default=False,
     is_flag=True,
+    show_default=True,
     envvar="UPDATE_SERVER_DATABASE",
 )
 @click.option(
@@ -452,6 +454,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     help="Process profiles by chunk",
     type=int,
     default=100,
+    show_default=True,
     envvar="CTD_CAST_CHUNKSIZE",
 )
 @click.option(
@@ -462,7 +465,8 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 )
 @click.option(
     "--profile",
-    default=click.Path(),
+    type=click.Path(),
+    default=None,
     help='Run cProfile'
 )
 def main(
@@ -475,7 +479,7 @@ def main(
     sentry_minimum_date,
     profile
 ):
-    """Run Hakai Profile"""
+    """QC Hakai Profiles"""
 
     check_hakai_database_rebuild(api_root)
     if profile:
