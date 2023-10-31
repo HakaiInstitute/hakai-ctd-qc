@@ -13,19 +13,23 @@ git clone git@github.com:HakaiInstitute/hakai-profile-qaqc.git
 Clone locally the repository and create the conda environment:
 
 ```terminal
-conda env create -f environment.yaml
-conda activate hakai_qc
+pyenv install 3.11.2
+pyenv local 3.11.2
+pip install poetry
+poetry run python hakai_profile_qc
 ```
 Run python tool directely:
 
 ```terminal
-pyton hakai_profile_qc
+poetry run pyton hakai_profile_qc
 ```
 
 
 
 ### docker-compose
 Create docker container and execute profile qc based on configuration parameters.
+Define environment variables based on the inputs given by hakai_profiles_qc
+
 ```terminal
 docker-compose up -d
 ```
@@ -43,8 +47,6 @@ sudo docker service update CONTAINER_ID --restart-condition “none"
 ## Configuration
 The package configuration can be made through three different levels by order of precedence.
 
-- default-config.yaml: default configuration file
-- config.yaml (optional): configuration
 - environment variables: Any configuration parameters can be overwritten by similarly named environment variables.
 
 

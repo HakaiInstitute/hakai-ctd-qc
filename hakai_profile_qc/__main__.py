@@ -569,6 +569,8 @@ def main(
                         f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=_generate_process_flags_json(row, df_upload),
                     )
+            else:
+                logger.info("Do not upload results to ")
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
 
