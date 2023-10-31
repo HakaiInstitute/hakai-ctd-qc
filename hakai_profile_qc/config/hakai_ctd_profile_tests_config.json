@@ -46,7 +46,7 @@
       "pressure_qartod_gross_range_test",
       "depth_qartod_gross_range_test"
     ],
-    "temperature": ["sigma0_qartod_density_inversion_test"],
+    "temperature": ["sigma0_qartod_density_inversion_test"], 
     "salinity": ["sigma0_qartod_density_inversion_test"],
     "conductivity": ["sigma0_qartod_density_inversion_test"],
     "dissolved_oxygen_ml_l": ["dissolved_oxygen_ml_l_do_cap_test"],

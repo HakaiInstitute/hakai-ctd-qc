@@ -1,3 +1,3 @@
-include hakai_profile_qc/HakaiStationLocations.csv
+
 include hakai_profile_qc/HakaiProfileDatasetGreyList.csv
 recursive-include hakai_profile_qc/config/*

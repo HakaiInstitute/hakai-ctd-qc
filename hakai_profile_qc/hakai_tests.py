@@ -6,7 +6,6 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 from ioos_qc.qartod import QartodFlags
 
 logger = logging.getLogger(__name__)
@@ -217,35 +216,28 @@ def bad_value_test(
     return df
 
 
+def load_grey_list(path):
+    return pd.read_csv(
+        path,
+        dtype={
+            "device_model": str,
+            "device_sn": str,
+            "hakai_id": str,
+            "query": str,
+            "data_type": str,
+            "flag_type": int,
+        },
+        parse_dates=["start_datetime_range", "end_datetime_range"],
+    ).replace({pd.NA: None})
+
+
 def grey_list(
     df,
+    df_grey_list,
     level1_flag_suffix="_flag_level_1",
     level2_flag_suffix="_flag",
     grey_list_suffix="_grey_list_test",
 ):
-
-    # # Retrieve the grey list data from the Hakai Database
-    # endpoint = 'eims/views/output/ctd_flags'
-    # df_grey_list, url = get.hakai_ctd_data('', endpoint=endpoint)
-
-    # Retrieve Grey List from Hakai-Profile-Dataset-Grey-List.csv file saved within the package
-    grey_var_format = {
-        "device_model": str,
-        "device_sn": str,
-        "hakai_id": str,
-        "query": str,
-        "data_type": str,
-        "flag_type": int,
-    }
-    grey_list_path = "HakaiProfileDatasetGreyList.csv"
-    grey_list_path = pkg_resources.resource_filename(__name__, grey_list_path)
-    df_grey_list = pd.read_csv(
-        grey_list_path,
-        dtype=grey_var_format,
-        parse_dates=["start_datetime_range", "end_datetime_range"],
-    )
-    df_grey_list = df_grey_list.replace({pd.NA: None})
-
     # Loop through each lines
     # Since the grey list is a manual input it will likely be small amount and looping through
     # each should be good enough for now. We may have to filter the grey list based on the input in the future

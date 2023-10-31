@@ -23,6 +23,9 @@ jobs:
       SENTRY_DSN: null
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v4 
+        with:
+          python-version: '3.11' 
       - name: Lint Tests
         shell: bash -l {0}
         run: |
@@ -34,4 +37,4 @@ jobs:
       - name: Pytest
         run: pytest
       - name: Run test suite on Hakai Goose
-        run: python hakai_profile_qc
+        run: python hakai_profile_qc --test-suite
