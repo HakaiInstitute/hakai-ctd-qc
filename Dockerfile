@@ -21,12 +21,6 @@ RUN pip install "poetry==$POETRY_VERSION"
 COPY pyproject.toml poetry.lock README.md ./
 COPY hakai_profile_qc ./hakai_profile_qc
 
-RUN poetry install
-
-FROM base as final
-
-COPY --from=builder /app/.venv ./.venv
-COPY --from=builder /app/dist .
-
-RUN ./.venv/bin/pip install *.whl
-CMD ["python", "hakai_profile_qc", "--test-suite"]
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --without dev
+CMD ["poetry","run","python", "hakai_profile_qc", "--test-suite"]
