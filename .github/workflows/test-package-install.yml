@@ -37,4 +37,4 @@ jobs:
       - name: Pytest
         run: pytest
       - name: Run test suite on Hakai Goose
-        run: python hakai_profile_qc
+        run: python hakai_profile_qc --test-suite
