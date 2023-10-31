@@ -24,11 +24,11 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from hakai_profile_qc import hakai_tests, sentry_warnings, variables
 from hakai_profile_qc.version import __version__
 
-sentry_checkin_headers = {
-    "Authorization": "DSN https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251"
-}
-monitor_id = "8ac7c3da-4e18-4c7b-9ce9-c0fa22956775"  # Write your monitor_id here
 load_dotenv()
+sentry_checkin_headers = {
+    "Authorization": f"DSN {os.environ.get('SENTRY_DSN','')}"
+}
+monitor_id = os.environ.get('SENTRY_MONITOR_ID')  # Write your monitor_id here
 
 # Create the check-in
 if __name__ == "__main__":
@@ -70,7 +70,7 @@ def log_to_sentry():
         ),  # Send errors as events
     )
     sentry_sdk.init(
-        dsn="https://ab3a1d65934a460bbd350f7d48a931d4@o56764.ingest.sentry.io/6685251",
+        dsn=os.environ.get('SENTRY_DSN'),
         integrations=[
             sentry_logging,
         ],
@@ -418,6 +418,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
         "Reached the maximum number of attemps to retrieve data from the hakai server: %s",
         url,
     )
+    return pd.DataFrame()
 
 
 @click.command()
