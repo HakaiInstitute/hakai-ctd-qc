@@ -128,7 +128,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level="INFO")
 log_to_sentry()
 logger.info("Start Process")
-logger.info("ENVIRONMENT_VARIABLES: %s", dict(os.environ).keys())
 if "HAKAI_API_TOKEN" in os.environ:
     logger.info(
         "HAKAI_API_TOKEN as env variable: %s", len(os.environ["HAKAI_API_TOKEN"])
