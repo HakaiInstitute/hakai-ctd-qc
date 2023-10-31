@@ -31,7 +31,7 @@ sentry_checkin_headers = {
 monitor_id = os.environ.get('SENTRY_MONITOR_ID')  # Write your monitor_id here
 
 # Create the check-in
-if __name__ == "__main__":
+if __name__ == "__main__" and monitor_id:
     sentry_health_response = requests.post(
         f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/",
         headers=sentry_checkin_headers,
