@@ -123,7 +123,7 @@ ioos_qc_coords_mapping = dict(
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig()
+logging.basicConfig(level="INFO")
 log_to_sentry()
 logger.info("Start Process")
 logger.info("ENVIRONMENT_VARIABLES: %s", dict(os.environ).keys())
