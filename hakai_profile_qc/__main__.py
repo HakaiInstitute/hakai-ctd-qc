@@ -2,8 +2,8 @@ import json
 import logging
 import os
 import sys
-from pathlib import Path
 from json import JSONDecodeError
+from pathlib import Path
 from time import time
 
 import click
@@ -77,11 +77,12 @@ def log_to_sentry():
         traces_sample_rate=1.0,
     )
 
+
 def run_profiling(output):
-    import cProfile
-    import pstats
-    import io
     import atexit
+    import cProfile
+    import io
+    import pstats
 
     logger.info("Profiling...")
     pr = cProfile.Profile()
@@ -92,11 +93,10 @@ def run_profiling(output):
         print("Profiling completed")
         s = io.StringIO()
         pstats.Stats(pr, stream=s).sort_stats("cumulative").print_stats()
-        with open(output,'w') as file:
+        with open(output, "w") as file:
             file.write(s.getvalue())
 
     atexit.register(exit)
-
 
 
 tqdm.pandas()
@@ -463,12 +463,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     help="Minimum date to use to generate sentry warnings",
     default=None,
 )
-@click.option(
-    "--profile",
-    type=click.Path(),
-    default=None,
-    help='Run cProfile'
-)
+@click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 def main(
     hakai_ids,
     test_suite,
@@ -477,7 +472,7 @@ def main(
     processing_stages,
     chunksize,
     sentry_minimum_date,
-    profile
+    profile,
 ):
     """QC Hakai Profiles"""
 
