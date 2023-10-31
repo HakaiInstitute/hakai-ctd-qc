@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 import requests
 import sentry_sdk
-import yaml
 from hakai_api import Client
 from ioos_qc.config import Config
 from ioos_qc.stores import PandasStore
@@ -77,6 +76,27 @@ def log_to_sentry():
         release=f"hakai-profile-qc@{__version__}",
         traces_sample_rate=1.0,
     )
+
+def run_profiling(output):
+    import cProfile
+    import pstats
+    import io
+    import atexit
+
+    logger.info("Profiling...")
+    pr = cProfile.Profile()
+    pr.enable()
+
+    def exit():
+        pr.disable()
+        print("Profiling completed")
+        s = io.StringIO()
+        pstats.Stats(pr, stream=s).sort_stats("cumulative").print_stats()
+        with open(output,'w') as file:
+            file.write(s.getvalue())
+
+    atexit.register(exit)
+
 
 
 tqdm.pandas()
@@ -440,6 +460,11 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     help="Minimum date to use to generate sentry warnings",
     default=None,
 )
+@click.option(
+    "--profile",
+    default=click.Path(),
+    help='Run cProfile'
+)
 def main(
     hakai_ids,
     test_suite,
@@ -448,10 +473,13 @@ def main(
     processing_stages,
     chunksize,
     sentry_minimum_date,
+    profile
 ):
     """Run Hakai Profile"""
 
     check_hakai_database_rebuild(api_root)
+    if profile:
+        run_profiling(profile)
     #  Generate filter query list based on input and configuration
     if hakai_ids:
         run_type = f"hakai_ids={hakai_ids}"
