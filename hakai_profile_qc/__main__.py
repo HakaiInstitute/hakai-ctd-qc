@@ -563,14 +563,15 @@ def main(
             if upload_flag:
                 # Filter out extra variables generated during qc
                 df_upload = df_qced[original_variables]
-                logger.debug("Upload results to %s", api_root)
+                logger.info("Upload results to %s", api_root)
                 for _, row in chunk.iterrows():
                     retrieve_hakai_data(
                         f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=_generate_process_flags_json(row, df_upload),
                     )
             else:
-                logger.info("Do not upload results to ")
+                logger.info("Do not upload results to %s", api_root)
+                
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
 
