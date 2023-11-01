@@ -247,7 +247,6 @@ def run_qc_profiles(df):
     to the Hakai CTD Dataset.
     """
     # Read configurations
-    # QARTOD
     qartod_config = QARTOD_TESTS_CONFIGURATION
     hakai_tests_config = HAKAI_TESTS_CONFIGURATION
 
@@ -607,7 +606,9 @@ def _get_hakai_flag_columns(
         )
 
     # Retrieve each flags column associated to a variable
-    df_subset = df.dropna(subset=variable).filter(regex=flag_regex)
+    df_subset = (
+        df.filter(regex=flag_regex).replace({9: None, 2: None}).dropna(how="all")
+    )
     if df_subset.empty:
         return df
 
@@ -627,9 +628,7 @@ def _get_hakai_flag_columns(
     )
     logger.debug("Get Aggregated Hakai Flags")
     # Generete Level 2 Flag Description for failed flag
-    df.loc[df_subset.index, variable + "_flag"] = df_subset.replace(
-        {9: None, 2: None, 1: None}
-    ).apply(
+    df.loc[df_subset.index, variable + "_flag"] = df_subset.replace({1: None}).apply(
         __generate_level2_flag,
         axis=1,
     )
