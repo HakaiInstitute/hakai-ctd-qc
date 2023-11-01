@@ -25,10 +25,8 @@ from hakai_profile_qc import hakai_tests, sentry_warnings, variables
 from hakai_profile_qc.version import __version__
 
 load_dotenv()
-sentry_checkin_headers = {
-    "Authorization": f"DSN {os.environ.get('SENTRY_DSN','')}"
-}
-monitor_id = os.environ.get('SENTRY_MONITOR_ID')  # Write your monitor_id here
+sentry_checkin_headers = {"Authorization": f"DSN {os.environ.get('SENTRY_DSN','')}"}
+monitor_id = os.environ.get("SENTRY_MONITOR_ID")  # Write your monitor_id here
 
 # Create the check-in
 if __name__ == "__main__" and monitor_id:
@@ -70,7 +68,7 @@ def log_to_sentry():
         ),  # Send errors as events
     )
     sentry_sdk.init(
-        dsn=os.environ.get('SENTRY_DSN'),
+        dsn=os.environ.get("SENTRY_DSN"),
         integrations=[
             sentry_logging,
         ],
@@ -571,7 +569,7 @@ def main(
                     )
             else:
                 logger.info("Do not upload results to %s", api_root)
-                
+
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
 
