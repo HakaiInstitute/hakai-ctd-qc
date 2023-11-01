@@ -579,11 +579,8 @@ def main(
 
 def _get_hakai_flag_columns(
     df,
-    var,
-    extra_flag_list="",
-    flag_values_to_consider=None,
-    level_1_flag_suffix="_flag_level_1",
-    level_2_flag_suffix="_flag",
+    variable,
+    flag_regex="",
 ):
     """
     Generate the different Level1 and Level2 flag columns by
@@ -599,7 +596,8 @@ def _get_hakai_flag_columns(
             "; ".join(
                 [
                     f"{hakai_tests.qartod_to_hakai_flag[flag]}: {test}"
-                    for test, flag in row.astype(QARTOD_DTYPE)
+                    for test, flag in row.dropna()
+                    .astype(QARTOD_DTYPE)
                     .sort_values(ascending=False)
                     .dropna()
                     .items()
@@ -608,33 +606,32 @@ def _get_hakai_flag_columns(
             or None
         )
 
-    if flag_values_to_consider is None:
-        flag_values_to_consider = [3, 4]
-
     # Retrieve each flags column associated to a variable
-    var_flag_results = df.filter(regex=extra_flag_list)
+    df_subset = df.dropna(subset=variable).filter(regex=flag_regex)
+    if df_subset.empty:
+        return df
 
-    if f"{var}_flag" in var_flag_results:
+    if f"{variable}_flag" in df_subset:
         raise RuntimeError(
             "Variable grouped flag considered in flag columns to compare"
         )
-    if f"{var}_flag_level_1" in var_flag_results:
+    if f"{variable}_flag_level_1" in df_subset:
         raise RuntimeError(
             "Variable flag level 1 considered in flag columns to compare"
         )
 
     # Generete Level 1 Aggregated flag columns
     logger.debug("Get Aggregated QARTOD Level 1 Flags")
-    df[var + level_1_flag_suffix] = var_flag_results.astype(QARTOD_DTYPE).max(axis=1)
+    df.loc[df_subset.index, variable + "_flag_level_1"] = (
+        df_subset.astype(QARTOD_DTYPE).max(axis=1).astype(int)
+    )
     logger.debug("Get Aggregated Hakai Flags")
     # Generete Level 2 Flag Description for failed flag
-    df[var + level_2_flag_suffix] = (
-        var_flag_results.astype(QARTOD_DTYPE)
-        .replace({9: None, 2: None, 1: None})
-        .apply(
-            __generate_level2_flag,
-            axis=1,
-        )
+    df.loc[df_subset.index, variable + "_flag"] = df_subset.replace(
+        {9: None, 2: None, 1: None}
+    ).apply(
+        __generate_level2_flag,
+        axis=1,
     )
     return df
 
