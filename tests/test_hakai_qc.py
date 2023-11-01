@@ -52,7 +52,7 @@ class TestHakaiFlags:
         assert df_temp["salinity_flag"].iloc[0].startswith("SVD")
         assert "SVC: " in df_temp["salinity_flag"].iloc[0]
         assert (df_temp["salinity_flag"].iloc[1:].str.startswith("AV")).all()
-    
+
     def test_hakai_flag_all_good_with_suspect_and_fail(self):
         df_temp = df.copy()
         df_temp["salinity_qartod_flag_1"].iloc[0] = 3
@@ -73,4 +73,14 @@ class TestHakaiFlags:
         assert (df_temp["salinity_flag_level_1"].iloc[1:] == 1).all()
         assert df_temp["salinity_flag"].iloc[0].startswith("SVD")
         assert "SVC: " not in df_temp["salinity_flag"].iloc[0]
+        assert (df_temp["salinity_flag"].iloc[1:].str.startswith("AV")).all()
+
+    def test_hakai_flag_all_good_with_fail_and_null_value(self):
+        df_temp = df.copy()
+        df_temp["salinity_qartod_flag_1"].iloc[0] = 4
+        df_temp["salinity"].iloc[0] = None
+        df_temp = _get_hakai_flag_columns(df_temp, var, r"_qartod_flag")
+        assert df_temp["salinity_flag_level_1"].iloc[0] == 4
+        assert (df_temp["salinity_flag_level_1"].iloc[1:] == 1).all()
+        assert df_temp["salinity_flag"].iloc[0].startswith("SVD")
         assert (df_temp["salinity_flag"].iloc[1:].str.startswith("AV")).all()
