@@ -399,7 +399,6 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     return pd.DataFrame()
 
 
-@monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 @click.command()
 @click.option("--hakai_ids", help="Comma delimited list of hakai_ids to qc", type=str)
 @click.option(
@@ -445,6 +444,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     default=None,
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
+@monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 def main(
     hakai_ids,
     test_suite,
