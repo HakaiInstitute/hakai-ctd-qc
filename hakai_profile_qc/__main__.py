@@ -4,19 +4,18 @@ import os
 import sys
 from json import JSONDecodeError
 from pathlib import Path
-from time import time
 
 import click
 import gsw
 import numpy as np
 import pandas as pd
-import requests
 import sentry_sdk
 from dotenv import load_dotenv
 from hakai_api import Client
 from ioos_qc.config import Config
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
+from sentry_sdk.crons import monitor
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -25,19 +24,6 @@ from hakai_profile_qc import hakai_tests, sentry_warnings, variables
 from hakai_profile_qc.version import __version__
 
 load_dotenv()
-sentry_checkin_headers = {"Authorization": f"DSN {os.environ.get('SENTRY_DSN','')}"}
-monitor_id = os.environ.get("SENTRY_MONITOR_ID")  # Write your monitor_id here
-
-# Create the check-in
-if __name__ == "__main__" and monitor_id:
-    sentry_health_response = requests.post(
-        f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/",
-        headers=sentry_checkin_headers,
-        json={"status": "in_progress"},
-    )
-    check_in_id = sentry_health_response.json()["id"]
-
-    start_time = time()
 
 QARTOD_DTYPE = pd.CategoricalDtype([9, 2, 1, 3, 4], ordered=True)
 
@@ -49,11 +35,6 @@ def check_hakai_database_rebuild(api_root):
         logger.warning(
             "Stop process early since Hakai DB %s is running a rebuild",
             api_root,
-        )
-        requests.put(
-            f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
-            headers=sentry_checkin_headers,
-            json={"status": "ok"},
         )
         sys.exit()
 
@@ -418,6 +399,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     return pd.DataFrame()
 
 
+@monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 @click.command()
 @click.option("--hakai_ids", help="Comma delimited list of hakai_ids to qc", type=str)
 @click.option(
@@ -637,12 +619,4 @@ def _get_hakai_flag_columns(
 
 if __name__ == "__main__":
     main()
-    end_time = time()
-    logger.info("Process completed in %s seconds", end_time - start_time)
-    # Update the check-in status (required) and duration (optional)
-    sentry_health_response = requests.put(
-        f"https://sentry.io/api/0/monitors/{monitor_id}/checkins/{check_in_id}/",
-        headers=sentry_checkin_headers,
-        json={"status": "ok"},
-    )
     sys.exit(0)
