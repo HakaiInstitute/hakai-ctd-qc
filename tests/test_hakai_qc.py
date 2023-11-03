@@ -1,5 +1,6 @@
-from hakai_profile_qc.__main__ import _get_hakai_flag_columns
 import pandas as pd
+
+from hakai_profile_qc.__main__ import _get_hakai_flag_columns
 
 df = pd.DataFrame(
     {
