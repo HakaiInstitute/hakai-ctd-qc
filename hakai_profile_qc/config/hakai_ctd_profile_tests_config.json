@@ -46,7 +46,7 @@
       "pressure_qartod_gross_range_test",
       "depth_qartod_gross_range_test"
     ],
-    "temperature": ["sigma0_qartod_density_inversion_test"],
+    "temperature": ["sigma0_qartod_density_inversion_test"], 
     "salinity": ["sigma0_qartod_density_inversion_test"],
     "conductivity": ["sigma0_qartod_density_inversion_test"],
     "dissolved_oxygen_ml_l": ["dissolved_oxygen_ml_l_do_cap_test"],
@@ -54,14 +54,20 @@
   },
   "query_based_flag": [
     {
-      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Mid'",
+      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Mid' & par.notna()",
       "flag_columns": ["par_hakai_sensor_mid_submerged_test"],
       "flag_value": 4
     },
     {
-      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Bottom'",
+      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Bottom' & par.notna()",
       "flag_columns": [
-        "par_hakai_sensor_bottom_submerged_test",
+        "par_hakai_sensor_bottom_submerged_test"
+      ],
+      "flag_value": 4
+    },
+    {
+      "query": "organization == 'NATURE TRUST' & sensors_submerged=='Bottom' & dissolved_oxygen_ml_l.notna()",
+      "flag_columns": [
         "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
         "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test"
       ],
