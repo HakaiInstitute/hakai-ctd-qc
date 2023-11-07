@@ -1,11 +1,11 @@
 version: '3.7'
 services:
-  python:
+  hakai-profile-qc:
     build:
       context: .
       dockerfile: Dockerfile
     platform: linux/x86_64
-    environment:
-      - "HAKAI_API_CREDENTIALS=${HAKAI_API_CREDENTIALS}"
+    env_file:
+      - .env
     ports:
       - '19999:19999'
