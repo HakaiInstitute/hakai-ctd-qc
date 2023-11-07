@@ -403,27 +403,28 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 @click.option("--hakai_ids", help="Comma delimited list of hakai_ids to qc", type=str)
 @click.option(
     "--processing-stages",
-    help="Comma list of processing_stage profiles to review",
+    help="Comma list of processing_stage profiles to review [env=QC_PROCESSING_STAGES]",
     default="8_binAvg,8_rbr_processed",
+    show_default=True,
     envvar="QC_PROCESSING_STAGES",
 )
 @click.option(
     "--test-suite",
-    help="Run Test suite",
+    help="Run Test suite [env=RUN_TEST_SUITE]",
     is_flag=True,
     default=False,
     envvar="RUN_TEST_SUITE",
 )
 @click.option(
     "--api-root",
-    help="Hakai API root to use",
+    help="Hakai API root to use [env=HAKAI_API_SERVER_ROOT]",
     default="https://goose.hakai.org/api",
     show_default=True,
     envvar="HAKAI_API_SERVER_ROOT",
 )
 @click.option(
     "--upload-flag",
-    help="Update database flags",
+    help="Update database flags [env=UPDATE_SERVER_DATABASE]",
     default=False,
     is_flag=True,
     show_default=True,
@@ -431,7 +432,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 )
 @click.option(
     "--chunksize",
-    help="Process profiles by chunk",
+    help="Process profiles by chunk [env=CTD_CAST_CHUNKSIZE]",
     type=int,
     default=100,
     show_default=True,
@@ -440,8 +441,9 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 @click.option(
     "--sentry-minimum-date",
     type=click.DateTime(),
-    help="Minimum date to use to generate sentry warnings",
+    help="Minimum date to use to generate sentry warnings [env=SENTRY_MINIMUM_DATE]",
     default=None,
+    envvar='SENTRY_MINIMUM_DATE'
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
@@ -455,7 +457,15 @@ def main(
     sentry_minimum_date,
     profile,
 ):
-    """QC Hakai Profiles"""
+    """QC Hakai Profiles on subset list of profiles given either via an 
+    hakai_id list, the `test_suite` flag or processing_stage. 
+    If no input is given, the tool will default to qc all the profiles 
+    that have been processed but not qced yet: 
+        processing_stage={8_binAvg,8_rbr_processed}
+
+    Each options can be defined either as an argument 
+    or via the associated environment variable.
+    """
 
     check_hakai_database_rebuild(api_root)
     if profile:
