@@ -3,9 +3,9 @@ on:
   pull_request:
     branches:
       - main
+      - development
     paths:
-      - setup.py
-      - docker-environment.yaml
+      - pyproject.toml
       - Dockerfile
       - .github/workflows/test-docker-build.yml
       - docker-compose.yaml
