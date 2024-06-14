@@ -404,7 +404,7 @@ def query_based_flag_test(df: pd.DataFrame, query_list: list):
     return df
 
 
-def apply_flag_from_processing_log(df, metadata):
+def apply_flag_from_process_log(df, metadata):
     """
     Apply flag from processing log to the dataframe respective variables
     """

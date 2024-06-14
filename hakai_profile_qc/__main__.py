@@ -330,7 +330,7 @@ def run_qc_profiles(df, metadata):
             df, hakai_tests_config["query_based_flag"]
         )
     # Apply processing_log related flags
-    df = hakai_tests.apply_flag_from_processing_log(df, metadata)
+    df = hakai_tests.apply_flag_from_process_log(df, metadata)
     
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
