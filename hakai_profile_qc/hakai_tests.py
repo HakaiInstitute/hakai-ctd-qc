@@ -3,6 +3,7 @@ Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
 import logging
 import warnings
+import re
 
 import numpy as np
 import pandas as pd
@@ -399,5 +400,29 @@ def query_based_flag_test(df: pd.DataFrame, query_list: list):
         df.loc[df.query(query["query"]).index, query["flag_columns"]] = query[
             "flag_value"
         ]
+
+    return df
+
+
+def apply_flag_from_processing_log(df, metadata):
+    """
+    Apply flag from processing log to the dataframe respective variables
+    """
+    for _, cast in metadata.iterrows():
+        if not cast['process_log'] or not re.search("warning", cast['process_log'], re.IGNORECASE):
+            continue
+
+        if "WARNING!!! Slower Oxygen Sensor RBR CODAstandard are not recommended for profiling applications." in cast['process_log']:
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag' ] = 3
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag' ] = 3
+        
+        if "WARNING! NO SOAK DETECTED, SUSPICIOUS DATA QUALITY" in cast['process_log']:
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'dissolved_oxygen_ml_l_hakai_no_soak_flag' ] = 3
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'temperature_hakai_no_soak_flag' ] = 3
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'conductivity_lhakai_no_soak_flag' ] = 3
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'salinity_hakai_no_soak_flag' ] = 3
+
+        if "WARNING Failed to detect any static deployment even if Cast_Type=Static":
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'hakai_short_static_deployment_flag' ] = 3
 
     return df

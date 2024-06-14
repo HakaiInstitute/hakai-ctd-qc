@@ -222,7 +222,7 @@ def _convert_time_to_datetime(df):
     return df
 
 
-def run_qc_profiles(df):
+def run_qc_profiles(df, metadata):
     """
     Main method that runs on a number of profiles a series of QARTOD tests and specific
     to the Hakai CTD Dataset.
@@ -323,12 +323,15 @@ def run_qc_profiles(df):
         df = hakai_tests.hakai_station_maximum_depth_test(
             df, hakai_stations, **hakai_tests_config["depth_range_test"]
         )
-
+    # Apply Query Based Flag
     if "query_based_flag" in hakai_tests_config:
         logger.debug("Run Query Based flag test")
         df = hakai_tests.query_based_flag_test(
             df, hakai_tests_config["query_based_flag"]
         )
+    # Apply processing_log related flags
+    df = hakai_tests.apply_flag_from_processing_log(df, metadata)
+    
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tqdm(
@@ -517,8 +520,14 @@ def main(
                 ",".join(chunk["hakai_id"].values),
                 ",".join(variables.CTD_CAST_DATA_VARIABLES),
             )
+            metadata_query = "%s/ctd/views/file/cast?hakai_id={%s}&limit=-1" % (
+                api_root,
+                ",".join(chunk["hakai_id"].values),
+            )
+
             logger.debug("Run query: %s", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
+            metadata = retrieve_hakai_data(metadata_query, max_attempts=3)
             original_variables = df_qced.columns
             if df_qced is None:
                 logger.error(
@@ -533,7 +542,7 @@ def main(
 
             # Run QC Process
             logger.debug("Run QC Process")
-            df_qced = run_qc_profiles(df_qced)
+            df_qced = run_qc_profiles(df_qced,metadata)
             if sentry_minimum_date:
                 sentry_warnings.run_sentry_warnings(df_qced, chunk, sentry_minimum_date)
 

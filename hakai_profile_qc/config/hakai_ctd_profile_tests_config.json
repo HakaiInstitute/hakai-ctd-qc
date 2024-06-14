@@ -44,7 +44,8 @@
       "bottom_hit_test",
       "depth_in_station_range_test",
       "pressure_qartod_gross_range_test",
-      "depth_qartod_gross_range_test"
+      "depth_qartod_gross_range_test",
+      "hakai_short_static_deployment_flag"
     ],
     "temperature": ["sigma0_qartod_density_inversion_test"], 
     "salinity": ["sigma0_qartod_density_inversion_test"],
