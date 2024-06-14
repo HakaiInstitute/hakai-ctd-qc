@@ -419,7 +419,7 @@ def apply_flag_from_processing_log(df, metadata):
         if "WARNING! NO SOAK DETECTED, SUSPICIOUS DATA QUALITY" in cast['process_log']:
             df.loc[ df['hakai_id'] == cast['hakai_id'], 'dissolved_oxygen_ml_l_hakai_no_soak_flag' ] = 3
             df.loc[ df['hakai_id'] == cast['hakai_id'], 'temperature_hakai_no_soak_flag' ] = 3
-            df.loc[ df['hakai_id'] == cast['hakai_id'], 'conductivity_lhakai_no_soak_flag' ] = 3
+            df.loc[ df['hakai_id'] == cast['hakai_id'], 'conductivity_hakai_no_soak_flag' ] = 3
             df.loc[ df['hakai_id'] == cast['hakai_id'], 'salinity_hakai_no_soak_flag' ] = 3
 
         if "WARNING Failed to detect any static deployment even if Cast_Type=Static":
