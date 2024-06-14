@@ -1,5 +1,5 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 CTD_CAST_VARIABLES = [
     "ctd_cast_pk",

@@ -331,7 +331,7 @@ def run_qc_profiles(df, metadata):
         )
     # Apply processing_log related flags
     df = hakai_tests.apply_flag_from_process_log(df, metadata)
-    
+
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tqdm(
@@ -446,7 +446,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     type=click.DateTime(),
     help="Minimum date to use to generate sentry warnings [env=SENTRY_MINIMUM_DATE]",
     default=None,
-    envvar='SENTRY_MINIMUM_DATE'
+    envvar="SENTRY_MINIMUM_DATE",
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
@@ -460,13 +460,13 @@ def main(
     sentry_minimum_date,
     profile,
 ):
-    """QC Hakai Profiles on subset list of profiles given either via an 
-    hakai_id list, the `test_suite` flag or processing_stage. 
-    If no input is given, the tool will default to qc all the profiles 
-    that have been processed but not qced yet: 
+    """QC Hakai Profiles on subset list of profiles given either via an
+    hakai_id list, the `test_suite` flag or processing_stage.
+    If no input is given, the tool will default to qc all the profiles
+    that have been processed but not qced yet:
         processing_stage={8_binAvg,8_rbr_processed}
 
-    Each options can be defined either as an argument 
+    Each options can be defined either as an argument
     or via the associated environment variable.
     """
 
@@ -542,7 +542,7 @@ def main(
 
             # Run QC Process
             logger.debug("Run QC Process")
-            df_qced = run_qc_profiles(df_qced,metadata)
+            df_qced = run_qc_profiles(df_qced, metadata)
             if sentry_minimum_date:
                 sentry_warnings.run_sentry_warnings(df_qced, chunk, sentry_minimum_date)
 
