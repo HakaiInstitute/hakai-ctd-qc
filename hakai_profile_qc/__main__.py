@@ -104,7 +104,7 @@ ioos_qc_coords_mapping = dict(
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level="INFO")
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 log_to_sentry()
 logger.info("Start Process")
 if "HAKAI_API_TOKEN" in os.environ:
