@@ -267,38 +267,38 @@ class TestQARTODTests:
         )
 
 
-slow_oxygen_warning_hakai_ids = ["205019_2022-08-10T15:44:38.000Z"]
+slow_oxygen_warning_hakai_ids = ["205019_2021-07-16T22:09:28.000Z"]
 no_soak_warning_hakai_ids = ["080217_2015-04-16T17:28:24.833Z"]
-short_static_deployment = ["205019_2022-03-14T22:10:17.000Z"]
+short_static_deployment = ["203865_2021-06-21T21:52:09.000Z"]
 
 
 class TestProcessLogTestsWarning:
     def test_slow_oxygen_warning(self):
         """Review the results of the slow oxygen sensor test"""
         assert (
-            "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag" in df_local.columns
+            "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test" in df_local.columns
         ), (
             "Missing dissolved_oxygen_ml_l_slow_oxygen_sensor_test from dataframe: %s"
             % df_local.filter(like="dissolved_oxygen").columns
         )
         assert (
-            df_local["dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag"]
+            df_local["dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test"]
             .isin([3])
             .any()
-        ), "Not any of the dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag failed hakai_ids were flagged as WARNING=3"
+        ), "Not any of the dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test failed hakai_ids were flagged as WARNING=3"
         flagged_hakai_ids = df_local.query(
-            "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag==3"
+            "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test==3"
         )["hakai_id"].values
         assert all(
-            df_local.query("dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag==3")[
+            df_local.query("dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test==3")[
                 "dissolved_oxygen_ml_l_flag"
-            ].str.contains("SVC: dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag")
-        ), "Not all dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag were flagged as SVD"
+            ].str.contains("SVC: dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test")
+        ), "Not all dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test were flagged as SVC"
         assert all(
-            df_local.query("dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag==3")[
+            df_local.query("dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test==3")[
                 "dissolved_oxygen_ml_l_flag_level_1"
             ].isin([3, 4])
-        ), "Not all dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag were flagged as WARNING=3 or greater"
+        ), "Not all dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test were flagged as WARNING=3 or greater"
         assert all(
             item in flagged_hakai_ids for item in slow_oxygen_warning_hakai_ids
         ), "Not all slow oxygen sensor test failed profiles are present"
@@ -306,21 +306,21 @@ class TestProcessLogTestsWarning:
     def test_no_soak_warning(self):
         """Review the results of the no soak test"""
         assert (
-            df_local["dissolved_oxygen_ml_l_hakai_no_soak_flag"].isin([3]).any()
+            df_local["dissolved_oxygen_ml_l_hakai_no_soak_test"].isin([3]).any()
         ), "Not any of the hakai_no_soak_flag failed hakai_ids were flagged as WARNING=3"
         assert all(
-            df_local.query("dissolved_oxygen_ml_l_hakai_no_soak_flag==3")[
+            df_local.query("dissolved_oxygen_ml_l_hakai_no_soak_test==3")[
                 "dissolved_oxygen_ml_l_flag"
-            ].str.contains("SVC: dissolved_oxygen_ml_l_hakai_no_soak_flag")
-        ), "Not all hakai_no_soak_flag were flagged as SVD"
+            ].str.contains("SVC: dissolved_oxygen_ml_l_hakai_no_soak_test")
+        ), "Not all hakai_no_soak_flag were flagged as SVC"
         assert all(
-            df_local.query("dissolved_oxygen_ml_l_hakai_no_soak_flag==3")[
+            df_local.query("dissolved_oxygen_ml_l_hakai_no_soak_test==3")[
                 "dissolved_oxygen_ml_l_flag_level_1"
             ].isin([3, 4])
-        ), "Not all dissolved_oxygen_ml_l_hakai_no_soak_flag were flagged as WARNING=3 or greater"
+        ), "Not all dissolved_oxygen_ml_l_hakai_no_soak_test were flagged as WARNING=3 or greater"
 
         flagged_hakai_ids = set(
-            df_local.query("dissolved_oxygen_ml_l_hakai_no_soak_flag==3")[
+            df_local.query("dissolved_oxygen_ml_l_hakai_no_soak_test==3")[
                 "hakai_id"
             ].values
         )
@@ -330,32 +330,32 @@ class TestProcessLogTestsWarning:
 
         # make sure that temperature, salinity,conductivity are also flagged
         assert all(
-            df_local.query("temperature_hakai_no_soak_flag==3")[
+            df_local.query("temperature_hakai_no_soak_test==3")[
                 "temperature_flag"
-            ].str.contains("SVC: temperature_hakai_no_soak_flag")
-        ), "Not all hakai_no_soak_flag were flagged as SVD"
+            ].str.contains("SVC: temperature_hakai_no_soak_test")
+        ), "Not all hakai_no_soak_flag were flagged as SVC"
         assert all(
-            df_local.query("temperature_hakai_no_soak_flag==3")[
+            df_local.query("temperature_hakai_no_soak_test==3")[
                 "temperature_flag_level_1"
             ].isin([3, 4])
         ), "Not all hakai_no_soak_flag were flagged as WARNING=3 or greater"
         assert all(
-            df_local.query("salinity_hakai_no_soak_flag==3")[
+            df_local.query("salinity_hakai_no_soak_test==3")[
                 "salinity_flag"
-            ].str.contains("SVC: salinity_hakai_no_soak_flag")
-        ), "Not all hakai_no_soak_flag were flagged as SVD"
+            ].str.contains("SVC: salinity_hakai_no_soak_test")
+        ), "Not all hakai_no_soak_flag were flagged as SVC"
         assert all(
-            df_local.query("salinity_hakai_no_soak_flag==3")[
+            df_local.query("salinity_hakai_no_soak_test==3")[
                 "salinity_flag_level_1"
             ].isin([3, 4])
         ), "Not all hakai_no_soak_flag were flagged as WARNING=3 or greater"
         assert all(
-            df_local.query("conductivity_hakai_no_soak_flag==3")[
+            df_local.query("conductivity_hakai_no_soak_test==3")[
                 "conductivity_flag"
-            ].str.contains("SVC: conductivity_hakai_no_soak_flag")
-        ), "Not all hakai_no_soak_flag were flagged as SVD"
+            ].str.contains("SVC: conductivity_hakai_no_soak_test")
+        ), "Not all hakai_no_soak_flag were flagged as SVC"
         assert all(
-            df_local.query("conductivity_hakai_no_soak_flag==3")[
+            df_local.query("conductivity_hakai_no_soak_test==3")[
                 "conductivity_flag_level_1"
             ].isin([3, 4])
         ), "Not all hakai_no_soak_flag were flagged as WARNING=3 or greater"
@@ -363,21 +363,21 @@ class TestProcessLogTestsWarning:
     def test_short_static_deployment(self):
         """Review the results of the short static deployment test"""
         assert (
-            df_local["hakai_short_static_deployment_flag"].isin([3]).any()
-        ), "Not any of the hakai_short_static_deployment_flag failed hakai_ids were flagged as WARNING=3"
+            df_local["hakai_short_static_deployment_test"].isin([3]).any()
+        ), "Not any of the hakai_short_static_deployment_test failed hakai_ids were flagged as WARNING=3"
         assert all(
-            df_local.query("hakai_short_static_deployment_flag==3")[
+            df_local.query("hakai_short_static_deployment_test==3")[
                 "dissolved_oxygen_ml_l_flag"
-            ].str.contains("SVC: hakai_short_static_deployment_flag")
-        ), "Not all hakai_short_static_deployment_flag were flagged as SVD"
+            ].str.contains("SVC: hakai_short_static_deployment_test")
+        ), "Not all hakai_short_static_deployment_test were flagged as SVC"
         assert all(
-            df_local.query("hakai_short_static_deployment_flag==3")[
+            df_local.query("hakai_short_static_deployment_test==3")[
                 "dissolved_oxygen_ml_l_flag_level_1"
             ].isin([3, 4, 9])
-        ), "Not all hakai_short_static_deployment_flag were flagged as WARNING=3 or greater"
+        ), "Not all hakai_short_static_deployment_test were flagged as WARNING=3 or greater"
 
         flagged_hakai_ids = set(
-            df_local.query("hakai_short_static_deployment_flag==3")["hakai_id"].values
+            df_local.query("hakai_short_static_deployment_test==3")["hakai_id"].values
         )
         assert all(
             item in flagged_hakai_ids for item in short_static_deployment

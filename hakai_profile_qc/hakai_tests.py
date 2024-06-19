@@ -417,34 +417,38 @@ def apply_flag_from_process_log(df, metadata):
         if (
             "WARNING!!! Slower Oxygen Sensor RBR CODAstandard are not recommended for profiling applications."
             in cast["process_log"]
+            and cast["cast_type"] != "Static"
         ):
             df.loc[
                 df["hakai_id"] == cast["hakai_id"],
-                "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag",
+                "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test",
             ] = 3
             df.loc[
                 df["hakai_id"] == cast["hakai_id"],
-                "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_flag",
+                "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test",
             ] = 3
 
         if "WARNING! NO SOAK DETECTED, SUSPICIOUS DATA QUALITY" in cast["process_log"]:
             df.loc[
                 df["hakai_id"] == cast["hakai_id"],
-                "dissolved_oxygen_ml_l_hakai_no_soak_flag",
+                "dissolved_oxygen_ml_l_hakai_no_soak_test",
             ] = 3
             df.loc[
-                df["hakai_id"] == cast["hakai_id"], "temperature_hakai_no_soak_flag"
+                df["hakai_id"] == cast["hakai_id"], "temperature_hakai_no_soak_test"
             ] = 3
             df.loc[
-                df["hakai_id"] == cast["hakai_id"], "conductivity_hakai_no_soak_flag"
+                df["hakai_id"] == cast["hakai_id"], "conductivity_hakai_no_soak_test"
             ] = 3
             df.loc[
-                df["hakai_id"] == cast["hakai_id"], "salinity_hakai_no_soak_flag"
+                df["hakai_id"] == cast["hakai_id"], "salinity_hakai_no_soak_test"
             ] = 3
 
-        if "WARNING Failed to detect any static deployment even if Cast_Type=Static":
+        if (
+            "WARNING Failed to detect any static deployment even if Cast_Type=Static"
+            in cast["process_log"]
+        ):
             df.loc[
-                df["hakai_id"] == cast["hakai_id"], "hakai_short_static_deployment_flag"
+                df["hakai_id"] == cast["hakai_id"], "hakai_short_static_deployment_test"
             ] = 3
 
     return df
