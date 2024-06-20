@@ -35,13 +35,13 @@ jobs:
         pip install poetry ruff && \
         poetry config virtualenvs.create false && \
         poetry install --with dev
-        
+
       - name: Super-linter
         uses: super-linter/super-linter@v6.6.0  # x-release-please-version
         env:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Pytest
-        run: poetry run pytest .
+        run: pytest .
       - name: Run test suite on Hakai Goose
-        run: poetry run python hakai_profile_qc --test-suite
+        run: python hakai_profile_qc --test-suite
