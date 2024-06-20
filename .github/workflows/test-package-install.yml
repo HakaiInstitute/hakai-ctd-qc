@@ -23,6 +23,10 @@ jobs:
       SENTRY_DSN: null
     steps:
       - uses: actions/checkout@v4
+        with:
+          # super-linter needs the full git history to get the
+          # list of files that changed across commits
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11' 
