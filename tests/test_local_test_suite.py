@@ -36,6 +36,17 @@ def df_local(df_initial, df_local_metadata):
     return df_local
 
 
+def test_local_suite_has_all_hakai_ids(df_initial):
+    available_hakai_ids = df_initial["hakai_id"].unique()
+    missing_hakai_ids = [
+        hakai_id for hakai_id in HAKAI_TEST_SUITE if hakai_id not in available_hakai_ids
+    ]
+    assert missing_hakai_ids == [], "Local test suite is missing %s hakai_ids= %s" % (
+        len(missing_hakai_ids),
+        missing_hakai_ids,
+    )
+
+
 class TestDerivedVariables:
     def test_derive_variables_from_local(self, df_local):
         df_temp = _derived_ocean_variables(df_local)
