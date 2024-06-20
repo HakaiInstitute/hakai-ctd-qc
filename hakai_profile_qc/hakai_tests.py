@@ -296,7 +296,10 @@ def grey_list(
             df.loc[df_to_flag.index, qartod_columns] = row["flag_type"]
 
             # Append to description Flag Comment and name
-            grey_flag_description = f"{qartod_to_hakai_flag[row['flag_type']]}: Hakai Grey List - {row.comments}{' flagged by '+ row.flagged_by if row.flagged_by else ''}"
+            grey_flag_comment = row.comments + (
+                " flagged by " + row.flagged_by if row.flagged_by else ""
+            )
+            grey_flag_description = f"{qartod_to_hakai_flag[row['flag_type']]}: Hakai Grey List - {grey_flag_comment}"
             for column in flag_descriptor_columns:
                 if column not in df:
                     df[column] = ""
