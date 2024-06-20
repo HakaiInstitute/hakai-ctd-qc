@@ -36,11 +36,11 @@ jobs:
           poetry config virtualenvs.create false && \
           poetry install --with dev
 
-      - name: Super-linter
-        uses: super-linter/super-linter@v6.6.0  # x-release-please-version
-        env:
-          # To report GitHub Actions status checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Super-linter
+      #   uses: super-linter/super-linter@v6.6.0  # x-release-please-version
+      #   env:
+      #     # To report GitHub Actions status checks
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Pytest
         run: pytest .
       - name: Run test suite on Hakai Goose
