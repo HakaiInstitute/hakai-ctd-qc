@@ -578,23 +578,22 @@ def _get_hakai_flag_columns(
     grouping the different tests results.
     """
 
-    def __generate_level2_flag(row):
+dev    def __generate_level2_flag(row: pd.Series):
         """
         Regroup together tests results in "flag_value_to_consider" as a
         json string to be outputed as a level2 flag
         """
-        return (
-            "; ".join(
+        flags = row.dropna().to_dict()
+        if not flags:
+            return None
+        return "; ".join(
+            sorted(
                 [
-                    f"{hakai_tests.qartod_to_hakai_flag[flag]}: {test}"
-                    for test, flag in row.dropna()
-                    .astype(QARTOD_DTYPE)
-                    .sort_values(ascending=False)
-                    .dropna()
-                    .items()
-                ]
+                    f"{hakai_tests.qartod_to_hakai_flag[qartod_flag]}: {test}"
+                    for test, qartod_flag in flags.items()
+                ],
+                reverse=True,
             )
-            or None
         )
 
     # Retrieve each flags column associated to a variable
@@ -621,7 +620,7 @@ def _get_hakai_flag_columns(
     logger.debug("Get Aggregated Hakai Flags")
     # Generete Level 2 Flag Description for failed flag
     df.loc[df_subset.index, variable + "_flag"] = df_subset.replace({1: None}).apply(
-        __generate_level2_flag,
+        lambda x: __generate_level2_flag(x),
         axis=1,
     )
     return df
