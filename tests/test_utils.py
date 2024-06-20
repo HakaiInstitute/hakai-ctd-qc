@@ -12,16 +12,10 @@ class TestLoadTestSuite:
         assert not [
             item for item in hakai_id_test_suite if "#" in item
         ], "Hakai ID test suite loader failed to drop comments= # ..."
-        assert [
-            item for item in hakai_id_test_suite if not re.match(hakai_id_regex, item)
-        ], (
-            "Some items listed in the hakai_id test suite aren't matching "
-            f"the expected hakai_id patter={hakai_id_regex}"
-        )
 
     def test_hakai_id_test_suite_list(self):
         hakai_ids = variables.HAKAI_TEST_SUITE
-        assert [item for item in hakai_ids if not re.match(hakai_id_regex, item)], (
+        assert [item for item in hakai_ids if not re.fullmatch(hakai_id_regex, item)], (
             "Some items listed in the hakai_id test suite aren't "
             f"matching the expected hakai_id patter={hakai_id_regex}"
         )

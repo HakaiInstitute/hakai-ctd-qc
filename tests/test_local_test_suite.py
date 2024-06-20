@@ -1,6 +1,7 @@
-import os
+from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from hakai_profile_qc import hakai_tests
 from hakai_profile_qc.__main__ import (
@@ -8,21 +9,35 @@ from hakai_profile_qc.__main__ import (
     _derived_ocean_variables,
     run_qc_profiles,
 )
+from hakai_profile_qc.variables import HAKAI_TEST_SUITE
 
-MODULE_PATH = os.path.dirname(__file__)
-df_local = pd.read_parquet(f"{MODULE_PATH}/test_data/ctd_test_suite.parquet")
-df_local_metadata = pd.read_parquet(
-    f"{MODULE_PATH}/test_data/ctd_test_suite_metadata.parquet"
-)
+MODULE_PATH = Path(__file__).parent
 
-df_initial = df_local.set_index("ctd_data_pk").copy()
-df_local = _derived_ocean_variables(df_local)
-df_local = run_qc_profiles(df_local, df_local_metadata)
-df_local = df_local.set_index("ctd_data_pk")
+
+@pytest.fixture(scope="module")
+def df_initial():
+    df_local = pd.read_parquet(MODULE_PATH / "test_data" / "ctd_test_suite.parquet")
+
+    return df_local.set_index("ctd_data_pk").copy()
+
+
+@pytest.fixture(scope="module")
+def df_local_metadata():
+    return pd.read_parquet(
+        MODULE_PATH / "test_data" / "ctd_test_suite_metadata.parquet"
+    )
+
+
+@pytest.fixture(scope="module")
+def df_local(df_initial, df_local_metadata):
+    df_local = _derived_ocean_variables(df_initial.reset_index())
+    df_local = run_qc_profiles(df_local, df_local_metadata)
+    df_local = df_local.set_index("ctd_data_pk")
+    return df_local
 
 
 class TestDerivedVariables:
-    def test_derive_variables_from_local(self):
+    def test_derive_variables_from_local(self, df_local):
         df_temp = _derived_ocean_variables(df_local)
         derived_variables = [
             "conservative_temperature",
@@ -39,7 +54,7 @@ class TestDerivedVariables:
 
 
 class TestTimeConversion:
-    def test_full_dataframe_timeconversion(self):
+    def test_full_dataframe_timeconversion(self, df_local):
         df_temp = _convert_time_to_datetime(df_local)
         assert isinstance(
             df_temp["start_dt"].dtype, object
@@ -47,7 +62,7 @@ class TestTimeConversion:
 
 
 class TestHakaiBadValueTests:
-    def test_seabird_hakai_bad_value_test(self):
+    def test_seabird_hakai_bad_value_test(self, df_initial, df_local):
         df = df_initial.query("hakai_id == '01907674_2016-10-20T16:29:29Z'")
         assert (
             (df == -9.99e-29).any().any()
@@ -95,7 +110,7 @@ class TestHakaiBadValueTests:
             .all(axis=None)
         ), "Not all the values -9.99E-29 *_flag column contains the expression 'hakai_bad_value_test'"
 
-    def test_missing_whole_profile_bad_value_test(self):
+    def test_missing_whole_profile_bad_value_test(self, df_local):
         df = df_local.query("hakai_id == '01907674_2018-10-31T19:10:18Z'")
         assert (
             not df.empty
@@ -111,7 +126,7 @@ class TestHakaiBadValueTests:
             == 9
         ).all(), "Not all oxygen missing bad_value_test are flagged as MISSING=9"
 
-    def test_missing_value_bad_value_test(self):
+    def test_missing_value_bad_value_test(self, df_local):
         for variable in df_local.columns:
             qartod_flag_variable = f"{variable}_hakai_bad_value_test"
             if qartod_flag_variable in df_local.columns:
@@ -129,7 +144,7 @@ class TestHakaiBadValueTests:
 
 
 class TestHakaiQueryTests:
-    def test_nature_trust_mid_sensors_submerged_flags(self):
+    def test_nature_trust_mid_sensors_submerged_flags(self, df_local):
         query = "organization=='NATURE TRUST' and sensors_submerged=='Mid'"
         df = df_local.query(query)
         assert not df.empty, "Missing {query}"
@@ -152,7 +167,7 @@ class TestHakaiQueryTests:
             df["dissolved_oxygen_percent_flag"].isna()
         ).all(), "Failed to flag dissolved_oxygen_percent_flag to AV (empty)"
 
-    def test_nature_trust_bottom_sensors_submerged_flags(self):
+    def test_nature_trust_bottom_sensors_submerged_flags(self, df_local):
         query = "organization=='NATURE TRUST' and sensors_submerged=='Bottom'"
         df = df_local.query(query)
         assert not df.empty, "Missing {query}"
@@ -203,12 +218,12 @@ do_cap_fail_hakai_ids = [
 
 
 class TestHakaiDOCapTest:
-    def test_do_cap_static_drop(self):
+    def test_do_cap_static_drop(self, df_local):
         hakai_tests.do_cap_test(
             df_local.query("direction_flag=='s'"), "dissolved_oxygen_ml_l"
         )
 
-    def test_do_cap_test_svd_locally(self):
+    def test_do_cap_test_svd_locally(self, df_local):
         assert "dissolved_oxygen_ml_l_do_cap_test" in df_local.columns, (
             "Missing dissolved_oxygen_ml_l_do_cap_test from dataframe: %s"
             % df_local.filter(like="dissolved_oxygen").columns
@@ -239,7 +254,7 @@ class TestHakaiDOCapTest:
 
 
 class TestQARTODTests:
-    def test_gross_range_results(self):
+    def test_gross_range_results(self, df_local):
         df = df_local.query("hakai_id == '01907674_2016-10-18T18:09:33Z'")
         assert (
             not df.empty
@@ -273,7 +288,7 @@ short_static_deployment = ["203865_2021-06-21T21:52:09.000Z"]
 
 
 class TestProcessLogTestsWarning:
-    def test_slow_oxygen_warning(self):
+    def test_slow_oxygen_warning(self, df_local):
         """Review the results of the slow oxygen sensor test"""
         assert (
             "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test" in df_local.columns
@@ -303,7 +318,7 @@ class TestProcessLogTestsWarning:
             item in flagged_hakai_ids for item in slow_oxygen_warning_hakai_ids
         ), "Not all slow oxygen sensor test failed profiles are present"
 
-    def test_no_soak_warning(self):
+    def test_no_soak_warning(self, df_local):
         """Review the results of the no soak test"""
         assert (
             df_local["dissolved_oxygen_ml_l_hakai_no_soak_test"].isin([3]).any()
@@ -360,7 +375,7 @@ class TestProcessLogTestsWarning:
             ].isin([3, 4])
         ), "Not all hakai_no_soak_flag were flagged as WARNING=3 or greater"
 
-    def test_short_static_deployment(self):
+    def test_short_static_deployment(self, df_local):
         """Review the results of the short static deployment test"""
         assert (
             df_local["hakai_short_static_deployment_test"].isin([3]).any()
