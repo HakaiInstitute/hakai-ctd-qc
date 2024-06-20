@@ -34,6 +34,7 @@ sqlalchemy = "^2.0.31"
 
 [tool.isort]
 profile = "black"
+known_first_party=hakai_profile_qc
 
 [sqlfluff]
 dialect = "postgres"
