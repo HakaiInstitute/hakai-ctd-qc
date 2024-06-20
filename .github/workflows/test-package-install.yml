@@ -26,6 +26,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11' 
+      - name: Super-linter
+        uses: super-linter/super-linter@v6.6.0  # x-release-please-version
+        env:
+          # To report GitHub Actions status checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install package locally
         run: pip install poetry ruff && poetry install --with dev
       - name: Pytest
