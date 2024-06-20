@@ -41,7 +41,6 @@ jobs:
         env:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHON_ISORT_CONFIG_FILE: pyproject.toml
       - name: Pytest
         run: pytest .
       - name: Run test suite on Hakai Goose

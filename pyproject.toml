@@ -32,10 +32,6 @@ isort = "^5.13.2"
 [tool.poetry.group.review.dependencies]
 sqlalchemy = "^2.0.31"
 
-[tool.isort]
-profile = "black"
-known_first_party="hakai_profile_qc"
-
 [sqlfluff]
 dialect = "postgres"
 
