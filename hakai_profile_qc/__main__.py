@@ -578,7 +578,7 @@ def _get_hakai_flag_columns(
     grouping the different tests results.
     """
 
-dev    def __generate_level2_flag(row: pd.Series):
+    def __generate_level2_flag(row: pd.Series):
         """
         Regroup together tests results in "flag_value_to_consider" as a
         json string to be outputed as a level2 flag
