@@ -32,9 +32,9 @@ jobs:
           python-version: '3.11' 
       - name: Install package locally
         run: |
-        pip install poetry ruff && \
-        poetry config virtualenvs.create false && \
-        poetry install --with dev
+          pip install poetry ruff && \
+          poetry config virtualenvs.create false && \
+          poetry install --with dev
 
       - name: Super-linter
         uses: super-linter/super-linter@v6.6.0  # x-release-please-version
