@@ -354,9 +354,9 @@ def run_qc_profiles(df, metadata):
     for variable in df.columns:
         bad_value_flag = f"{variable}_hakai_bad_value_test"
         if bad_value_flag in df.columns:
-            df.loc[
-                df[bad_value_flag].isin([3, 4, 9]), f"{variable}_flag_level_1"
-            ] = df.loc[df[bad_value_flag].isin([3, 4, 9]), bad_value_flag]
+            df.loc[df[bad_value_flag].isin([3, 4, 9]), f"{variable}_flag_level_1"] = (
+                df.loc[df[bad_value_flag].isin([3, 4, 9]), bad_value_flag]
+            )
 
     return df
 
