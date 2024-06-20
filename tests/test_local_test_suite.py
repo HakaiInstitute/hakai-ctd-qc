@@ -85,13 +85,13 @@ class TestHakaiBadValueTests:
         assert (
             df_flagged.filter(regex="|".join(flagged_columns))
             .filter(regex="_flag$")
-            .applymap(lambda x: str(x).startswith("SVD"))
+            .map(lambda x: str(x).startswith("SVD"))
             .all(axis=None)
         ), "Not all the values -9.99E-29 were not flagged as *_flag=SVD"
         assert (
             df_flagged.filter(regex="|".join(flagged_columns))
             .filter(regex="_flag$")
-            .applymap(lambda x: "hakai_bad_value_test" in str(x))
+            .map(lambda x: "hakai_bad_value_test" in str(x))
             .all(axis=None)
         ), "Not all the values -9.99E-29 *_flag column contains the expression 'hakai_bad_value_test'"
 
@@ -176,7 +176,7 @@ class TestHakaiQueryTests:
                     "dissolved_oxygen_percent_flag",
                 ]
             ]
-            .applymap(lambda x: x.startswith("SVD"))
+            .map(lambda x: x.startswith("SVD"))
             .all(axis=None)
         ), "Failed to flag the par and dissolved oxygen aggregated flags to SVD"
         assert (
