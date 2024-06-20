@@ -32,6 +32,9 @@ isort = "^5.13.2"
 [tool.isort]
 profile = "black"
 
+[sqlfluff]
+dialect = "postgres"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
