@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 
 CTD_CAST_VARIABLES = [
     "ctd_cast_pk",
@@ -113,11 +112,17 @@ CTD_CAST_DATA_VARIABLES = [
 
 
 # Hakai ID Test suite liste
-def load_test_suite():
-    with open(Path(__file__).parent / "config" / "HAKAI_ID_TEST_SUITE.txt") as file:
-        return [
-            line for line in re.sub("\#.*\n", "\n", file.read()).split("\n") if line
-        ]
+def load_test_suite() -> list[str]:
+    test_suite_list = (
+        (Path(__file__).parent / "config" / "HAKAI_ID_TEST_SUITE.txt")
+        .read_text()
+        .split("\n")
+    )
+    return [
+        line.split("#")[0].strip()
+        for line in test_suite_list
+        if line and not line.strip().startswith("#")
+    ]
 
 
 HAKAI_TEST_SUITE = load_test_suite()

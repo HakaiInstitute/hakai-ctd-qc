@@ -1,4 +1,0 @@
-
-include hakai_profile_qc/HakaiProfileDatasetGreyList.csv
-recursive-include hakai_profile_qc/config/*
-hakai_profile_qc/config/HAKAI_ID_TEST_SUITE.txt

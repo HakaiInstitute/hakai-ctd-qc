@@ -37,34 +37,34 @@
 018066_2019-04-17T18:01:52.333Z
 018032_2017-05-07T18:00:24.166Z
 018066_2017-05-24T18:29:06.667Z
-203658_2020-09-29T20:26:43.000Z  # nature trust casts
+# 203658_2020-09-29T20:26:43.000Z  # nature trust casts !unavailable anymore
 203658_2020-09-29T21:22:43.000Z
-203658_2020-07-28T17:56:58.000Z
+# 203658_2020-07-28T17:56:58.000Z
 203657_2020-09-18T17:57:43.000Z
 203657_2020-08-24T20:44:33.000Z
 203656_2020-09-23T18:10:45.000Z
-205020_2021-03-03T21:47:29.000Z  # static cast that was entered as dynamic in metadata
+# 205020_2021-03-03T21:47:29.000Z  # static cast that was entered as dynamic in metadata !unavailable anymore
 18066_2021-06-22T19:10:52.000Z  # partial profile with upcast
 203654_2021-02-16T22:19:38.000Z  # static cast type with pH measurement
-203657_2020-11-23T22:32:59.000Z  # static drop
+# 203657_2020-11-23T22:32:59.000Z  # static drop !unavailable anymore
 205020_2021-02-26T17:55:56.000Z  # too shallow static drop (will not process)
 203654_2021-02-19T17:55:07.000Z  # short static deployment (<2min soak... will not process)
 80217_2021-07-03T17:40:45.166Z  # profile and two static measurement within soak
-203619_2020-08-26T00:20:35.000Z  # profile with CODA DO sensor
-203619_2020-08-27T17:49:34.000Z  # profile with CODA DO sensor
-203619_2020-08-27T17:33:29.500Z  # profile with CODA DO sensor
+# 203619_2020-08-26T00:20:35.000Z  # profile with CODA DO sensor !unavailable anymore
+# 203619_2020-08-27T17:49:34.000Z  # profile with CODA DO sensor !unavailable anymore
+# 203619_2020-08-27T17:33:29.500Z  # profile with CODA DO sensor !unavailable anymore
 018032_2013-06-29T22:39:42.167Z  # missing vendor metadata
 080217_2014-08-31T08:43:28.000Z  # upcast only data
 080217_2015-09-20T17:35:17.000Z  # Used to ouput bottom_depth==NaN
 080217_2019-08-29T19:11:57.666Z  # RBR Oxygen do data with Ruskin issue for 2.5.8 to <2.10
-204949_2021-10-26T04:54:42.000Z  # Skeena CTD IN fresh water
+# 204949_2021-10-26T04:54:42.000Z  # Skeena CTD IN fresh water !unavailable anymore
 01907674_2016-10-20T16:29:29Z  # -9.99E-29 flag present
 01907674_2018-10-31T19:10:18Z  # no oxygen data
 01907674_2016-10-18T18:09:33Z  # negative oxygen data
 # Nature Trust Mid sensors_submerged
-203654_2021-04-21T21:53:21.000Z
-205019_2022-06-11T21:52:21.000Z
-203866_2020-05-21T21:26:34.000Z
+203657_2022-08-31T17:07:26.000Z
+203656_2022-09-14T19:20:46.000Z
+203866_2022-11-15T20:08:17.000Z
 # Nature Trust Bottom sensors_submerged
 203656_2022-02-25T00:41:35.000Z
 203654_2020-10-20T01:26:43.000Z
@@ -73,6 +73,7 @@
 203620_2021-02-25T18:12:15.000Z
 203619_2020-08-25T21:06:26.000Z
 205019_2022-03-14T18:49:47.000Z
+
 # SVD DO CAP issue
 080217_2014-08-13T13:49:30.167Z
 080217_2017-11-10T19:33:01.833Z
@@ -80,3 +81,12 @@
 018066_2012-08-10T17:41:33.000Z
 080217_2020-02-09T18:36:46.834Z
 080217_2017-01-15T17:57:21.667Z
+
+# warning NATURE TRUST SLOW oxygen sensor
+205019_2021-07-16T22:09:28.000Z
+
+# NO Soak Detected warning
+080217_2015-04-16T17:28:24.833Z
+
+# warning Short Static deployment
+203865_2021-06-21T21:52:09.000Z

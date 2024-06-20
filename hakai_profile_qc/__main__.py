@@ -95,16 +95,16 @@ HAKAI_GREY_LIST = hakai_tests.load_grey_list(
     PACKAGE_PATH / "HakaiProfileDatasetGreyList.csv"
 )
 
-ioos_qc_coords_mapping = dict(
-    tinp="measurement_dt",
-    zinp="depth",
-    lon="longitude",
-    lat="latitude",
-)
+ioos_qc_coords_mapping = {
+    "tinp": "measurement_dt",
+    "zinp": "depth",
+    "lon": "longitude",
+    "lat": "latitude",
+}
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level="INFO")
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 log_to_sentry()
 logger.info("Start Process")
 if "HAKAI_API_TOKEN" in os.environ:
@@ -222,7 +222,7 @@ def _convert_time_to_datetime(df):
     return df
 
 
-def run_qc_profiles(df):
+def run_qc_profiles(df, metadata):
     """
     Main method that runs on a number of profiles a series of QARTOD tests and specific
     to the Hakai CTD Dataset.
@@ -323,12 +323,15 @@ def run_qc_profiles(df):
         df = hakai_tests.hakai_station_maximum_depth_test(
             df, hakai_stations, **hakai_tests_config["depth_range_test"]
         )
-
+    # Apply Query Based Flag
     if "query_based_flag" in hakai_tests_config:
         logger.debug("Run Query Based flag test")
         df = hakai_tests.query_based_flag_test(
             df, hakai_tests_config["query_based_flag"]
         )
+    # Apply processing_log related flags
+    df = hakai_tests.apply_flag_from_process_log(df, metadata)
+
     # APPLY QARTOD FLAGS FROM ONE CHANNEL TO OTHER AGGREGATED ONES
     # Generate Hakai Flags
     for var in tqdm(
@@ -351,9 +354,9 @@ def run_qc_profiles(df):
     for variable in df.columns:
         bad_value_flag = f"{variable}_hakai_bad_value_test"
         if bad_value_flag in df.columns:
-            df.loc[
-                df[bad_value_flag].isin([3, 4, 9]), f"{variable}_flag_level_1"
-            ] = df.loc[df[bad_value_flag].isin([3, 4, 9]), bad_value_flag]
+            df.loc[df[bad_value_flag].isin([3, 4, 9]), f"{variable}_flag_level_1"] = (
+                df.loc[df[bad_value_flag].isin([3, 4, 9]), bad_value_flag]
+            )
 
     return df
 
@@ -443,7 +446,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
     type=click.DateTime(),
     help="Minimum date to use to generate sentry warnings [env=SENTRY_MINIMUM_DATE]",
     default=None,
-    envvar='SENTRY_MINIMUM_DATE'
+    envvar="SENTRY_MINIMUM_DATE",
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
@@ -457,13 +460,13 @@ def main(
     sentry_minimum_date,
     profile,
 ):
-    """QC Hakai Profiles on subset list of profiles given either via an 
-    hakai_id list, the `test_suite` flag or processing_stage. 
-    If no input is given, the tool will default to qc all the profiles 
-    that have been processed but not qced yet: 
+    """QC Hakai Profiles on subset list of profiles given either via an
+    hakai_id list, the `test_suite` flag or processing_stage.
+    If no input is given, the tool will default to qc all the profiles
+    that have been processed but not qced yet:
         processing_stage={8_binAvg,8_rbr_processed}
 
-    Each options can be defined either as an argument 
+    Each options can be defined either as an argument
     or via the associated environment variable.
     """
 
@@ -517,8 +520,14 @@ def main(
                 ",".join(chunk["hakai_id"].values),
                 ",".join(variables.CTD_CAST_DATA_VARIABLES),
             )
+            metadata_query = "%s/ctd/views/file/cast?hakai_id={%s}&limit=-1" % (
+                api_root,
+                ",".join(chunk["hakai_id"].values),
+            )
+
             logger.debug("Run query: %s", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
+            metadata = retrieve_hakai_data(metadata_query, max_attempts=3)
             original_variables = df_qced.columns
             if df_qced is None:
                 logger.error(
@@ -533,7 +542,7 @@ def main(
 
             # Run QC Process
             logger.debug("Run QC Process")
-            df_qced = run_qc_profiles(df_qced)
+            df_qced = run_qc_profiles(df_qced, metadata)
             if sentry_minimum_date:
                 sentry_warnings.run_sentry_warnings(df_qced, chunk, sentry_minimum_date)
 
