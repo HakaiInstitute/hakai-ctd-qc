@@ -1,7 +1,8 @@
-# HAKAI Tests Configuration
+# Tests Configuration
+
+## Hakai Tests
 
 The following tables below present the standard parameters used by the Hakai Institute to QC their CTD profile data.
-
 
 | Variable    | Test                 | Parameters                                                                                                                                                                                                      |
 |:------------|:---------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -10,7 +11,7 @@ The following tables below present the standard parameters used by the Hakai Ins
 | hakai_tests | do_cap_test          | {**variable**: ['dissolved_oxygen_ml_l'<br>**rinko_do_ml_l']<br>**bin_size**: 1<br>**suspect_threshold**: 0.2<br>**fail_threshold**: 0.5<br>**ratio_above_threshold**: 0.5<br>**minimum_bins_per_profile**: 10} |
 | hakai_tests | par_shadow_test      | {**variable**: 'par'<br>**min_par_for_shadow_detection**: 5}                                                                                                                                                    |
 
-# QARTOD Tests
+## QARTOD Tests
 
 | Variable                 | Test                   | Parameters                                                                                                                                |
 |:-------------------------|:-----------------------|:------------------------------------------------------------------------------------------------------------------------------------------|
