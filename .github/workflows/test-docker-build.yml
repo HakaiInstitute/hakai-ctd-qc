@@ -19,5 +19,7 @@ jobs:
       HAKAI_API_TOKEN: ${{ secrets.HAKAI_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      - name: create .env placeholder
+        run: echo "HAKAI_API_TOKEN=${{ secrets.HAKAI_API_TOKEN }}" > .env
       - name: Test docker container and load data
         run: docker-compose up
