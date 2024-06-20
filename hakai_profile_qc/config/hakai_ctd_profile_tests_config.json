@@ -45,7 +45,8 @@
       "depth_in_station_range_test",
       "pressure_qartod_gross_range_test",
       "depth_qartod_gross_range_test",
-      "hakai_short_static_deployment_test"
+      "hakai_short_static_deployment_test",
+      "distance_from_station_test"
     ],
     "temperature": ["sigma0_qartod_density_inversion_test"], 
     "salinity": ["sigma0_qartod_density_inversion_test"],
@@ -73,6 +74,21 @@
         "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test"
       ],
       "flag_value": 4
+    },
+    {
+      "query": "1000 < distance_from_station < 3000",
+      "flag_columns": [
+        "distance_from_station_test"
+      ],
+      "flag_value": 3
+    },
+    {
+      "query": "distance_from_station > 3000",
+      "flag_columns": [
+        "distance_from_station_test"
+      ],
+      "flag_value": 4
     }
+
   ]
 }
