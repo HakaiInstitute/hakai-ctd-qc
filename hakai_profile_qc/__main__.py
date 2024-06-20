@@ -20,8 +20,8 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from hakai_profile_qc import hakai_tests, sentry_warnings, variables
-from hakai_profile_qc.version import __version__
+from . import hakai_tests, sentry_warnings, variables
+from .version import __version__
 
 load_dotenv()
 
