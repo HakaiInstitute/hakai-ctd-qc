@@ -95,12 +95,12 @@ HAKAI_GREY_LIST = hakai_tests.load_grey_list(
     PACKAGE_PATH / "HakaiProfileDatasetGreyList.csv"
 )
 
-ioos_qc_coords_mapping = dict(
-    tinp="measurement_dt",
-    zinp="depth",
-    lon="longitude",
-    lat="latitude",
-)
+ioos_qc_coords_mapping = {
+    "tinp": "measurement_dt",
+    "zinp": "depth",
+    "lon": "longitude",
+    "lat": "latitude",
+}
 
 
 logger = logging.getLogger(__name__)
