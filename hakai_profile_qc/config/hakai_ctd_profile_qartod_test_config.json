@@ -68,11 +68,11 @@
                         "gross_range_test": {
                             "fail_span": [
                                 -1,
-                                150
+                                200
                             ],
                             "suspect_span": [
                                 0,
-                                140
+                                170
                             ]
                         },
                         "rate_of_change_test": {

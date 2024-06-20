@@ -1,7 +1,9 @@
 """Hakai Tests
 Regroup Hakai CTD profiles specific tests to be applied during the QC step.
 """
+
 import logging
+import re
 import warnings
 
 import numpy as np
@@ -206,13 +208,13 @@ def bad_value_test(
                 if pd.isna(value) or value in [".isna", "NaN", "nan"]
             ]
             if any(is_na_values):
-                df.loc[
-                    df[column].isna(), column + flag_column_suffix
-                ] = QartodFlags.__dict__[level]
+                df.loc[df[column].isna(), column + flag_column_suffix] = (
+                    QartodFlags.__dict__[level]
+                )
                 values = set(values).difference(is_na_values)
-            df.loc[
-                df[column].isin(values), column + flag_column_suffix
-            ] = QartodFlags.__dict__[level]
+            df.loc[df[column].isin(values), column + flag_column_suffix] = (
+                QartodFlags.__dict__[level]
+            )
     return df
 
 
@@ -294,16 +296,19 @@ def grey_list(
             df.loc[df_to_flag.index, qartod_columns] = row["flag_type"]
 
             # Append to description Flag Comment and name
-            grey_flag_description = f"{qartod_to_hakai_flag[row['flag_type']]}: Hakai Grey List - {row.comments}{' flagged by '+ row.flagged_by if row.flagged_by else ''}"
+            grey_flag_comment = row.comments + (
+                " flagged by " + row.flagged_by if row.flagged_by else ""
+            )
+            grey_flag_description = f"{qartod_to_hakai_flag[row['flag_type']]}: Hakai Grey List - {grey_flag_comment}"
             for column in flag_descriptor_columns:
                 if column not in df:
                     df[column] = ""
                 df.loc[df_to_flag.index, column] = df.loc[
                     df_to_flag.index, column
                 ].apply(
-                    lambda x: x + "; " + grey_flag_description
-                    if x
-                    else grey_flag_description
+                    lambda x: (
+                        x + "; " + grey_flag_description if x else grey_flag_description
+                    )
                 )
     return df
 
@@ -319,8 +324,10 @@ def hakai_station_maximum_depth_test(
     fail_exceedance_range=None,
 ):
     """
-    This test review each profile maximum depth by profile identifier and compare it to the station depth. The whole profile
-    gets flagged as suspect/fail if the maximum depth exceed a percentage or range above of the station depth.
+    This test review each profile maximum depth by profile identifier
+    and compare it to the station depth. The whole profile
+    gets flagged as suspect/fail if the maximum depth exceed a percentage
+    or range above of the station depth.
     """
     # Get Maximum Depth per profile
     df_max_depth = (
@@ -341,9 +348,9 @@ def hakai_station_maximum_depth_test(
     df_max_depth[flag_column] = QartodFlags.GOOD
 
     # If station is depth is unknown flag unkown
-    df_max_depth.loc[
-        df_max_depth["station_depth"].isnull(), flag_column
-    ] = QartodFlags.UNKNOWN
+    df_max_depth.loc[df_max_depth["station_depth"].isnull(), flag_column] = (
+        QartodFlags.UNKNOWN
+    )
 
     # SUSPECT Flag
     df_max_depth.loc[
@@ -399,5 +406,55 @@ def query_based_flag_test(df: pd.DataFrame, query_list: list):
         df.loc[df.query(query["query"]).index, query["flag_columns"]] = query[
             "flag_value"
         ]
+
+    return df
+
+
+def apply_flag_from_process_log(df, metadata):
+    """
+    Apply flag from processing log to the dataframe respective variables
+    """
+    for _, cast in metadata.iterrows():
+        if not cast["process_log"] or not re.search(
+            "warning", cast["process_log"], re.IGNORECASE
+        ):
+            continue
+
+        if (
+            "WARNING!!! Slower Oxygen Sensor RBR CODAstandard are not recommended for profiling applications."
+            in cast["process_log"]
+            and cast["cast_type"] != "Static"
+        ):
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"],
+                "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test",
+            ] = 3
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"],
+                "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test",
+            ] = 3
+
+        if "WARNING! NO SOAK DETECTED, SUSPICIOUS DATA QUALITY" in cast["process_log"]:
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"],
+                "dissolved_oxygen_ml_l_hakai_no_soak_test",
+            ] = 3
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"], "temperature_hakai_no_soak_test"
+            ] = 3
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"], "conductivity_hakai_no_soak_test"
+            ] = 3
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"], "salinity_hakai_no_soak_test"
+            ] = 3
+
+        if (
+            "WARNING Failed to detect any static deployment even if Cast_Type=Static"
+            in cast["process_log"]
+        ):
+            df.loc[
+                df["hakai_id"] == cast["hakai_id"], "hakai_short_static_deployment_test"
+            ] = 3
 
     return df

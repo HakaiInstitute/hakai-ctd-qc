@@ -70,25 +70,25 @@
     },
     "conductivity": {
         "standard_name": "sea_water_electrical_conductivity",
-        "units": "mS\/cm",
+        "units": "mS/cm",
         "description": "",
         "long_name": "Sea Water Conductivity"
     },
     "c_star_at": {
         "standard_name": "volume_beam_attenuation_coefficient_of_radiative_flux_in_sea_water_corrected_for_pure_water_attenuance",
-        "units": "1\/m",
+        "units": "1/m",
         "description": "",
         "long_name": "Beam Attenuation"
     },
     "descent_rate": {
         "standard_name": "platform_speed_wrt_sea_water",
-        "units": "m\/s",
+        "units": "m/s",
         "description": "",
         "long_name": "Profiling Speed"
     },
     "dissolved_oxygen_ml_l": {
         "standard_name": "volume_fraction_of_oxygen_in_sea_water",
-        "units": "mL\/L",
+        "units": "mL/L",
         "description": "",
         "long_name": "Dissolved Oxygen Concentration"
     },
@@ -99,7 +99,7 @@
     },
     "flc": {
         "standard_name": "mass_concentration_of_chlorophyll_in_sea_water",
-        "units": "ug\/L",
+        "units": "ug/L",
         "description": "",
         "long_name": "Chlorophyll-a Concentration"
     },
@@ -117,7 +117,7 @@
     },
     "rinko_do_ml_l": {
         "standard_name": "volume_fraction_of_oxygen_in_sea_water",
-        "units": "mL\/L",
+        "units": "mL/L",
         "description": "",
         "long_name": "Secondary Dissolved Oxygen Concentration"
     },

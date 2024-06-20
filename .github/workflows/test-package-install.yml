@@ -22,19 +22,22 @@ jobs:
       ENVIRONMENT: github
       SENTRY_DSN: null
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v4 
+      - uses: actions/checkout@v4
+        with:
+          # super-linter needs the full git history to get the
+          # list of files that changed across commits
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11' 
-      - name: Lint Tests
-        shell: bash -l {0}
-        run: |
-          pip install flake8 pytest pyarrow fastparquet
-          python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          python -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Install package locally
-        run: pip install -e .
+        run: |
+          pip install poetry ruff && \
+          poetry config virtualenvs.create false && \
+          poetry install --with dev
+      - name: Run ruff
+        run: poetry run ruff check --output-format=github .
       - name: Pytest
-        run: pytest
+        run: pytest .
       - name: Run test suite on Hakai Goose
         run: python hakai_profile_qc --test-suite
