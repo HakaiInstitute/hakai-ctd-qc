@@ -8,7 +8,7 @@ The present package can be installed locally or through a docker container.
 In all cases it is best to clone locally the package and apply the appropriate configuration.
 
 ```terminal
-git clone git@github.com:HakaiInstitute/hakai-profile-qaqc.git
+git clone git@GitHub.com:HakaiInstitute/hakai-profile-qaqc.git
 ```
 
 ### Locally for development only
@@ -69,10 +69,10 @@ Options:
 
 The hakai_profile_qc tool is deployed in multiple ways a Docker containers. See [Dockerfile](Dockerfile).
 
-1. **Testing**: Any changes to the package is tested via a [github workflow](.github/workflows/test-package-install.yml) that qc hakai_id test suite.
-2. **Docker Build Testing**: Docker container build is tested via a [github worflow](.github/workflows/test-docker-build.yml)
-3. **hakaidev db rebuild**: A full rebuild of the hakaidev processed ctd data can be triggered via the [github worflow](.github/workflows/run-qc-rebuild-hakaidev-development.yml). This will trigger a new run at <https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-development-rebuild>
-4. **hakai db rebuild**: A full rebuild of the hakaidev processed ctd data can be triggered via the [github worflow](.github/workflows/run-qc-rebuild-hakaidev-production.yml). This will trigger a new run at <https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-production-rebuild>
+1. **Testing**: Any changes to the package is tested via a [GitHub workflow](.GitHub/workflows/test-package-install.yml) that qc hakai_id test suite.
+2. **Docker Build Testing**: Docker container build is tested via a [GitHub worflow](.GitHub/workflows/test-docker-build.yml)
+3. **hakaidev db rebuild**: A full rebuild of the hakaidev processed ctd data can be triggered via the [GitHub worflow](.GitHub/workflows/run-qc-rebuild-hakaidev-development.yml). This will trigger a new run at <https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-development-rebuild>
+4. **hakai db rebuild**: A full rebuild of the hakaidev processed ctd data can be triggered via the [GitHub worflow](.GitHub/workflows/run-qc-rebuild-hakaidev-production.yml). This will trigger a new run at <https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-production-rebuild>
 5. **QC latest profiles cronjob**: An instance is deployed on hecate.hakai.org via the cronjob and is triggered nightly to qc the latest profiles. This instance is monitored via sentry at for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d)
 
 ### Tests parametrization

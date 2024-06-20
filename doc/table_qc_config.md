@@ -1,6 +1,7 @@
+# HAKAI Tests Configuration
+
 The following tables below present the standard parameters used by the Hakai Institute to QC their CTD profile data.
 
-# HAKAI Tests
 
 | Variable    | Test                 | Parameters                                                                                                                                                                                                      |
 |:------------|:---------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
