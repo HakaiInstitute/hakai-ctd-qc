@@ -4,7 +4,12 @@ from sqlalchemy import create_engine, text
 
 config = dotenv_values(".env")  # load shared development variables
 engine = create_engine(
-    f"postgresql+psycopg2://{config['POSTGRES_USERNAME']}:{config['POSTGRES_PASSWORD']}@{config['POSTGRES_HOST']}:{config['POSTGRES_PORT']}/{config['POSTGRES_DATABASE_NAME']}",
+    url="postgresql+psycopg2://",
+    username=config["POSTGRES_USERNAME"],
+    password=config["POSTGRES_PASSWORD"],
+    host=config["POSTGRES_HOST"],
+    port=config["POSTGRES_PORT"],
+    database=config["POSTGRES_DATABASE_NAME"],
     connect_args={"connect_timeout": 120},
 )
 

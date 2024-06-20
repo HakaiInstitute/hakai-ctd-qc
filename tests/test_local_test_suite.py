@@ -311,7 +311,10 @@ class TestProcessLogTestsWarning:
             df_local["dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test"]
             .isin([3])
             .any()
-        ), "Not any of the dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test failed hakai_ids were flagged as WARNING=3"
+        ), (
+            "Not any of the dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test"
+            " failed hakai_ids were flagged as WARNING=3"
+        )
         flagged_hakai_ids = df_local.query(
             "dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test==3"
         )["hakai_id"].values

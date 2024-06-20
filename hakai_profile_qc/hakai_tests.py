@@ -324,8 +324,10 @@ def hakai_station_maximum_depth_test(
     fail_exceedance_range=None,
 ):
     """
-    This test review each profile maximum depth by profile identifier and compare it to the station depth. The whole profile
-    gets flagged as suspect/fail if the maximum depth exceed a percentage or range above of the station depth.
+    This test review each profile maximum depth by profile identifier
+    and compare it to the station depth. The whole profile
+    gets flagged as suspect/fail if the maximum depth exceed a percentage
+    or range above of the station depth.
     """
     # Get Maximum Depth per profile
     df_max_depth = (

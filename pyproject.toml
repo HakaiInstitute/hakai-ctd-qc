@@ -29,6 +29,9 @@ ruff = "^0.1.3"
 black = {extras = ["jupyter"], version = "^24.4.2"}
 isort = "^5.13.2"
 
+[tool.poetry.group.review.dependencies]
+sqlalchemy = "^2.0.31"
+
 [tool.isort]
 profile = "black"
 
