@@ -24,4 +24,4 @@ COPY hakai_profile_qc ./hakai_profile_qc
 RUN poetry config virtualenvs.in-project true && \
     poetry install --without dev
     
-CMD ["poetry","run","python", "hakai_profile_qc"]
+ENTRYPOINT ["poetry","run","python", "hakai_profile_qc"]
