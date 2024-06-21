@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hakai-profile-qaqc"
-version = "0.2.0"
+version = "0.3.0"
 description = "QC Hakai CTD Profiles"
 authors = ["Jessy Barrette <30420025+JessyBarrette@users.noreply.github.com>"]
 readme = "README.md"
