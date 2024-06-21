@@ -21,7 +21,11 @@ from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from hakai_profile_qc import hakai_tests, sentry_warnings, variables
+from hakai_profile_qc.hakai_tests import qartod_to_hakai_flag
+from hakai_profile_qc.variables import manual_qc_variables
 from hakai_profile_qc.version import __version__
+
+hakai_to_qartod_flag = {v: k for k, v in qartod_to_hakai_flag.items()}
 
 load_dotenv()
 
@@ -341,7 +345,7 @@ def run_qc_profiles(df, metadata):
         consirederd_flag_columns = "|".join(
             hakai_tests_config["flag_aggregation"]["default"]
             + hakai_tests_config["flag_aggregation"].get(var, [])
-            + [f"{var}_qartod_.*|{var}_hakai_.*"]
+            + [f"{var}_qartod_.*|{var}_hakai_.*|{var}_manual_qc_flag"]
         )
         df = _get_hakai_flag_columns(df, var, consirederd_flag_columns)
 
@@ -524,10 +528,20 @@ def main(
                 api_root,
                 ",".join(chunk["hakai_id"].values),
             )
+            manual_qc_query = (
+                "%s/eims/views/output/ctd_qc?hakai_id={%s}&limit=-1&fields=%s"
+                % (
+                    api_root,
+                    ",".join(chunk["hakai_id"].values),
+                    ",".join(manual_qc_variables),
+                )
+            )
 
             logger.debug("Run query: %s", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
             metadata = retrieve_hakai_data(metadata_query, max_attempts=3)
+            manual_qc = retrieve_hakai_data(manual_qc_query, max_attempts=3)
+
             original_variables = df_qced.columns
             if df_qced is None:
                 logger.error(
@@ -539,6 +553,15 @@ def main(
             # Generate derived variables and convert time
             df_qced = _derived_ocean_variables(df_qced)
             df_qced = _convert_time_to_datetime(df_qced)
+
+            # Include manual_qc
+            manual_qc = (
+                manual_qc.set_index("hakai_id").replace(hakai_to_qartod_flag).fillna(2)
+            )
+            manual_qc.columns = [
+                col.replace("_flag", "_manual_qc_flag") for col in manual_qc.columns
+            ]
+            df_qced = df_qced.merge(manual_qc, on="hakai_id", how="left")
 
             # Run QC Process
             logger.debug("Run QC Process")
