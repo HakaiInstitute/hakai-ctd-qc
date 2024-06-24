@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import sys
 from json import JSONDecodeError
@@ -19,6 +18,7 @@ from sentry_sdk.crons import monitor
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
+from loguru import logger
 
 from hakai_profile_qc import hakai_tests, sentry_warnings, variables
 from hakai_profile_qc.hakai_tests import qartod_to_hakai_flag
@@ -37,7 +37,7 @@ def check_hakai_database_rebuild(api_root):
     is_running_rebuilding = response.json()[0]["rebuild_running"]
     if is_running_rebuilding:
         logger.warning(
-            "Stop process early since Hakai DB %s is running a rebuild",
+            "Stop process early since Hakai DB {} is running a rebuild",
             api_root,
         )
         sys.exit()
@@ -107,13 +107,11 @@ ioos_qc_coords_mapping = {
 }
 
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 log_to_sentry()
 logger.info("Start Process")
 if "HAKAI_API_TOKEN" in os.environ:
     logger.info(
-        "HAKAI_API_TOKEN as env variable: %s", len(os.environ["HAKAI_API_TOKEN"])
+        "HAKAI_API_TOKEN as env variable: {}", len(os.environ["HAKAI_API_TOKEN"])
     )
 client = Client(credentials=os.environ.get("HAKAI_API_TOKEN"))
 
@@ -298,7 +296,7 @@ def run_qc_profiles(df, metadata):
     logger.info("Apply Hakai Specific Tests")
     if "do_cap_test" in hakai_tests_config:
         for key in hakai_tests_config["do_cap_test"].pop("variable", []):
-            logger.debug("DO Cap Detection to %s variable", key)
+            logger.debug("DO Cap Detection to {} variable", key)
             df = hakai_tests.do_cap_test(
                 df,
                 key,
@@ -341,7 +339,7 @@ def run_qc_profiles(df, metadata):
     for var in tqdm(
         tested_variable_list, desc="Aggregate flags for each variables", unit="var"
     ):
-        logger.debug("Apply flag results to %s", var)
+        logger.debug("Apply flag results to {}", var)
         consirederd_flag_columns = "|".join(
             hakai_tests_config["flag_aggregation"]["default"]
             + hakai_tests_config["flag_aggregation"].get(var, [])
@@ -377,7 +375,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 
         if response_data.status_code != 200:
             logger.warning(
-                "ERROR %s Failed to retrieve profile data from hakai server. Lets try again: %s",
+                "WARNING {} Failed to retrieve profile data from hakai server. Lets try again: {}",
                 response_data.status_code,
                 response_data.text,
             )
@@ -394,13 +392,13 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 
         except JSONDecodeError:
             logger.error(
-                "Failed to decode json data for this query: %s", url, exc_info=True
+                "Failed to decode json data for this query: {}", url, exc_info=True
             )
             attempts += 1
             continue
 
     logger.error(
-        "Reached the maximum number of attemps to retrieve data from the hakai server: %s",
+        "Reached the maximum number of attemps to retrieve data from the hakai server: {}",
         url,
     )
     return pd.DataFrame()
@@ -483,31 +481,31 @@ def main(
         sentry_sdk.set_tag("process", "special query")
         if isinstance(hakai_ids, list):
             hakai_ids = ",".join(hakai_ids)
-        logger.info("Run QC on hakai_ids: %s", hakai_ids)
+        logger.info("Run QC on hakai_ids: {}", hakai_ids)
         cast_filter_query = "hakai_id={%s}" % hakai_ids
     elif test_suite:
         run_type = "Test Suite"
         logger.info("Running test suite")
         cast_filter_query = "hakai_id={%s}" % ",".join(variables.HAKAI_TEST_SUITE)
     else:
-        logger.info("Run QC on processing stages: %s", processing_stages)
+        logger.info("Run QC on processing stages: {}", processing_stages)
         cast_filter_query = "processing_stage={%s}" % processing_stages
         run_type = cast_filter_query
 
     # Create warning if rebuild
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
-        logger.warning("Full CTD QC rebuild is started on %s", api_root)
+        logger.warning("Full CTD QC rebuild is started on {}", api_root)
 
     # Retrieve casts to qc
     url = f"{api_root}/ctd/views/file/cast?{cast_filter_query}&limit=-1&fields={','.join(variables.CTD_CAST_VARIABLES)}"
-    logger.info("Retrieve: %s", url)
+    logger.info("Retrieve: {}", url)
     df_casts = retrieve_hakai_data(url, max_attempts=3)
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
         return None, None
 
     # Split cast list to qc into chunks and run qc tests on each chunks.
-    logger.info("QC %s drops", len(df_casts))
+    logger.info("QC {} drops", len(df_casts))
     gen_pbar = tqdm(
         total=len(df_casts),
         desc="Profiles to qc",
@@ -537,7 +535,7 @@ def main(
                 )
             )
 
-            logger.debug("Run query: %s", query)
+            logger.debug("Run query: {}", query)
             df_qced = retrieve_hakai_data(query, max_attempts=3)
             metadata = retrieve_hakai_data(metadata_query, max_attempts=3)
             manual_qc = retrieve_hakai_data(manual_qc_query, max_attempts=3)
@@ -545,7 +543,7 @@ def main(
             original_variables = df_qced.columns
             if df_qced is None:
                 logger.error(
-                    "Failed to retrieve profile data for the hakai_ids: %s",
+                    "Failed to retrieve profile data for the hakai_ids: {}",
                     chunk["hakai_id"],
                 )
                 continue
@@ -584,20 +582,20 @@ def main(
             if upload_flag:
                 # Filter out extra variables generated during qc
                 df_upload = df_qced[original_variables]
-                logger.info("Upload results to %s", api_root)
+                logger.info("Upload results to {}", api_root)
                 for _, row in chunk.iterrows():
                     retrieve_hakai_data(
                         f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=_generate_process_flags_json(row, df_upload),
                     )
             else:
-                logger.info("Do not upload results to %s", api_root)
+                logger.info("Do not upload results to {}", api_root)
 
             gen_pbar.update(n=len(chunk))
             logger.debug("Chunk processed")
 
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
-        logger.warning("Full CTD QC rebuild is completed on %s", api_root)
+        logger.warning("Full CTD QC rebuild is completed on {}", api_root)
 
 
 def _get_hakai_flag_columns(
