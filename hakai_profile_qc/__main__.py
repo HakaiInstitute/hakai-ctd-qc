@@ -24,6 +24,7 @@ from hakai_profile_qc import hakai_tests, sentry_warnings, variables
 from hakai_profile_qc.hakai_tests import qartod_to_hakai_flag
 from hakai_profile_qc.variables import manual_qc_variables
 from hakai_profile_qc.version import __version__
+from hakai_profile_qc.utils import retry
 
 hakai_to_qartod_flag = {v: k for k, v in qartod_to_hakai_flag.items()}
 
@@ -371,45 +372,21 @@ def run_qc_profiles(df, metadata):
     return df
 
 
-def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
-    """Run query to hakai api and return a pandas dataframe if sucessfull.
-    A minimum of attemps (default: 3) will be tried if the query fails."""
-    attempts = 0
-    while attempts < max_attempts:
-        if post:
-            response_data = client.post(url, post)
-        else:
-            response_data = client.get(url)
+@logger.catch(default=pd.DataFrame())
+@retry()
+def get_hakai_data(url):
+    """Run query to hakai api and return a pandas dataframe if sucessfull."""
+    response = client.get(url)
+    response.raise_for_status()
+    return pd.DataFrame(response.json())
 
-        if response_data.status_code != 200:
-            logger.warning(
-                "WARNING {} Failed to retrieve profile data from hakai server. Lets try again: {}",
-                response_data.status_code,
-                response_data.text,
-            )
-            attempts += 1
-            continue
-        elif post:
-            # sucessfull post to server
-            return
 
-        # attempt to read json return
-        try:
-            logger.debug("Load to dataframe response.json")
-            return pd.DataFrame(response_data.json())
-
-        except JSONDecodeError:
-            logger.error(
-                "Failed to decode json data for this query: {}", url, exc_info=True
-            )
-            attempts += 1
-            continue
-
-    logger.error(
-        "Reached the maximum number of attemps to retrieve data from the hakai server: {}",
-        url,
-    )
-    return pd.DataFrame()
+@logger.catch(default=pd.DataFrame())
+@retry()
+def post_hakai_data(url, post):
+    """Post data to hakai api"""
+    response = client.post(url, post)
+    response.raise_for_status()
 
 
 @click.command()
@@ -508,7 +485,7 @@ def main(
     # Retrieve casts to qc
     url = f"{api_root}/ctd/views/file/cast?{cast_filter_query}&limit=-1&fields={','.join(variables.CTD_CAST_VARIABLES)}"
     logger.info("Retrieve: {}", url)
-    df_casts = retrieve_hakai_data(url, max_attempts=3)
+    df_casts = get_hakai_data(url)
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
         return None, None
@@ -545,9 +522,9 @@ def main(
             )
 
             logger.debug("Run query: {}", query)
-            df_qced = retrieve_hakai_data(query, max_attempts=3)
-            metadata = retrieve_hakai_data(metadata_query, max_attempts=3)
-            manual_qc = retrieve_hakai_data(manual_qc_query, max_attempts=3)
+            df_qced = get_hakai_data(query)
+            metadata = get_hakai_data(metadata_query)
+            manual_qc = get_hakai_data(manual_qc_query)
 
             original_variables = df_qced.columns
             if df_qced is None:
@@ -593,7 +570,7 @@ def main(
                 df_upload = df_qced[original_variables]
                 logger.info("Upload results to {}", api_root)
                 for _, row in tqdm(chunk.iterrows(), desc="Upoad to server", unit="cast", total=len(chunk)):
-                    retrieve_hakai_data(
+                    post_hakai_data(
                         f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=_generate_process_flags_json(row, df_upload),
                     )
@@ -601,7 +578,7 @@ def main(
                 logger.info("Do not upload results to {}", api_root)
 
             gen_pbar.update(n=len(chunk))
-            logger.debug("Chunk processed")
+            logger.info("Processed: {}/{}", chunk["hakai_id"].values,len(df_casts))
 
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
         logger.warning("Full CTD QC rebuild is completed on {}", api_root)
