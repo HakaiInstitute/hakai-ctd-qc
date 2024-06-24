@@ -592,7 +592,7 @@ def main(
                 # Filter out extra variables generated during qc
                 df_upload = df_qced[original_variables]
                 logger.info("Upload results to {}", api_root)
-                for _, row in chunk.iterrows():
+                for _, row in tqdm(chunk.iterrows(), desc="Upoad to server", unit="cast", total=len(chunk)):
                     retrieve_hakai_data(
                         f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=_generate_process_flags_json(row, df_upload),
