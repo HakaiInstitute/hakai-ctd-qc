@@ -395,7 +395,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 
         # attempt to read json return
         try:
-            logger.info("Load to dataframe response.json")
+            logger.debug("Load to dataframe response.json")
             return pd.DataFrame(response_data.json())
 
         except JSONDecodeError:
