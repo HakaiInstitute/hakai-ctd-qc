@@ -75,7 +75,7 @@ def run_profiling(output):
 
     def exit():
         pr.disable()
-        print("Profiling completed")
+        logger.info("Profiling completed")
         s = io.StringIO()
         pstats.Stats(pr, stream=s).sort_stats("cumulative").print_stats()
         with open(output, "w") as file:
@@ -88,6 +88,10 @@ tqdm.pandas()
 PACKAGE_PATH = Path(__file__).parent
 DEFAULT_CONFIG_PATH = PACKAGE_PATH / ".." / "default-config.yaml"
 ENV_CONFIG_PATH = PACKAGE_PATH / ".." / "config.yaml"
+LOG_FILE = os.environ.get("LOG_FILE")
+if LOG_FILE:
+    logger.info("Log to file: {}", LOG_FILE)
+    logger.add(LOG_FILE, rotation="1 week", retention="1 month")
 
 HAKAI_TESTS_CONFIGURATION = json.loads(
     (PACKAGE_PATH / "config" / "hakai_ctd_profile_tests_config.json").read_text()
@@ -452,6 +456,7 @@ def retrieve_hakai_data(url, post=None, max_attempts: int = 3):
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
+@logger.catch(reraise=True)
 def main(
     hakai_ids,
     test_suite,
