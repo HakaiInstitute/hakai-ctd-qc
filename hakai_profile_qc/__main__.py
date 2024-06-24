@@ -88,6 +88,10 @@ tqdm.pandas()
 PACKAGE_PATH = Path(__file__).parent
 DEFAULT_CONFIG_PATH = PACKAGE_PATH / ".." / "default-config.yaml"
 ENV_CONFIG_PATH = PACKAGE_PATH / ".." / "config.yaml"
+
+# Set logger
+logger.remove()
+logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 LOG_FILE = os.environ.get("LOG_FILE")
 if LOG_FILE:
     logger.info("Log to file: {}", LOG_FILE)
