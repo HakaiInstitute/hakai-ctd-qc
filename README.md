@@ -91,3 +91,27 @@ A subset of hakai_ids is used to test the qc tool and is maintained [here](hakai
 
 Manual flags can also be implemented on any instrument-specific variables via the [grey-list](hakai_profile_qc/HakaiProfileDatasetGreyList.csv),
 which overwrites any automatically generated flags.
+
+### Testing
+
+To make sure the tests are working appropriately a a series of pytests are available. Some of the tests are specific to the hakai tests, others to the hakai test suite. 
+
+The test suite is made available locally via the parquet file, or retrieved from the development or production database.
+
+To run all the tests locally:
+
+```shell
+poetry run pytest .
+```
+
+To run all the tests with the production data (hecate) or development data (goose). Use the `--test-suite-from` option. Here's an example for goose:
+
+```shell
+poetry run pytest . --test-suite-from goose
+```
+
+Once to test the results on any of the databases without rerunning the tests on the data, you can use the `--test-suite-qc False` option.
+
+```shell
+poetry run pytest . --test-suite-form goose --test-suite-qc False
+```

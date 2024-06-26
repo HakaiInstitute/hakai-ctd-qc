@@ -2,34 +2,63 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from loguru import logger
 
 from hakai_profile_qc import hakai_tests
-from hakai_profile_qc.__main__ import (
-    _convert_time_to_datetime,
-    _derived_ocean_variables,
-    run_qc_profiles,
-)
+from hakai_profile_qc.__main__ import (_convert_time_to_datetime,
+                                       _derived_ocean_variables,
+                                       run_qc_profiles)
 from hakai_profile_qc.variables import HAKAI_TEST_SUITE
+from tests.utils import (get_hakai_test_suite_data,
+                         get_hakai_test_suite_metadata)
 
 MODULE_PATH = Path(__file__).parent
 
 
 @pytest.fixture(scope="module")
-def df_initial():
-    df_local = pd.read_parquet(MODULE_PATH / "test_data" / "ctd_test_suite.parquet")
+def df_initial(request):
+    source = request.config.getoption("--test-suite-from")
+    if source == "local":
+        logger.debug("Fetching test suite from local")
+        df = pd.read_parquet(MODULE_PATH / "test_data" / "ctd_test_suite.parquet")
+    elif source == "hecate":
+        logger.debug("Fetching test suite from Hecate")
+        df = get_hakai_test_suite_data()
+    elif source == "goose":
+        logger.debug("Fetching test suite from Goose")
+        df = get_hakai_test_suite_data()
+    else:
+        raise ValueError(
+            f"Invalid source '{source}' for the test suite. Must be one of 'local', 'hecate', 'goose'"
+        )
 
-    return df_local.set_index("ctd_data_pk").copy()
+    return df.set_index("ctd_data_pk").copy()
 
 
 @pytest.fixture(scope="module")
-def df_local_metadata():
-    return pd.read_parquet(
-        MODULE_PATH / "test_data" / "ctd_test_suite_metadata.parquet"
-    )
+def df_local_metadata(request):
+    source = request.config.getoption("--test-suite-from")
+    if source == "local":
+        return pd.read_parquet(
+            MODULE_PATH / "test_data" / "ctd_test_suite_metadata.parquet"
+        )
+    elif source == "hecate":
+        return get_hakai_test_suite_metadata(api_root="hecate")
+    elif source == "goose":
+        return get_hakai_test_suite_metadata(api_root="goose")
+    else:
+        raise ValueError(
+            f"Invalid source '{source}' for the test suite. Must be one of 'local', 'hecate', 'goose'"
+        )
 
 
 @pytest.fixture(scope="module")
-def df_local(df_initial, df_local_metadata):
+def df_local(request, df_initial, df_local_metadata):
+    apply_qc = request.config.getoption("--test-suite-qc")
+    if apply_qc == "False":
+        logger.debug("Skipping QC")
+        return df_initial
+
     df_local = _derived_ocean_variables(df_initial.reset_index())
     df_local = run_qc_profiles(df_local, df_local_metadata)
     df_local = df_local.set_index("ctd_data_pk")
@@ -409,6 +438,7 @@ class TestProcessLogTestsWarning:
         flagged_hakai_ids = set(
             df_local.query("hakai_short_static_deployment_test==3")["hakai_id"].values
         )
-        assert all(
-            item in flagged_hakai_ids for item in short_static_deployment
-        ), "Not all short static deployment failed profiles are present"
+        missing_short_static_deployment = [
+            hakai_id for hakai_id in short_static_deployment if hakai_id not in flagged_hakai_ids
+        ]
+        assert not missing_short_static_deployment, "Not all short static deployment failed profiles are present. Missing: %s" % missing_short_static_deployment
