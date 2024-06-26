@@ -14,17 +14,17 @@ from hakai_api import Client
 from ioos_qc.config import Config
 from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
+from loguru import logger
 from sentry_sdk.crons import monitor
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from loguru import logger
 
 from hakai_profile_qc import hakai_tests, sentry_warnings, variables
 from hakai_profile_qc.hakai_tests import qartod_to_hakai_flag
+from hakai_profile_qc.utils import retry
 from hakai_profile_qc.variables import manual_qc_variables
 from hakai_profile_qc.version import __version__
-from hakai_profile_qc.utils import retry
 
 hakai_to_qartod_flag = {v: k for k, v in qartod_to_hakai_flag.items()}
 
@@ -569,7 +569,12 @@ def main(
                 # Filter out extra variables generated during qc
                 df_upload = df_qced[original_variables]
                 logger.info("Upload results to {}", api_root)
-                for _, row in tqdm(chunk.iterrows(), desc="Upoad to server", unit="cast", total=len(chunk)):
+                for _, row in tqdm(
+                    chunk.iterrows(),
+                    desc="Upoad to server",
+                    unit="cast",
+                    total=len(chunk),
+                ):
                     post_hakai_data(
                         f"{api_root}/ctd/process/flags/json/{row['ctd_cast_pk']}",
                         post=_generate_process_flags_json(row, df_upload),
@@ -578,7 +583,7 @@ def main(
                 logger.info("Do not upload results to {}", api_root)
 
             gen_pbar.update(n=len(chunk))
-            logger.info("Processed: {}/{}", chunk["hakai_id"].values,len(df_casts))
+            logger.info("Processed: {}/{}", chunk["hakai_id"].values, len(df_casts))
 
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
         logger.warning("Full CTD QC rebuild is completed on {}", api_root)

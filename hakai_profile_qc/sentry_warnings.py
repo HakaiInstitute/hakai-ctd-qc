@@ -1,6 +1,6 @@
 import pandas as pd
-from sentry_sdk import set_context, set_tag
 from loguru import logger
+from sentry_sdk import set_context, set_tag
 
 tags = ["work_area", "station", "device_sn", "hakai_id"]
 
