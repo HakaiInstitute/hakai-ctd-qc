@@ -1,8 +1,6 @@
 from pathlib import Path
 
-import pandas as pd
 import pytest
-from loguru import logger
 
 from hakai_profile_qc import hakai_tests
 from hakai_profile_qc.__main__ import (
