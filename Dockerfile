@@ -1,11 +1,11 @@
-FROM python:3.11-slim as base
+FROM  --platform=linux/amd64 python:3.11-slim as base
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
     PYTHONUNBUFFERED=1
 
 RUN apt-get update
-RUN apt-get install -y git
+RUN apt-get install -y git 
 
 WORKDIR /app
 
@@ -18,9 +18,12 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 
 RUN pip install "poetry==$POETRY_VERSION"
 
-COPY . .
-
+# Install dependencies first
+COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.in-project true && \
-    poetry install --without dev
+    poetry install --without dev --no-root
+
+COPY . .
+RUN poetry install --no-dev
     
-ENTRYPOINT ["poetry","run","python", "hakai_profile_qc"]
+CMD ["poetry","run","python", "hakai_profile_qc"]
