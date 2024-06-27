@@ -53,7 +53,7 @@ def run_sentry_warnings(casts_data, casts, minimum_date=None):
         "Secondary oxygen instrument Rinko seems to have been deployed with the cap on the unit.",
     )
     _generate_sentry_warning(
-        "dissolved_oxygen_ml_l_do_cap_test==4",
+        "dissolved_oxygen_ml_l_hakai_do_cap_test==4",
         "Oxygen instrument seems to have been deployed with the cap on the unit.",
     )
 

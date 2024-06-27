@@ -26,7 +26,7 @@ def do_cap_test(
     fail_threshold=0.5,
     ratio_above_threshold=0.5,
     minimum_bins_per_profile=10,
-    flag_name="_do_cap_test",
+    flag_name="_hakai_do_cap_test",
 ):
     """
     Hakai do_cap_test compare down and up cast values measured by an instrument at the same depth. The test compare
@@ -92,7 +92,7 @@ def do_cap_test(
         & (profile_bin_stats["count"] > 1),
     )
 
-    # Get each flag ration per profile
+    # Get each flag ratio per profile
     profile_stats = profile_bin_stats.groupby(by=[profile_id]).agg(
         lambda x: sum(x) / len(x)
     )

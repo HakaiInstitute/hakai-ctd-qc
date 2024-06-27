@@ -211,12 +211,12 @@ class TestHakaiDOCapTest:
         )
 
     def test_do_cap_test_svd_locally(self, df_local):
-        assert "dissolved_oxygen_ml_l_do_cap_test" in df_local.columns, (
-            "Missing dissolved_oxygen_ml_l_do_cap_test from dataframe: %s"
+        assert "dissolved_oxygen_ml_l_hakai_do_cap_test" in df_local.columns, (
+            "Missing dissolved_oxygen_ml_l_hakai_do_cap_test from dataframe: %s"
             % df_local.filter(like="dissolved_oxygen").columns
         )
-        df = df_local.query("dissolved_oxygen_ml_l_do_cap_test==4")
-        assert not df.empty, "No hakai_id has dissolved_oxygen_ml_l_do_cap_test=FAIL=4)"
+        df = df_local.query("dissolved_oxygen_ml_l_hakai_do_cap_test==4")
+        assert not df.empty, "No hakai_id has dissolved_oxygen_ml_l_hakai_do_cap_test=FAIL=4)"
         assert all(
             hakai_id in df_local["hakai_id"].values
             for hakai_id in HAKAI_IDS_WITH_ISSUES["do_cap_fail_hakai_ids"]
@@ -230,8 +230,8 @@ class TestHakaiDOCapTest:
             not_flagged_do_cap_failed
         ), f"The following hakai_ids do cap test weren't flagged as FAIl: {not_flagged_do_cap_failed}"
         assert (
-            df["dissolved_oxygen_ml_l_do_cap_test"].isin([4]).all()
-        ), "Not all the dissolved_oxygen_ml_l_do_cap_test failed hakai_ids were flagged as FAIL=4"
+            df["dissolved_oxygen_ml_l_hakai_do_cap_test"].isin([4]).all()
+        ), "Not all the dissolved_oxygen_ml_l_hakai_do_cap_test failed hakai_ids were flagged as FAIL=4"
         assert (
             df["dissolved_oxygen_ml_l_flag"].str.startswith("SVD").all()
         ), "Not all the dissolved_oxygen_ml_l_flag failed hakai_ids were flagged as SVD"
