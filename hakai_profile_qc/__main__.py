@@ -303,12 +303,13 @@ def run_qc_profiles(df, metadata):
     # DO CAP DETECTION
     logger.info("Apply Hakai Specific Tests")
     if "do_cap_test" in hakai_tests_config:
-        for key in hakai_tests_config["do_cap_test"].pop("variable", []):
+        do_config = hakai_tests_config["do_cap_test"].copy()
+        for key in do_config.pop("variable"):
             logger.debug("DO Cap Detection to {} variable", key)
             df = hakai_tests.do_cap_test(
                 df,
                 key,
-                **hakai_tests_config["do_cap_test"],
+                **do_config,
             )
 
     # BOTTOM HIT DETECTION
