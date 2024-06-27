@@ -18,8 +18,7 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 
 RUN pip install "poetry==$POETRY_VERSION"
 
-COPY pyproject.toml poetry.lock README.md ./
-COPY hakai_profile_qc ./hakai_profile_qc
+COPY . .
 
 RUN poetry config virtualenvs.in-project true && \
     poetry install --without dev
