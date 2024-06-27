@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-from json import JSONDecodeError
 from pathlib import Path
 
 import click
@@ -571,7 +570,7 @@ def main(
                 logger.info("Upload results to {}", api_root)
                 for _, row in tqdm(
                     chunk.iterrows(),
-                    desc="Upoad to server",
+                    desc="Upload to server",
                     unit="cast",
                     total=len(chunk),
                 ):
