@@ -10,7 +10,7 @@ MODULE_PATH = os.path.dirname(__file__)
 
 
 def define_api_root(api_root=None):
-    logger.debug("Selecting API root=={}",api_root)
+    logger.debug("Selecting API root=={}", api_root)
     if api_root == "hecate":
         return "https://hecate.hakai.org/api"
     elif api_root == "goose":

@@ -1,25 +1,14 @@
 from pathlib import Path
 
-import pytest
-
 from hakai_profile_qc import hakai_tests
 from hakai_profile_qc.__main__ import (
     _convert_time_to_datetime,
     _derived_ocean_variables,
-    run_qc_profiles,
 )
 from hakai_profile_qc.variables import HAKAI_TEST_SUITE
 from tests.hakai_ids_with_issues import HAKAI_IDS_WITH_ISSUES
 
 MODULE_PATH = Path(__file__).parent
-
-
-@pytest.fixture(scope="module")
-def df_local(df_initial, df_local_metadata):
-    df_local = _derived_ocean_variables(df_initial.reset_index())
-    df_local = run_qc_profiles(df_local, df_local_metadata)
-    df_local = df_local.set_index("ctd_data_pk")
-    return df_local
 
 
 def test_local_suite_has_all_hakai_ids(df_initial):
