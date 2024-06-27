@@ -448,7 +448,10 @@ def apply_flag_from_process_log(df, metadata):
                 df["hakai_id"] == cast["hakai_id"], "salinity_hakai_no_soak_test"
             ] = 3
 
-        if "Static Measurement is considered SUSPICIOUS due to the lowered thredholds" in cast["process_log"]:
+        if (
+            "Static Measurement is considered SUSPICIOUS due to the lowered thredholds"
+            in cast["process_log"]
+        ):
             df.loc[
                 df["hakai_id"] == cast["hakai_id"], "hakai_short_static_deployment_test"
             ] = 3

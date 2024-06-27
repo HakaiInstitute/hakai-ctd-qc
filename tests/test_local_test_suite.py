@@ -5,60 +5,19 @@ import pytest
 from loguru import logger
 
 from hakai_profile_qc import hakai_tests
-from hakai_profile_qc.__main__ import (_convert_time_to_datetime,
-                                       _derived_ocean_variables,
-                                       run_qc_profiles)
+from hakai_profile_qc.__main__ import (
+    _convert_time_to_datetime,
+    _derived_ocean_variables,
+    run_qc_profiles,
+)
 from hakai_profile_qc.variables import HAKAI_TEST_SUITE
-from tests.utils import (get_hakai_test_suite_data,
-                         get_hakai_test_suite_metadata)
+from tests.hakai_ids_with_issues import HAKAI_IDS_WITH_ISSUES
 
 MODULE_PATH = Path(__file__).parent
 
 
 @pytest.fixture(scope="module")
-def df_initial(request):
-    source = request.config.getoption("--test-suite-from")
-    if source == "local":
-        logger.debug("Fetching test suite from local")
-        df = pd.read_parquet(MODULE_PATH / "test_data" / "ctd_test_suite.parquet")
-    elif source == "hecate":
-        logger.debug("Fetching test suite from Hecate")
-        df = get_hakai_test_suite_data()
-    elif source == "goose":
-        logger.debug("Fetching test suite from Goose")
-        df = get_hakai_test_suite_data()
-    else:
-        raise ValueError(
-            f"Invalid source '{source}' for the test suite. Must be one of 'local', 'hecate', 'goose'"
-        )
-
-    return df.set_index("ctd_data_pk").copy()
-
-
-@pytest.fixture(scope="module")
-def df_local_metadata(request):
-    source = request.config.getoption("--test-suite-from")
-    if source == "local":
-        return pd.read_parquet(
-            MODULE_PATH / "test_data" / "ctd_test_suite_metadata.parquet"
-        )
-    elif source == "hecate":
-        return get_hakai_test_suite_metadata(api_root="hecate")
-    elif source == "goose":
-        return get_hakai_test_suite_metadata(api_root="goose")
-    else:
-        raise ValueError(
-            f"Invalid source '{source}' for the test suite. Must be one of 'local', 'hecate', 'goose'"
-        )
-
-
-@pytest.fixture(scope="module")
-def df_local(request, df_initial, df_local_metadata):
-    apply_qc = request.config.getoption("--test-suite-qc")
-    if apply_qc == "False":
-        logger.debug("Skipping QC")
-        return df_initial
-
+def df_local(df_initial, df_local_metadata):
     df_local = _derived_ocean_variables(df_initial.reset_index())
     df_local = run_qc_profiles(df_local, df_local_metadata)
     df_local = df_local.set_index("ctd_data_pk")
@@ -247,17 +206,6 @@ class TestHakaiQueryTests:
         ), "Failed to flag the par and dissolved oxygen aggregated level 1 flags to 4"
 
 
-do_cap_fail_hakai_ids = [
-    "080217_2014-08-13T13:49:30.167Z",
-    "080217_2017-11-10T19:33:01.833Z",
-    "080217_2017-01-15T17:57:21.667Z",
-    "080217_2020-02-09T18:36:46.834Z",
-    "018066_2012-08-10T17:41:33.000Z",
-    "080217_2016-11-26T20:23:06.500Z",
-    "018032_2020-05-02T21:18:21.833Z",
-]
-
-
 class TestHakaiDOCapTest:
     def test_do_cap_static_drop(self, df_local):
         hakai_tests.do_cap_test(
@@ -273,11 +221,11 @@ class TestHakaiDOCapTest:
         assert not df.empty, "No hakai_id has dissolved_oxygen_ml_l_do_cap_test=FAIL=4)"
         assert all(
             hakai_id in df_local["hakai_id"].values
-            for hakai_id in do_cap_fail_hakai_ids
+            for hakai_id in HAKAI_IDS_WITH_ISSUES["do_cap_fail_hakai_ids"]
         ), "Not all do cap test failed profiles are present"
         not_flagged_do_cap_failed = [
             hakai_id
-            for hakai_id in do_cap_fail_hakai_ids
+            for hakai_id in HAKAI_IDS_WITH_ISSUES["do_cap_fail_hakai_ids"]
             if hakai_id not in df["hakai_id"].values
         ]
         assert not any(
@@ -323,11 +271,6 @@ class TestQARTODTests:
         )
 
 
-slow_oxygen_warning_hakai_ids = ["205019_2021-07-16T22:09:28.000Z"]
-no_soak_warning_hakai_ids = ["080217_2015-04-16T17:28:24.833Z"]
-short_static_deployment = ["203865_2021-06-21T21:52:09.000Z"]
-
-
 class TestProcessLogTestsWarning:
     def test_slow_oxygen_warning(self, df_local):
         """Review the results of the slow oxygen sensor test"""
@@ -359,7 +302,8 @@ class TestProcessLogTestsWarning:
             ].isin([3, 4])
         ), "Not all dissolved_oxygen_ml_l_hakai_slow_oxygen_sensor_test were flagged as WARNING=3 or greater"
         assert all(
-            item in flagged_hakai_ids for item in slow_oxygen_warning_hakai_ids
+            item in flagged_hakai_ids
+            for item in HAKAI_IDS_WITH_ISSUES["slow_oxygen_warning_hakai_ids"]
         ), "Not all slow oxygen sensor test failed profiles are present"
 
     def test_no_soak_warning(self, df_local):
@@ -384,7 +328,8 @@ class TestProcessLogTestsWarning:
             ].values
         )
         assert all(
-            item in flagged_hakai_ids for item in no_soak_warning_hakai_ids
+            item in flagged_hakai_ids
+            for item in HAKAI_IDS_WITH_ISSUES["no_soak_warning_hakai_ids"]
         ), "Not all slow oxygen sensor test failed profiles are present"
 
         # make sure that temperature, salinity,conductivity are also flagged
@@ -439,6 +384,11 @@ class TestProcessLogTestsWarning:
             df_local.query("hakai_short_static_deployment_test==3")["hakai_id"].values
         )
         missing_short_static_deployment = [
-            hakai_id for hakai_id in short_static_deployment if hakai_id not in flagged_hakai_ids
+            hakai_id
+            for hakai_id in HAKAI_IDS_WITH_ISSUES["short_static_deployment"]
+            if hakai_id not in flagged_hakai_ids
         ]
-        assert not missing_short_static_deployment, "Not all short static deployment failed profiles are present. Missing: %s" % missing_short_static_deployment
+        assert not missing_short_static_deployment, (
+            "Not all short static deployment failed profiles are present. Missing: %s"
+            % missing_short_static_deployment
+        )

@@ -113,5 +113,5 @@ poetry run pytest . --test-suite-from goose
 Once to test the results on any of the databases without rerunning the tests on the data, you can use the `--test-suite-qc False` option.
 
 ```shell
-poetry run pytest . --test-suite-form goose --test-suite-qc False
+poetry run pytest . --test-suite-form goose -k test_source_expected_results
 ```
