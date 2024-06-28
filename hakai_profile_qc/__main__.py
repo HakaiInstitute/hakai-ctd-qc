@@ -592,7 +592,7 @@ def main(
 def _get_hakai_flag_columns(
     df,
     variable,
-    flag_regex="",
+    flag_regex,
 ):
     """
     Generate the different Level1 and Level2 flag columns by
@@ -618,9 +618,10 @@ def _get_hakai_flag_columns(
         )
 
     # Retrieve each flags column associated to a variable
-    df_subset = (
-        df.filter(regex=flag_regex).replace({9: None, 2: None}).dropna(how="all")
-    )
+    df_subset_flag = df.filter(regex=flag_regex).replace({9: None, 2: None})
+    ignore_records = (df_subset_flag.notna().any(axis=1)) & (df[variable].notna())
+    df_subset = df_subset_flag.loc[ignore_records]
+    
     if df_subset.empty:
         return df
 
