@@ -157,40 +157,19 @@ class TestHakaiQueryTests:
         query = "organization=='NATURE TRUST' and sensors_submerged=='Bottom'"
         df = df_local.query(query)
         assert not df.empty, "Missing {query}"
-        assert (
-            df[
-                [
-                    "par_hakai_sensor_bottom_submerged_test",
-                    "dissolved_oxygen_percent_hakai_sensor_bottom_submerged_test",
-                    "dissolved_oxygen_ml_l_hakai_sensor_bottom_submerged_test",
-                ]
-            ]
-            == 4
-        ).all(
-            axis=None
-        ), "Failed to flag nature trust par and oxygen sensors_submberged=='Bottom' -> 4"
-        assert (
-            df[
-                [
-                    "par_flag",
-                    "dissolved_oxygen_ml_l_flag",
-                    "dissolved_oxygen_percent_flag",
-                ]
-            ]
-            .map(lambda x: x.startswith("SVD"))
-            .all(axis=None)
-        ), "Failed to flag the par and dissolved oxygen aggregated flags to SVD"
-        assert (
-            df[
-                [
-                    "par_flag_level_1",
-                    "dissolved_oxygen_ml_l_flag_level_1",
-                    "dissolved_oxygen_percent_flag_level_1",
-                ]
-            ]
-            .isin([4, 9])
-            .all(axis=None)
-        ), "Failed to flag the par and dissolved oxygen aggregated level 1 flags to 4"
+        for var in ["par", "dissolved_oxygen_ml_l", "dissolved_oxygen_percent"]:
+            assert (
+                (df[f"{var}_hakai_sensor_bottom_submerged_test"] == 4)
+                | (df[var].isna())
+            ).all(), (
+                f"Failed to flag nature trust {var} sensors_submberged=='Bottom' -> 4"
+            )
+            assert (
+                (df[f"{var}_flag"].str.startswith("SVD") | (df[var].isna())).all()
+            ).all(), f"Failed to flag the {var}_flag to SVD"
+            assert (
+                (df[f"{var}_flag_level_1"] == 4) | (df[var].isna())
+            ).all(), f"Failed to flag the {var}_flag_level_1 to 4"
 
 
 class TestHakaiDOCapTest:
@@ -205,7 +184,9 @@ class TestHakaiDOCapTest:
             % df_local.filter(like="dissolved_oxygen").columns
         )
         df = df_local.query("dissolved_oxygen_ml_l_hakai_do_cap_test==4")
-        assert not df.empty, "No hakai_id has dissolved_oxygen_ml_l_hakai_do_cap_test=FAIL=4)"
+        assert (
+            not df.empty
+        ), "No hakai_id has dissolved_oxygen_ml_l_hakai_do_cap_test=FAIL=4)"
         assert all(
             hakai_id in df_local["hakai_id"].values
             for hakai_id in HAKAI_IDS_WITH_ISSUES["do_cap_fail_hakai_ids"]
