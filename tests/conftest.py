@@ -57,7 +57,7 @@ def df_local_metadata(source):
         raise ValueError(
             f"Invalid source '{source}' for the test suite. Must be one of 'local', 'hecate', 'goose'"
         )
-    
+
 
 @pytest.fixture(scope="module")
 def df_local(df_initial, df_local_metadata):
