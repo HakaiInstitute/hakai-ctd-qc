@@ -44,13 +44,14 @@
       "bottom_hit_test",
       "depth_in_station_range_test",
       "pressure_qartod_gross_range_test",
-      "depth_qartod_gross_range_test"
+      "depth_qartod_gross_range_test",
+      "hakai_short_static_deployment_test"
     ],
     "temperature": ["sigma0_qartod_density_inversion_test"], 
     "salinity": ["sigma0_qartod_density_inversion_test"],
     "conductivity": ["sigma0_qartod_density_inversion_test"],
-    "dissolved_oxygen_ml_l": ["dissolved_oxygen_ml_l_do_cap_test"],
-    "rinko_ml_l": ["rinko_ml_l_do_cap_test"]
+    "dissolved_oxygen_ml_l": ["dissolved_oxygen_ml_l_hakai_do_cap_test"],
+    "rinko_ml_l": ["rinko_ml_l_hakai_do_cap_test"]
   },
   "query_based_flag": [
     {

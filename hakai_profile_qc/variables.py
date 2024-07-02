@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 
 CTD_CAST_VARIABLES = [
     "ctd_cast_pk",
@@ -111,13 +110,39 @@ CTD_CAST_DATA_VARIABLES = [
     "cdom_ppb_flag_level_1",
 ]
 
+manual_qc_variables = [
+    "hakai_id",
+    "conductivity_flag",
+    "temperature_flag",
+    "depth_flag",
+    "pressure_flag",
+    "par_flag",
+    "flc_flag",
+    "turbidity_flag",
+    "salinity_flag",
+    "spec_cond_flag",
+    "dissolved_oxygen_ml_l_flag",
+    "dissolved_oxygen_percent_flag",
+    "absolute_salinity_flag",
+    "conservative_temperature_flag",
+    "density_flag",
+    "c_star_at_flag",
+    "rinko_do_ml_l_flag",
+]
+
 
 # Hakai ID Test suite liste
-def load_test_suite():
-    with open(Path(__file__).parent / "config" / "HAKAI_ID_TEST_SUITE.txt") as file:
-        return [
-            line for line in re.sub("\#.*\n", "\n", file.read()).split("\n") if line
-        ]
+def load_test_suite() -> list[str]:
+    test_suite_list = (
+        (Path(__file__).parent / "config" / "HAKAI_ID_TEST_SUITE.txt")
+        .read_text()
+        .split("\n")
+    )
+    return [
+        line.split("#")[0].strip()
+        for line in test_suite_list
+        if line and not line.strip().startswith("#")
+    ]
 
 
 HAKAI_TEST_SUITE = load_test_suite()
