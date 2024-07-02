@@ -21,9 +21,9 @@ RUN pip install "poetry==$POETRY_VERSION"
 # Install dependencies first
 COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.in-project true && \
-    poetry install --without dev --no-root
+    poetry install --only main --no-root
 
 COPY . .
-RUN poetry install --no-dev
+RUN poetry install --only main
     
 CMD ["poetry","run","python", "hakai_profile_qc"]
