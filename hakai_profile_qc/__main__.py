@@ -25,6 +25,8 @@ from hakai_profile_qc.utils import retry
 from hakai_profile_qc.variables import manual_qc_variables
 from hakai_profile_qc.version import __version__
 
+logger.debug("Hakai Profile QC version: {}", __version__)
+
 hakai_to_qartod_flag = {v: k for k, v in qartod_to_hakai_flag.items()}
 
 load_dotenv()
