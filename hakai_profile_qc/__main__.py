@@ -44,6 +44,10 @@ def check_hakai_database_rebuild(api_root):
 
 
 def log_to_sentry():
+    sentry_dsn = os.environ.get("SENTRY_DSN")
+    if not sentry_dsn:
+        return
+    logger.warning("Log to Sentry")
     sentry_logging = LoggingIntegration(
         level=os.environ.get(
             "SENTRY_LEVEL", "INFO"
@@ -53,7 +57,7 @@ def log_to_sentry():
         ),  # Send errors as events
     )
     sentry_sdk.init(
-        dsn=os.environ.get("SENTRY_DSN"),
+        dsn=sentry_dsn,
         integrations=[
             sentry_logging,
         ],
@@ -430,7 +434,7 @@ def post_hakai_data(url, post):
 )
 @click.option(
     "--sentry-minimum-date",
-    type=click.DateTime(),
+    type=str,
     help="Minimum date to use to generate sentry warnings [env=SENTRY_MINIMUM_DATE]",
     default=None,
     envvar="SENTRY_MINIMUM_DATE",
@@ -551,6 +555,7 @@ def main(
             logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced, metadata)
             if sentry_minimum_date:
+                sentry_minimum_date = pd.to_datetime(sentry_minimum_date, utc=True , format="ISO8601")
                 sentry_warnings.run_sentry_warnings(df_qced, chunk, sentry_minimum_date)
 
             # Convert QARTOD to string temporarily
@@ -649,5 +654,6 @@ def _get_hakai_flag_columns(
 
 
 if __name__ == "__main__":
-    main()
+    with logger.catch(reraise=True):
+        main()
     sys.exit(0)
