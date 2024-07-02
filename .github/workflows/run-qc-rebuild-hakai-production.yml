@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   run-qc:
-    name: Update QC on Goose Database
+    name: Update QC on Production Hakai Database
     runs-on: ubuntu-latest
     environment:
       name: main
