@@ -306,7 +306,7 @@ def grey_list(
                     df_to_flag.index, column
                 ].apply(
                     lambda x: (
-                        x + "; " + grey_flag_description if x else grey_flag_description
+                        x + "; " + grey_flag_description if pd.notna(x) else grey_flag_description
                     )
                 )
     return df
