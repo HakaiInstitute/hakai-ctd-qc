@@ -613,7 +613,7 @@ def _get_hakai_flag_columns(
         """
         flags = row.dropna().to_dict()
         if not flags:
-            return None
+            return pd.NA
         return "; ".join(
             sorted(
                 [

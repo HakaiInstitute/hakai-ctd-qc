@@ -17,6 +17,7 @@ def run_sentry_warnings(casts_data, casts, minimum_date=None):
 
     casts = casts.set_index("hakai_id")
 
+    @logger.catch
     def _generate_sentry_warning(query, message):
         if query:
             drops = casts_data.query(query)[tags].drop_duplicates()
@@ -48,14 +49,16 @@ def run_sentry_warnings(casts_data, casts, minimum_date=None):
     )
 
     # DO cap detected
-    _generate_sentry_warning(
-        "rinko_do_ml_l_do_cap_test==4",
-        "Secondary oxygen instrument Rinko seems to have been deployed with the cap on the unit.",
-    )
-    _generate_sentry_warning(
-        "dissolved_oxygen_ml_l_hakai_do_cap_test==4",
-        "Oxygen instrument seems to have been deployed with the cap on the unit.",
-    )
+    if "rinko_do_ml_l_do_cap_test" in casts_data.columns:
+        _generate_sentry_warning(
+            "rinko_do_ml_l_do_cap_test==4",
+            "Secondary oxygen instrument Rinko seems to have been deployed with the cap on the unit.",
+        )
+    if "dissolved_oxygen_ml_l_hakai_do_cap_test" in casts_data.columns:
+        _generate_sentry_warning(
+            "dissolved_oxygen_ml_l_hakai_do_cap_test==4",
+            "Oxygen instrument seems to have been deployed with the cap on the unit.",
+        )
 
     # Out of range data
     _generate_sentry_warning(
