@@ -51,6 +51,7 @@
     "salinity": ["sigma0_qartod_density_inversion_test"],
     "conductivity": ["sigma0_qartod_density_inversion_test"],
     "dissolved_oxygen_ml_l": ["dissolved_oxygen_ml_l_hakai_do_cap_test"],
+    "dissolved_oxygen_percent": ["dissolved_oxygen_ml_l_hakai_do_cap_test","dissolved_oxygen_ml_l_hakai_no_soak_test"],
     "rinko_ml_l": ["rinko_ml_l_hakai_do_cap_test"]
   },
   "query_based_flag": [
