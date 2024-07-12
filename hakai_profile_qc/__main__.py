@@ -49,7 +49,10 @@ def log_to_sentry():
     sentry_dsn = os.environ.get("SENTRY_DSN")
     if not sentry_dsn:
         return
-    logger.warning("Log to Sentry")
+    # if log level is debug test sentry
+    if logger.level("DEBUG"):
+        logger.warning("Log to Sentry")
+        
     sentry_logging = LoggingIntegration(
         level=os.environ.get(
             "SENTRY_LEVEL", "INFO"
