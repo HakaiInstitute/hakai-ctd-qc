@@ -658,5 +658,5 @@ def _get_hakai_flag_columns(
 if __name__ == "__main__":
     with logger.catch(reraise=True):
         main()
-        sentry_sdk.flush()
+    sentry_sdk.flush()
     sys.exit(0)
