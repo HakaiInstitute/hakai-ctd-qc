@@ -237,6 +237,9 @@ def _convert_time_to_datetime(df):
         df[time_var] = pd.to_datetime(df[time_var], utc=True)
     return df
 
+def _cleanup():
+    sentry_sdk.flush()
+    sys.exit(1)
 
 def run_qc_profiles(df, metadata):
     """
@@ -443,7 +446,7 @@ def post_hakai_data(url, post):
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
-@logger.catch(reraise=True)
+@logger.catch(reraise=True, onerror=_cleanup)
 def main(
     hakai_ids,
     test_suite,
@@ -594,6 +597,7 @@ def main(
 
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
         logger.warning("Full CTD QC rebuild is completed on {}", api_root)
+    sentry_sdk.flush()
 
 
 def _get_hakai_flag_columns(
@@ -654,9 +658,12 @@ def _get_hakai_flag_columns(
     )
     return df
 
-
 if __name__ == "__main__":
-    with logger.catch(reraise=True):
+    try:
         main()
-    sentry_sdk.flush()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        sentry_sdk.flush()
+    finally:
+        sentry_sdk.flush()
     sys.exit(0)
