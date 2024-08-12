@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import warnings
 from pathlib import Path
 
 import click
@@ -25,11 +26,16 @@ from hakai_profile_qc.utils import retry
 from hakai_profile_qc.variables import manual_qc_variables
 from hakai_profile_qc.version import __version__
 
+load_dotenv(".env", override=True)
+
+if os.getenv("IGNORE_WARNINGS") not in ("False", "0", "false", "", None):
+    logger.info("Ignore Future and Deprecation Warnings")
+    warnings.filterwarnings("ignore", category=FutureWarning)
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 logger.debug("Hakai Profile QC version: {}", __version__)
 
 hakai_to_qartod_flag = {v: k for k, v in qartod_to_hakai_flag.items()}
-
-load_dotenv()
 
 QARTOD_DTYPE = pd.CategoricalDtype([9, 2, 1, 3, 4], ordered=True)
 
@@ -237,9 +243,11 @@ def _convert_time_to_datetime(df):
         df[time_var] = pd.to_datetime(df[time_var], utc=True)
     return df
 
+
 def _cleanup():
     sentry_sdk.flush()
     sys.exit(1)
+
 
 def run_qc_profiles(df, metadata):
     """
@@ -560,7 +568,9 @@ def main(
             logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced, metadata)
             if sentry_minimum_date:
-                sentry_minimum_date = pd.to_datetime(sentry_minimum_date, utc=True , format="ISO8601")
+                sentry_minimum_date = pd.to_datetime(
+                    sentry_minimum_date, utc=True, format="ISO8601"
+                )
                 sentry_warnings.run_sentry_warnings(df_qced, chunk, sentry_minimum_date)
 
             # Convert QARTOD to string temporarily
@@ -632,7 +642,7 @@ def _get_hakai_flag_columns(
     df_subset_flag = df.filter(regex=flag_regex).replace({9: None, 2: None})
     ignore_records = (df_subset_flag.notna().any(axis=1)) & (df[variable].notna())
     df_subset = df_subset_flag.loc[ignore_records]
-    
+
     if df_subset.empty:
         return df
 
@@ -652,11 +662,16 @@ def _get_hakai_flag_columns(
     )
     logger.debug("Get Aggregated Hakai Flags")
     # Generete Level 2 Flag Description for failed flag
-    df.loc[df_subset.index, variable + "_flag"] = df_subset.replace({1: None}).apply(
-        lambda x: __generate_level2_flag(x),
-        axis=1,
+    df.loc[df_subset.index, variable + "_flag"] = (
+        df_subset.astype("float64")
+        .replace({1: pd.NA})
+        .apply(
+            lambda x: __generate_level2_flag(x),
+            axis=1,
+        )
     )
     return df
+
 
 if __name__ == "__main__":
     try:
