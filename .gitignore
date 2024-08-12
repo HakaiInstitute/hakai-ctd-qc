@@ -23,3 +23,4 @@ review/get_depth_in_station_range_test.md
 station_compare.md
 local.env
 *.env
+!sample.env
