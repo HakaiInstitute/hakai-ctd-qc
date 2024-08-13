@@ -22,7 +22,7 @@ Clone locally the repository and create the conda environment:
 pyenv install 3.11.2
 pyenv local 3.11.2
 pip install poetry
-poetry run python hakai_profile_qc
+poetry install
 ```
 
 Run Python tool directly:
