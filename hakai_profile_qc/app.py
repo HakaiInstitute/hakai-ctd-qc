@@ -1,15 +1,17 @@
 import os
+from contextlib import asynccontextmanager
 
 import fastapi
 import pandas as pd
 import toml
 import uvicorn
-from fastapi import Header, HTTPException, Depends
-from dotenv import load_dotenv
+from apscheduler.jobstores.memory import MemoryJobStore
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from fastapi import Depends, Header, HTTPException
+from loguru import logger
 
 from hakai_profile_qc.__main__ import main as qc_profiles
 
-load_dotenv()
 
 def get_version_from_pyproject():
     with open("pyproject.toml") as f:
@@ -21,10 +23,39 @@ API_URL = os.getenv("HAKAI_API_SERVER_ROOT", "https://goose.hakai.org/api")
 API_HOST = os.getenv("HAKAI_API_SERVER_HOST", "127.0.0.1")
 API_PORT = os.getenv("HAKAI_API_SERVER_PORT", 8000)
 DEBUG = os.getenv("DEBUG", False)
-
-TOKENS = os.getenv("HAKAI_API_TOKENS", "").split(',')
+TOKENS = os.getenv("HAKAI_API_TOKENS", "").split(",")
+RUN_SCHEDULE_UNITS = os.getenv("HAKAI_API_SCHEDULE_UNIT", "hours")
+RUN_SCHEDULE_INTERVAL = os.getenv("HAKAI_API_SCHEDULE_INTERVAL")
+schedule_interval = {
+    RUN_SCHEDULE_UNITS: int(RUN_SCHEDULE_INTERVAL) if RUN_SCHEDULE_INTERVAL else None
+}
 
 LAST_QC_RUN = None
+jobstores = {"default": MemoryJobStore()}
+# Initialize an AsyncIOScheduler with the jobstore
+scheduler = AsyncIOScheduler(
+    jobstores=jobstores, jobs_default={"max_instances": 1}, timezone="UTC"
+)
+
+if RUN_SCHEDULE_INTERVAL:
+    logger.info(
+        f"Running default QC every {RUN_SCHEDULE_INTERVAL} {RUN_SCHEDULE_UNITS}"
+    )
+
+    @scheduler.scheduled_job("interval", **schedule_interval, id="scheduled_qc")
+    async def run_default_qc_schedule():
+        logger.info("Running scheduled default QC")
+        run_default_qc()
+
+
+@asynccontextmanager
+async def schedule_task(app: fastapi.FastAPI):
+    scheduler.start()
+    try:
+        yield
+    finally:
+        scheduler.shutdown()
+
 
 app = fastapi.FastAPI(
     title="Hakai Profile QC",
@@ -32,19 +63,25 @@ app = fastapi.FastAPI(
     version=get_version_from_pyproject(),
     debug=DEBUG,
     docs_url="/",
+    lifespan=schedule_task,
 )
 
 
 def run_default_qc():
     global LAST_QC_RUN
-    response = qc_profiles(api_root=API_URL, upload_flag=True,test_suite=False)
+    logger.info("Running default QC")
+    response = qc_profiles(api_root=API_URL, upload_flag=True, test_suite=False)
     LAST_QC_RUN = {"timestamp": str(pd.Timestamp.utcnow().isoformat()), **response}
     return LAST_QC_RUN
 
-def token_check(token: str = Header(...if TOKENS else None)):
+
+def token_check(token: str = Header(... if TOKENS else None)):
     """Block unauthorized access to the API"""
     if TOKENS and token not in TOKENS:
-        raise HTTPException(status_code=401, detail="Unauthorized access<br>`token` not found in the list of authorized tokens")
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized access<br>`token` not found in the list of authorized tokens",
+        )
 
 
 @app.get("/status")
@@ -59,14 +96,20 @@ async def get_last_run_of_quality_control_on_all_newly_processed_profiles():
 
 
 @app.get("/qc/{hakai_id}")
-async def run_quality_control_on_hakai_id(hakai_id: str, token:str=Depends(token_check)):
+async def run_quality_control_on_hakai_id(
+    hakai_id: str, token: str = Depends(token_check)
+):
     """QC a single profile by Hakai ID"""
-    response = qc_profiles(hakai_ids=[hakai_id], api_root=API_URL, upload_flag=True,test_suite=False)
+    response = qc_profiles(
+        hakai_ids=[hakai_id], api_root=API_URL, upload_flag=True, test_suite=False
+    )
     return response
 
 
 @app.get("/qc")
-async def run_quality_control_on_all_newly_processed_profiles( token:str=Depends(token_check)):
+async def run_quality_control_on_all_newly_processed_profiles(
+    token: str = Depends(token_check),
+):
     """QC all processed profiles that haven't been QC'd yet"""
     return run_default_qc()
 

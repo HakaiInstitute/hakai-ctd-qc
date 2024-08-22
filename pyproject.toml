@@ -27,7 +27,7 @@ fastapi = "^0.112.1"
 scheduler = "^0.8.7"
 uvicorn = "^0.30.6"
 toml = "^0.10.2"
-schedule = "^1.2.2"
+apscheduler = "^3.10.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
