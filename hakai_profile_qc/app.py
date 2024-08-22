@@ -4,11 +4,12 @@ import fastapi
 import pandas as pd
 import toml
 import uvicorn
-from fastapi.responses import RedirectResponse
 from fastapi import Header, HTTPException, Depends
+from dotenv import load_dotenv
 
 from hakai_profile_qc.__main__ import main as qc_profiles
 
+load_dotenv()
 
 def get_version_from_pyproject():
     with open("pyproject.toml") as f:
@@ -21,7 +22,7 @@ API_HOST = os.getenv("HAKAI_API_SERVER_HOST", "127.0.0.1")
 API_PORT = os.getenv("HAKAI_API_SERVER_PORT", 8000)
 DEBUG = os.getenv("DEBUG", False)
 
-TOKENS = os.getenv("HAKAI_API_TOKENS", "")
+TOKENS = os.getenv("HAKAI_API_TOKENS", "").split(',')
 
 LAST_QC_RUN = None
 
@@ -36,18 +37,14 @@ app = fastapi.FastAPI(
 
 def run_default_qc():
     global LAST_QC_RUN
-    response = qc_profiles(api_root=API_URL, upload_flag=False)
-    LAST_QC_RUN = {"timestamp": pd.Timestamp.utcnow().isoformat(), **response}
+    response = qc_profiles(api_root=API_URL, upload_flag=True,test_suite=False)
+    LAST_QC_RUN = {"timestamp": str(pd.Timestamp.utcnow().isoformat()), **response}
     return LAST_QC_RUN
 
-@app.middleware("http")
-def token_check(request: Request, call_next):
-    if not TOKENS:
-        return call_next(request)
-    token = request.headers.get("Authorization")
-    if token not in TOKENS:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return call_next(request)
+def token_check(token: str = Header(...if TOKENS else None)):
+    """Block unauthorized access to the API"""
+    if TOKENS and token not in TOKENS:
+        raise HTTPException(status_code=401, detail="Unauthorized access<br>`token` not found in the list of authorized tokens")
 
 
 @app.get("/status")
@@ -62,13 +59,14 @@ async def get_last_run_of_quality_control_on_all_newly_processed_profiles():
 
 
 @app.get("/qc/{hakai_id}")
-async def run_quality_control_on_hakai_id(hakai_id: str):
+async def run_quality_control_on_hakai_id(hakai_id: str, token:str=Depends(token_check)):
     """QC a single profile by Hakai ID"""
-    return qc_profiles(hakai_ids=[hakai_id], api_root=API_URL, upload_flag=False)
+    response = qc_profiles(hakai_ids=[hakai_id], api_root=API_URL, upload_flag=True,test_suite=False)
+    return response
 
 
 @app.get("/qc")
-async def run_quality_control_on_all_newly_processed_profiles():
+async def run_quality_control_on_all_newly_processed_profiles( token:str=Depends(token_check)):
     """QC all processed profiles that haven't been QC'd yet"""
     return run_default_qc()
 
