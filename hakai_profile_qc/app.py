@@ -84,7 +84,6 @@ def token_check(token: str = Header(... if TOKENS else None)):
             detail="Unauthorized access<br>`token` not found in the list of authorized tokens",
         )
 
-
 @app.get("/status")
 async def get_status():
     return {"status": "ok", "version": version, "has_schedule": has_schedule}
@@ -96,6 +95,7 @@ async def get_last_run_of_quality_control_on_all_newly_processed_profiles():
     return LAST_QC_RUN or "No QC run yet"
 
 if has_schedule:
+    app.description += f"<br>Running default QC every {RUN_SCHEDULE_INTERVAL} {RUN_SCHEDULE_UNITS}"
     @app.get("/schedule")
     def get_schedule():
         return [str(job) for job in scheduler.get_jobs()]
