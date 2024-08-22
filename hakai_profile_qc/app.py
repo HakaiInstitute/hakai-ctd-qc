@@ -17,7 +17,7 @@ def get_version_from_pyproject():
     with open("pyproject.toml") as f:
         pyproject = toml.load(f)
     return pyproject["tool"]["poetry"]["version"]
-
+version = get_version_from_pyproject()
 
 API_URL = os.getenv("HAKAI_API_SERVER_ROOT", "https://goose.hakai.org/api")
 API_HOST = os.getenv("HAKAI_API_SERVER_HOST", "127.0.0.1")
@@ -61,7 +61,7 @@ async def schedule_task(app: fastapi.FastAPI):
 app = fastapi.FastAPI(
     title="Hakai Profile QC",
     description="Quality control of Hakai Institute CTD profiles",
-    version=get_version_from_pyproject(),
+    version=version,
     debug=DEBUG,
     docs_url="/",
     lifespan=schedule_task,
@@ -87,7 +87,7 @@ def token_check(token: str = Header(... if TOKENS else None)):
 
 @app.get("/status")
 async def get_status():
-    return {"status": "ok"}
+    return {"status": "ok", "version": version, "has_schedule": has_schedule}
 
 
 @app.get("/last-run")
