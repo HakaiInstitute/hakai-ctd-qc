@@ -455,16 +455,20 @@ def post_hakai_data(url, post):
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 @logger.catch(reraise=True, onerror=_cleanup)
+def main_cli(**kwargs):
+    main(**kwargs)
+
+
 def main(
-    hakai_ids,
-    test_suite,
-    api_root,
-    upload_flag,
-    processing_stages,
-    chunksize,
-    sentry_minimum_date,
-    profile,
-):
+    hakai_ids: str = None,
+    test_suite: bool = False,
+    api_root: str = "https://goose.hakai.org/api",
+    upload_flag: bool = False,
+    processing_stages: str = "8_binAvg,8_rbr_processed",
+    chunksize: int = 100,
+    sentry_minimum_date: str = None,
+    profile: str = None,
+) -> dict:
     """QC Hakai Profiles on subset list of profiles given either via an
     hakai_id list, the `test_suite` flag or processing_stage.
     If no input is given, the tool will default to qc all the profiles
@@ -473,6 +477,17 @@ def main(
 
     Each options can be defined either as an argument
     or via the associated environment variable.
+
+    Args:
+        hakai_ids (str): Comma delimited list of hakai_ids to qc
+        test_suite (bool): Run Test suite
+        api_root (str): Hakai API root to use
+        upload_flag (bool): Update database flags
+        processing_stages (str): Comma list of processing_stage profiles to review
+        chunksize (int): Process profiles by chunk
+        sentry_minimum_date (str): Minimum date to use to generate sentry warnings
+        profile (str): Run cProfile on the process
+
     """
 
     check_hakai_database_rebuild(api_root)
@@ -505,7 +520,11 @@ def main(
     df_casts = get_hakai_data(url)
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
-        return None, None
+        return {
+            "query": url,
+            "message": "No Drops needs to be QC",
+            "hakai_ids": [],
+        }
 
     # Split cast list to qc into chunks and run qc tests on each chunks.
     logger.info("QC {} drops", len(df_casts))
@@ -608,6 +627,12 @@ def main(
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
         logger.warning("Full CTD QC rebuild is completed on {}", api_root)
     sentry_sdk.flush()
+
+    return {
+        "query": url,
+        "message": "Qc Process Completed",
+        "hakai_ids": df_casts["hakai_id"].values,
+    }
 
 
 def _get_hakai_flag_columns(

@@ -23,6 +23,11 @@ pyarrow = "^13.0.0"
 fastparquet = "^2023.10.1"
 python-dotenv = "^1.0.0"
 loguru = "^0.7.2"
+fastapi = "^0.112.1"
+scheduler = "^0.8.7"
+uvicorn = "^0.30.6"
+toml = "^0.10.2"
+schedule = "^1.2.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
