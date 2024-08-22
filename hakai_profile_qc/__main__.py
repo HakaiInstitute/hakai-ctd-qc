@@ -631,7 +631,7 @@ def main(
     return {
         "query": url,
         "message": "Qc Process Completed",
-        "hakai_ids": df_casts["hakai_id"].values,
+        "hakai_ids": df_casts["hakai_id"].tolist(),
     }
 
 
