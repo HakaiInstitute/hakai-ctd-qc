@@ -29,6 +29,7 @@ RUN_SCHEDULE_INTERVAL = os.getenv("HAKAI_API_SCHEDULE_INTERVAL")
 schedule_interval = {
     RUN_SCHEDULE_UNITS: int(RUN_SCHEDULE_INTERVAL) if RUN_SCHEDULE_INTERVAL else None
 }
+has_schedule = RUN_SCHEDULE_INTERVAL and RUN_SCHEDULE_UNITS
 
 LAST_QC_RUN = None
 jobstores = {"default": MemoryJobStore()}
@@ -37,7 +38,7 @@ scheduler = AsyncIOScheduler(
     jobstores=jobstores, jobs_default={"max_instances": 1}, timezone="UTC"
 )
 
-if RUN_SCHEDULE_INTERVAL:
+if has_schedule:
     logger.info(
         f"Running default QC every {RUN_SCHEDULE_INTERVAL} {RUN_SCHEDULE_UNITS}"
     )
@@ -94,6 +95,22 @@ async def get_last_run_of_quality_control_on_all_newly_processed_profiles():
     global LAST_QC_RUN
     return LAST_QC_RUN or "No QC run yet"
 
+if has_schedule:
+    @app.get("/schedule")
+    def get_schedule():
+        return [str(job) for job in scheduler.get_jobs()]
+    
+    @app.post("/schedule-pause")
+    async def pause_scheduled_jobs( token=Depends(token_check)):
+        logger.info("Pausing scheduled QC")
+        scheduler.pause_job("scheduled_qc")
+        return "Scheduled QC paused"
+
+    @app.post("/schedule-resume")
+    async def resume_schedule_jobs( token=Depends(token_check)):
+        logger.info("Resuming scheduled QC")
+        scheduler.resume_job("scheduled_qc")
+        return "Scheduled QC resumed"
 
 @app.get("/qc/{hakai_id}")
 async def run_quality_control_on_hakai_id(
