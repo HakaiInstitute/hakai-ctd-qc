@@ -5,7 +5,7 @@ description = "Hakai Automated Quality Control for CTD profiles"
 authors = ["Jessy Barrette <30420025+JessyBarrette@users.noreply.github.com>"]
 readme = "README.md"
 packages = [
-    { include = "hakai_profile_qc" }
+    { include = "hakai_ctd_qc" }
 ]
     
 
