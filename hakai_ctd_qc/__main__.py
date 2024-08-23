@@ -700,7 +700,7 @@ def _get_hakai_flag_columns(
 
 if __name__ == "__main__":
     try:
-        main()
+        main_cli()
     except Exception as e:
         sentry_sdk.capture_exception(e)
         sentry_sdk.flush()
