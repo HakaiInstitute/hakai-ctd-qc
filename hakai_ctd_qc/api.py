@@ -35,7 +35,7 @@ logger.info("HAKAI API ROOT: {}", API_ROOT)
 logger.info("HOST: {}", HOST)
 logger.info("PORT: {}", PORT)
 logger.info("DEBUG: {}", DEBUG)
-logger.info("N TOKENS: {}", len((TOKENS or '').split(',')))
+logger.info("N TOKENS: {}", len(TOKENS))
 logger.info("QC_CRON: {}", QC_CRON)
 
 
