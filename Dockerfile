@@ -7,9 +7,9 @@ RUN pip install "poetry==1.6.1"
 
 COPY . .
 
-RUN poetry config virtualenvs.in-project false && \
-    poetry install
+RUN poetry config virtualenvs.in-project true
+RUN poetry install --without dev
 
 EXPOSE 80
     
-CMD ["uvicorn", "hakai_ctd_qc/api.py","--host", "0.0.0.0", "--port", "80"]
+CMD ["poetry","run","uvicorn", "hakai_ctd_qc.api:app","--host", "0.0.0.0", "--port", "80"]
