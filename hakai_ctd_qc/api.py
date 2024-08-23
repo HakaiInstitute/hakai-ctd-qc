@@ -30,6 +30,14 @@ DEBUG = os.getenv("DEBUG", False)
 TOKENS = os.getenv("TOKENS", "").split(",")
 QC_CRON = os.getenv("QC_CRON")
 
+logger.info(f"Starting Hakai CTD QC API {version=}")
+logger.info("HAKAI API ROOT: {}", API_ROOT)
+logger.info("HOST: {}", HOST)
+logger.info("PORT: {}", PORT)
+logger.info("DEBUG: {}", DEBUG)
+logger.info("N TOKENS: {}", len(TOKENS))
+logger.info("QC_CRON: {}", QC_CRON)
+
 
 JOBS_MESSAGES = {}
 jobstores = {"default": MemoryJobStore()}
@@ -72,10 +80,18 @@ async def schedule_task(app: fastapi.FastAPI):
     finally:
         scheduler.shutdown()
 
+app_description = f"""
+This is the {os.getenv("ENVIRONMENT", '')} Hakai Institute ctd quality control tool.
+
+- Hakai-API-root: `{API_ROOT}`.
+- Cron schedule: {(get_description(QC_CRON) + " =`" + QC_CRON + '`') if QC_CRON else None}
+
+The following endpoints are available:
+"""
 
 app = fastapi.FastAPI(
     title="Hakai CTD QC",
-    description="Quality control of Hakai Institute CTD profiles",
+    description=app_description,
     version=version,
     debug=DEBUG,
     docs_url="/",
@@ -94,7 +110,7 @@ def token_check(token: str = Header(... if TOKENS else None)):
 
 @app.get("/status")
 async def get_status():
-    return {"status": "ok", "version": version, "cron": QC_CRON}
+    return {"status": "ok", "version": version, "cron": QC_CRON, "hakai-api-root": API_ROOT}
 
 
 @app.get("/jobs/status")
@@ -103,10 +119,6 @@ async def get_jobs_status():
 
 
 if QC_CRON:
-    app.description += (
-        f"<br><br>Running default `/qc` endpoint: {get_description(QC_CRON)} ( {QC_CRON=} )"
-    )
-
     @app.get("/jobs/schedule")
     def get_schedule():
         return [str(job) for job in scheduler.get_jobs()]
