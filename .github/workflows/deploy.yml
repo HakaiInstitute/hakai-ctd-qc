@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   run-qc:
-    name: Deploy Hakai CTD QC App on caprover server
+    name: Deploy app on caprover server
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name }}
