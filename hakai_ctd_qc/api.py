@@ -80,10 +80,18 @@ async def schedule_task(app: fastapi.FastAPI):
     finally:
         scheduler.shutdown()
 
+app_description = f"""
+This is the {os.getenv("ENVIRONMENT", '')} Hakai Institute ctd quality control tool.
+
+- Hakai-API-root: `{API_ROOT}`.
+- Cron schedule: {(get_description(QC_CRON) + " =`" + QC_CRON + '`') if QC_CRON else None}
+
+The following endpoints are available:
+"""
 
 app = fastapi.FastAPI(
     title="Hakai CTD QC",
-    description="Quality control of Hakai Institute CTD profiles",
+    description=app_description,
     version=version,
     debug=DEBUG,
     docs_url="/",
@@ -111,10 +119,6 @@ async def get_jobs_status():
 
 
 if QC_CRON:
-    app.description += (
-        f"<br><br>Running default `/qc` endpoint: {get_description(QC_CRON)} ( {QC_CRON=} )"
-    )
-
     @app.get("/jobs/schedule")
     def get_schedule():
         return [str(job) for job in scheduler.get_jobs()]
