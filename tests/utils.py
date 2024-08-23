@@ -4,7 +4,7 @@ import pandas as pd
 from hakai_api import Client
 from loguru import logger
 
-from hakai_profile_qc.variables import CTD_CAST_DATA_VARIABLES, HAKAI_TEST_SUITE
+from hakai_ctd_qc.variables import CTD_CAST_DATA_VARIABLES, HAKAI_TEST_SUITE
 
 MODULE_PATH = os.path.dirname(__file__)
 

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.0.0 (2024-08-25)
+
+### Add
+
+- Add fastapi endpoints to run qc on cron and trigger specific subsets on demande
+
 ## v0.3.0 (2024-07-02)
 
 ### Add

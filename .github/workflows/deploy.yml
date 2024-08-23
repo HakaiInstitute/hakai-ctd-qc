@@ -1,0 +1,29 @@
+name: Deploy to caprover server
+on:
+  push:
+    branches:
+      - main
+      - development
+    paths:
+      - hakai-ctd-qc
+      - pyproject.toml
+      - Dockerfile
+      - .github/workflows/run-qc-rebuild-hakai-app.yml
+      - docker-compose.yaml
+  workflow_dispatch:
+jobs:
+  run-qc:
+    name: Deploy Hakai CTD QC App on caprover server
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name }}
+      url: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - name: Install Caprover CLI
+        run: npm install -g caprover
+      - name: Tell Caprover server to deploy main
+        run: caprover deploy --caproverUrl ${{ vars.CAPROVER_URL }} --appToken ${{ secrets.CAPROVER_APP_TOKEN}} --branch '${{ github.ref_name }}' --appName hakai-ctd-qc

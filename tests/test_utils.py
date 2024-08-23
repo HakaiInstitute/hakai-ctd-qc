@@ -1,6 +1,6 @@
 import re
 
-from hakai_profile_qc import variables
+from hakai_ctd_qc import variables
 
 hakai_id_regex = r"\d+_\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z"
 

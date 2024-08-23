@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from hakai_profile_qc.__main__ import _get_hakai_flag_columns
+from hakai_ctd_qc.__main__ import _get_hakai_flag_columns
 
 
 @pytest.fixture(scope="function")
