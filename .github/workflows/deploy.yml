@@ -19,5 +19,5 @@ jobs:
           node-version: 16
       - name: Install Caprover CLI
         run: npm install -g caprover
-      - name: Tell Caprover server to deploy main
+      - name: Tell Caprover server to deploy ${{ github.ref_name }} branch to ${{ vars.CAPROVER_URL }}
         run: caprover deploy --caproverUrl ${{ vars.CAPROVER_URL }} --appToken ${{ secrets.CAPROVER_APP_TOKEN}} --branch '${{ github.ref_name }}' --appName hakai-ctd-qc
