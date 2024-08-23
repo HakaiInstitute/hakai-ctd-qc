@@ -102,7 +102,7 @@ def token_check(token: str = Header(... if TOKENS else None)):
 
 @app.get("/status")
 async def get_status():
-    return {"status": "ok", "version": version, "cron": QC_CRON}
+    return {"status": "ok", "version": version, "cron": QC_CRON, "hakai-api-root": API_ROOT}
 
 
 @app.get("/jobs/status")
