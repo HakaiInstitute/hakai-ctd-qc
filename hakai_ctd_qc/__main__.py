@@ -28,6 +28,7 @@ from hakai_ctd_qc.version import __version__
 
 load_dotenv(".env", override=True)
 
+
 if os.getenv("IGNORE_WARNINGS") not in ("False", "0", "false", "", None):
     logger.info("Ignore Future and Deprecation Warnings")
     warnings.filterwarnings("ignore", category=FutureWarning)
@@ -453,12 +454,12 @@ def post_hakai_data(url, post):
     envvar="SENTRY_MINIMUM_DATE",
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
-@monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 @logger.catch(reraise=True, onerror=_cleanup)
 def main_cli(**kwargs):
     main(**kwargs)
 
 
+@monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 def main(
     hakai_ids: str = None,
     test_suite: bool = False,
