@@ -25,18 +25,12 @@ pip install poetry
 poetry install
 ```
 
-To run the Command line interface:
+Copy the `sample.env` file as `.env` and replace the different values accordingly.
 
-```terminal
-poetry run pyton hakai_ctd_qc --help
-```
+### Methods
 
-To run the qc api locally:
+#### Command Line Interface
 
-```terminal
-poetry run python hakai_ctd_qc/api.py
-
-### Command Line Interface
 
 Once installed the package hakai_profile_qc can be run via the command line.
 See the help menu for a complete description of the different options:
@@ -74,16 +68,36 @@ Options:
   --help                          Show this message and exit.
 ```
 
+#### API 
+
+Run the following command:
+
+```
+poetry run python hakai_ctd_qc/api.py
+```
+
+And within a browser to go: <http://127.0.0.1:8000>
+
+With vscode you can also run the debug configuration `Run API` which helps debug the interface in realtime. 
+
+
 ### Deployments
 
-The hakai_profile_qc tool is deployed in multiple ways via a Docker container
-(see [Dockerfile](Dockerfile)).
+The hakai_ctd_qc tool is deployed via a Docker container
+(see [Dockerfile](Dockerfile)) on two caprover instances: related to the development and production branches.
+
+- development: http://hakai-ctd-qc.server.hak4i.org/ -> qc hakaidev database
+- main: http://hakai-ctd-qc.server.hakai.app/ -> qc hakai database
+    - a cron job is applied to this instance to qc latest data submitted.
+
+Each been associated to their respective hakai database:
+
+### Continuous Integration
 
 1. **Testing**: Any changes to the package are tested via a [GitHub workflow](.GitHub/workflows/test-package-install.yml) that qc hakai_id test suite.
 2. **Docker Build Testing**: Docker container build is tested via a [GitHub worflow](.GitHub/workflows/test-docker-build.yml)
-3. **'hakaidev' db rebuild**: A full rebuild of the hakaidev processed CTD data can be triggered via the [GitHub worflow](.GitHub/workflows/run-qc-rebuild-hakaidev-development.yml). This will trigger a new run at <https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-development-rebuild>
-4. **'hakai' db rebuild**: A full rebuild of the hakaidev processed CTD data can be triggered via the [GitHub worflow](.GitHub/workflows/run-qc-rebuild-hakaidev-production.yml). This will trigger a new run at <https://captain.server.hak4i.org/#/apps/details/hakai-profile-qc-hakai-production-rebuild>
-5. **QC latest profiles cronjob**: An instance is deployed on hecate.hakai.org via the cronjob and is triggered nightly to qc the latest profiles. This instance is monitored via sentry at for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d)
+3. Changes to the main and development versions are directely deployed to the different caprover instances via the [deploy action](.github/workflows/deploy.yml) each respective github environments.
+4. **Errors and monitoring**: Sentry is use to monitor the different errors and cron jobs. Only the main deployment is required to run a cron job to make sure any newly submitted data is qced. See the following links for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d) encountered.
 
 ### Tests parametrization
 
