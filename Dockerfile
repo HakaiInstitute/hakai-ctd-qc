@@ -1,28 +1,15 @@
 FROM  --platform=linux/amd64 python:3.11-slim AS base
 
-ENV PYTHONFAULTHANDLER=1 \
-    PYTHONHASHSEED=random \
-    PYTHONUNBUFFERED=1
-
-RUN apt-get update
-RUN apt-get install -y git 
-
 WORKDIR /app
 
-FROM base AS builder
+RUN pip install "poetry==1.6.1"
 
-ENV PIP_DEFAULT_TIMEOUT=100 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 \
-    POETRY_VERSION=1.6.1
 
-RUN pip install "poetry==$POETRY_VERSION"
-
-# Install dependencies first
 COPY . .
 
-COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.in-project false && \
     poetry install
+
+EXPOSE 80
     
-CMD ["python", "hakai_ctd_qc/api.py"]
+CMD ["uvicorn", "hakai_ctd_qc/api.py","--host", "0.0.0.0", "--port", "80"]
