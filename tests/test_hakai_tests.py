@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from hakai_profile_qc import hakai_tests
+from hakai_ctd_qc import hakai_tests
 
 
 @pytest.mark.parametrize(

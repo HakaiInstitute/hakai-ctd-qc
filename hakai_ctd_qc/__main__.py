@@ -20,11 +20,11 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from hakai_profile_qc import hakai_tests, sentry_warnings, variables
-from hakai_profile_qc.hakai_tests import qartod_to_hakai_flag
-from hakai_profile_qc.utils import retry
-from hakai_profile_qc.variables import manual_qc_variables
-from hakai_profile_qc.version import __version__
+from hakai_ctd_qc import hakai_tests, sentry_warnings, variables
+from hakai_ctd_qc.hakai_tests import qartod_to_hakai_flag
+from hakai_ctd_qc.utils import retry
+from hakai_ctd_qc.variables import manual_qc_variables
+from hakai_ctd_qc.version import __version__
 
 load_dotenv(".env", override=True)
 

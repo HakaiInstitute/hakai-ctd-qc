@@ -11,7 +11,7 @@ from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, Header, HTTPException
 from loguru import logger
 
-from hakai_profile_qc.__main__ import main as qc_profiles
+from hakai_ctd_qc.__main__ import main as qc_profiles
 
 
 def get_version_from_pyproject():

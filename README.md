@@ -1,6 +1,6 @@
-# hakai-profile-qaqc
+# hakai-ctd-qc
 
-`hakai-profile-qaqc` is the main package used to handle the QCing of the CTD
+`hakai-ctd-qc` is the main package used to handle the QCing of the CTD
 Datasets maintained by the Hakai Institute. Please refer to the
 [test description manual](tests_description.md) for a full description of the
 different tests applied within this package. Examples of tes
@@ -11,7 +11,7 @@ The present package can be installed locally or through a docker container.
 In all cases, it is best to clone locally the package and apply the appropriate configuration.
 
 ```terminal
-git clone git@GitHub.com:HakaiInstitute/hakai-profile-qaqc.git
+git clone git@GitHub.com:HakaiInstitute/hakai-ctd-qc.git
 ```
 
 ### Locally for development only
@@ -25,13 +25,18 @@ pip install poetry
 poetry install
 ```
 
-Run Python tool directly:
+To run the Command line interface:
 
 ```terminal
-poetry run pyton hakai_profile_qc
+poetry run pyton hakai_ctd_qc --help
 ```
 
-### How to
+To run the qc api locally:
+
+```terminal
+poetry run python hakai_ctd_qc/api.py
+
+### Command Line Interface
 
 Once installed the package hakai_profile_qc can be run via the command line.
 See the help menu for a complete description of the different options:
