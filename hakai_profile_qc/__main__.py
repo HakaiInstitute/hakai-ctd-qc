@@ -424,10 +424,10 @@ def post_hakai_data(url, post):
 )
 @click.option(
     "--api-root",
-    help="Hakai API root to use [env=HAKAI_API_SERVER_ROOT]",
+    help="Hakai API root to use [env=HAKAI_API_ROOT]",
     default="https://goose.hakai.org/api",
     show_default=True,
-    envvar="HAKAI_API_SERVER_ROOT",
+    envvar="HAKAI_API_ROOT",
 )
 @click.option(
     "--upload-flag",
