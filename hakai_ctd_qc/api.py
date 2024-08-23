@@ -73,7 +73,7 @@ async def schedule_task(app: fastapi.FastAPI):
 
 
 app = fastapi.FastAPI(
-    title="Hakai Profile QC",
+    title="Hakai CTD QC",
     description="Quality control of Hakai Institute CTD profiles",
     version=version,
     debug=DEBUG,
@@ -103,7 +103,7 @@ async def get_jobs_status():
 
 if QC_CRON:
     app.description += (
-        f"<br>Running default QC every cron:`{QC_CRON}`"
+        f"<br><br>Running default `/qc` endpoint every cron:`{QC_CRON}`"
     )
 
     @app.get("/jobs/schedule")
