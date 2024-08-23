@@ -19,11 +19,10 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
 RUN pip install "poetry==$POETRY_VERSION"
 
 # Install dependencies first
-COPY pyproject.toml poetry.lock ./
-RUN poetry config virtualenvs.in-project true && \
-    poetry install --only main --no-root
-
 COPY . .
-RUN poetry install --only main
+
+COPY pyproject.toml poetry.lock ./
+RUN poetry config virtualenvs.in-project false && \
+    poetry install
     
-CMD ["poetry","run","python", "hakai_ctd_qc/api.py"]
+CMD ["python", "hakai_ctd_qc/api.py"]
