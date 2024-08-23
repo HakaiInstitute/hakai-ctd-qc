@@ -1,4 +1,4 @@
-FROM  --platform=linux/amd64 python:3.11-slim as base
+FROM  --platform=linux/amd64 python:3.11-slim AS base
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
@@ -9,7 +9,7 @@ RUN apt-get install -y git
 
 WORKDIR /app
 
-FROM base as builder
+FROM base AS builder
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
