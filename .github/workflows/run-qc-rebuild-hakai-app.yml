@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name }}
-      url: ${{ vars.CAPROVER_APP_URL }}
+      url: ${{ vars.APP_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,4 +26,4 @@ jobs:
       - name: Install Caprover CLI
         run: npm install -g caprover
       - name: Tell Caprover server to deploy main
-        run: caprover deploy --caproverUrl https://captain.server.hakai.app --appToken ${{ secrets.CAPROVER_APP_TOKEN}} --branch '${{ github.ref_name }}' --appName hakai-qc-ctd
+        run: caprover deploy --caproverUrl ${{ vars.CAPROVER_URL }} --appToken ${{ secrets.CAPROVER_APP_TOKEN}} --branch '${{ github.ref_name }}' --appName hakai-qc-ctd
