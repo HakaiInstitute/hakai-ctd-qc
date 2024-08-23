@@ -38,34 +38,24 @@ See the help menu for a complete description of the different options:
 ```console
 python hakai_profile_qc --help
 
-Usage: hakai_profile_qc [OPTIONS]
-
-  QC Hakai Profiles on subset list of profiles given either via an  hakai_id
-  list, the `test_suite` flag or processing_stage.  If no input is given, the
-  tool will default to qc all the profiles  that have been processed but not
-  qced yet:      processing_stage={8_binAvg,8_rbr_processed}
-
-  Each options can be defined either as an argument  or via the associated
-  environment variable.
+Usage: hakai_ctd_qc [OPTIONS]
 
 Options:
-  --hakai_ids TEXT                Comma delimited list of hakai_ids to qc
-  --processing-stages TEXT        Comma list of processing_stage profiles to
-                                  review [env=QC_PROCESSING_STAGES]  [default:
-                                  8_binAvg,8_rbr_processed]
-  --test-suite                    Run Test suite [env=RUN_TEST_SUITE]
-  --api-root TEXT                 Hakai API root to use
-                                  [env=HAKAI_API_SERVER_ROOT]  [default:
-                                  https://goose.hakai.org/api]
-  --upload-flag                   Update database flags
-                                  [env=UPDATE_SERVER_DATABASE]
-  --chunksize INTEGER             Process profiles by chunk
-                                  [env=CTD_CAST_CHUNKSIZE]  [default: 100]
-  --sentry-minimum-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
-                                  Minimum date to use to generate sentry
-                                  warnings [env=SENTRY_MINIMUM_DATE]
-  --profile PATH                  Run cProfile
-  --help                          Show this message and exit.
+  --hakai_ids TEXT            Comma delimited list of hakai_ids to qc
+  --processing-stages TEXT    Comma list of processing_stage profiles to
+                              review [env=QC_PROCESSING_STAGES]  [default:
+                              8_binAvg,8_rbr_processed]
+  --test-suite                Run Test suite [env=RUN_TEST_SUITE]
+  --api-root TEXT             Hakai API root to use [env=HAKAI_API_ROOT]
+                              [default: https://goose.hakai.org/api]
+  --upload-flag               Update database flags
+                              [env=UPDATE_SERVER_DATABASE]
+  --chunksize INTEGER         Process profiles by chunk
+                              [env=CTD_CAST_CHUNKSIZE]  [default: 100]
+  --sentry-minimum-date TEXT  Minimum date to use to generate sentry warnings
+                              [env=SENTRY_MINIMUM_DATE]
+  --profile PATH              Run cProfile
+  --help                      Show this message and exit.
 ```
 
 #### API 
