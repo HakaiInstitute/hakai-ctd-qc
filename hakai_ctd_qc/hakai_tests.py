@@ -207,13 +207,13 @@ def bad_value_test(
                 if pd.isna(value) or value in [".isna", "NaN", "nan"]
             ]
             if any(is_na_values):
-                df.loc[df[column].isna(), column + flag_column_suffix] = (
-                    QartodFlags.__dict__[level]
-                )
+                df.loc[
+                    df[column].isna(), column + flag_column_suffix
+                ] = QartodFlags.__dict__[level]
                 values = set(values).difference(is_na_values)
-            df.loc[df[column].isin(values), column + flag_column_suffix] = (
-                QartodFlags.__dict__[level]
-            )
+            df.loc[
+                df[column].isin(values), column + flag_column_suffix
+            ] = QartodFlags.__dict__[level]
     return df
 
 
@@ -349,9 +349,9 @@ def hakai_station_maximum_depth_test(
     df_max_depth[flag_column] = QartodFlags.GOOD
 
     # If station is depth is unknown flag unkown
-    df_max_depth.loc[df_max_depth["station_depth"].isnull(), flag_column] = (
-        QartodFlags.UNKNOWN
-    )
+    df_max_depth.loc[
+        df_max_depth["station_depth"].isnull(), flag_column
+    ] = QartodFlags.UNKNOWN
 
     # SUSPECT Flag
     df_max_depth.loc[

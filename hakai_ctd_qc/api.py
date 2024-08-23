@@ -8,9 +8,9 @@ import uvicorn
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from cron_descriptor import get_description
 from fastapi import Depends, Header, HTTPException
 from loguru import logger
-from cron_descriptor import get_description
 
 from hakai_ctd_qc.__main__ import main as qc_profiles
 
@@ -50,15 +50,20 @@ scheduler = AsyncIOScheduler(
 def run_qc(**kwargs):
     logger.info("Running default QC")
     id = kwargs.pop("id")
-    JOBS_MESSAGES[id] = {"timestamp": str(pd.Timestamp.utcnow().isoformat()), "status": "running"}
+    JOBS_MESSAGES[id] = {
+        "timestamp": str(pd.Timestamp.utcnow().isoformat()),
+        "status": "running",
+    }
     response = qc_profiles(**kwargs)
-    JOBS_MESSAGES[id] = {"timestamp": str(pd.Timestamp.utcnow().isoformat()), **response}
+    JOBS_MESSAGES[id] = {
+        "timestamp": str(pd.Timestamp.utcnow().isoformat()),
+        **response,
+    }
     return JOBS_MESSAGES
 
+
 if QC_CRON:
-    logger.info(
-        f"Running default QC {QC_CRON=}"
-    )
+    logger.info(f"Running default QC {QC_CRON=}")
     trigger = CronTrigger.from_crontab(QC_CRON, timezone="UTC")
     schedule_job_id = f"scheduled:{QC_CRON}"
     scheduler.add_job(
@@ -79,6 +84,7 @@ async def schedule_task(app: fastapi.FastAPI):
         yield
     finally:
         scheduler.shutdown()
+
 
 app_description = f"""
 This is the {os.getenv("ENVIRONMENT", '')} Hakai Institute ctd quality control tool.
@@ -110,7 +116,12 @@ def token_check(token: str = Header(... if TOKENS else None)):
 
 @app.get("/status")
 async def get_status():
-    return {"status": "ok", "version": version, "cron": QC_CRON, "hakai-api-root": API_ROOT}
+    return {
+        "status": "ok",
+        "version": version,
+        "cron": QC_CRON,
+        "hakai-api-root": API_ROOT,
+    }
 
 
 @app.get("/jobs/status")
@@ -119,10 +130,10 @@ async def get_jobs_status():
 
 
 if QC_CRON:
+
     @app.get("/jobs/schedule")
     def get_schedule():
         return [str(job) for job in scheduler.get_jobs()]
-    
 
     @app.post("/job/pause")
     async def pause_scheduled_jobs(
@@ -143,7 +154,6 @@ if QC_CRON:
 
 @app.post("/qc")
 async def run_quality_control_on_hakai_profiles(
-    request: fastapi.Request,
     hakai_ids: str = None,
     processing_stages: str = "8_binAvg,8_rbr_processed",
     api_root=API_ROOT,
