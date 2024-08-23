@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hakai-ctd-qc"
-version = "0.3.0"
+version = "1.0.0"
 description = "Hakai Automated Quality Control for CTD profiles"
 authors = ["Jessy Barrette <30420025+JessyBarrette@users.noreply.github.com>"]
 readme = "README.md"
