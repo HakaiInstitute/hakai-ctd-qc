@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import warnings
 from pathlib import Path
 
 import click
@@ -19,17 +20,22 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from hakai_profile_qc import hakai_tests, sentry_warnings, variables
-from hakai_profile_qc.hakai_tests import qartod_to_hakai_flag
-from hakai_profile_qc.utils import retry
-from hakai_profile_qc.variables import manual_qc_variables
-from hakai_profile_qc.version import __version__
+from hakai_ctd_qc import hakai_tests, sentry_warnings, variables
+from hakai_ctd_qc.hakai_tests import qartod_to_hakai_flag
+from hakai_ctd_qc.utils import retry
+from hakai_ctd_qc.variables import manual_qc_variables
+from hakai_ctd_qc.version import __version__
+
+load_dotenv(".env", override=True)
+
+if os.getenv("IGNORE_WARNINGS") not in ("False", "0", "false", "", None):
+    logger.info("Ignore Future and Deprecation Warnings")
+    warnings.filterwarnings("ignore", category=FutureWarning)
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 logger.debug("Hakai Profile QC version: {}", __version__)
 
 hakai_to_qartod_flag = {v: k for k, v in qartod_to_hakai_flag.items()}
-
-load_dotenv()
 
 QARTOD_DTYPE = pd.CategoricalDtype([9, 2, 1, 3, 4], ordered=True)
 
@@ -238,6 +244,11 @@ def _convert_time_to_datetime(df):
     return df
 
 
+def _cleanup():
+    sentry_sdk.flush()
+    sys.exit(1)
+
+
 def run_qc_profiles(df, metadata):
     """
     Main method that runs on a number of profiles a series of QARTOD tests and specific
@@ -413,10 +424,10 @@ def post_hakai_data(url, post):
 )
 @click.option(
     "--api-root",
-    help="Hakai API root to use [env=HAKAI_API_SERVER_ROOT]",
+    help="Hakai API root to use [env=HAKAI_API_ROOT]",
     default="https://goose.hakai.org/api",
     show_default=True,
-    envvar="HAKAI_API_SERVER_ROOT",
+    envvar="HAKAI_API_ROOT",
 )
 @click.option(
     "--upload-flag",
@@ -443,17 +454,21 @@ def post_hakai_data(url, post):
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
-@logger.catch(reraise=True)
+@logger.catch(reraise=True, onerror=_cleanup)
+def main_cli(**kwargs):
+    main(**kwargs)
+
+
 def main(
-    hakai_ids,
-    test_suite,
-    api_root,
-    upload_flag,
-    processing_stages,
-    chunksize,
-    sentry_minimum_date,
-    profile,
-):
+    hakai_ids: str = None,
+    test_suite: bool = False,
+    api_root: str = "https://goose.hakai.org/api",
+    upload_flag: bool = False,
+    processing_stages: str = "8_binAvg,8_rbr_processed",
+    chunksize: int = 100,
+    sentry_minimum_date: str = None,
+    profile: str = None,
+) -> dict:
     """QC Hakai Profiles on subset list of profiles given either via an
     hakai_id list, the `test_suite` flag or processing_stage.
     If no input is given, the tool will default to qc all the profiles
@@ -462,6 +477,17 @@ def main(
 
     Each options can be defined either as an argument
     or via the associated environment variable.
+
+    Args:
+        hakai_ids (str): Comma delimited list of hakai_ids to qc
+        test_suite (bool): Run Test suite
+        api_root (str): Hakai API root to use
+        upload_flag (bool): Update database flags
+        processing_stages (str): Comma list of processing_stage profiles to review
+        chunksize (int): Process profiles by chunk
+        sentry_minimum_date (str): Minimum date to use to generate sentry warnings
+        profile (str): Run cProfile on the process
+
     """
 
     check_hakai_database_rebuild(api_root)
@@ -494,7 +520,11 @@ def main(
     df_casts = get_hakai_data(url)
     if df_casts.empty:
         logger.info("No Drops needs to be QC")
-        return None, None
+        return {
+            "query": url,
+            "message": "No Drops needs to be QC",
+            "hakai_ids": [],
+        }
 
     # Split cast list to qc into chunks and run qc tests on each chunks.
     logger.info("QC {} drops", len(df_casts))
@@ -557,7 +587,9 @@ def main(
             logger.debug("Run QC Process")
             df_qced = run_qc_profiles(df_qced, metadata)
             if sentry_minimum_date:
-                sentry_minimum_date = pd.to_datetime(sentry_minimum_date, utc=True , format="ISO8601")
+                sentry_minimum_date = pd.to_datetime(
+                    sentry_minimum_date, utc=True, format="ISO8601"
+                )
                 sentry_warnings.run_sentry_warnings(df_qced, chunk, sentry_minimum_date)
 
             # Convert QARTOD to string temporarily
@@ -594,6 +626,13 @@ def main(
 
     if "8_binAvg,8_rbr_processed,9_qc_auto,10_qc_pi" in run_type:
         logger.warning("Full CTD QC rebuild is completed on {}", api_root)
+    sentry_sdk.flush()
+
+    return {
+        "query": url,
+        "message": "Qc Process Completed",
+        "hakai_ids": df_casts["hakai_id"].tolist(),
+    }
 
 
 def _get_hakai_flag_columns(
@@ -628,7 +667,7 @@ def _get_hakai_flag_columns(
     df_subset_flag = df.filter(regex=flag_regex).replace({9: None, 2: None})
     ignore_records = (df_subset_flag.notna().any(axis=1)) & (df[variable].notna())
     df_subset = df_subset_flag.loc[ignore_records]
-    
+
     if df_subset.empty:
         return df
 
@@ -648,14 +687,23 @@ def _get_hakai_flag_columns(
     )
     logger.debug("Get Aggregated Hakai Flags")
     # Generete Level 2 Flag Description for failed flag
-    df.loc[df_subset.index, variable + "_flag"] = df_subset.replace({1: None}).apply(
-        lambda x: __generate_level2_flag(x),
-        axis=1,
+    df.loc[df_subset.index, variable + "_flag"] = (
+        df_subset.astype("float64")
+        .replace({1: pd.NA})
+        .apply(
+            lambda x: __generate_level2_flag(x),
+            axis=1,
+        )
     )
     return df
 
 
 if __name__ == "__main__":
-    with logger.catch(reraise=True):
-        main()
+    try:
+        main_cli()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        sentry_sdk.flush()
+    finally:
+        sentry_sdk.flush()
     sys.exit(0)

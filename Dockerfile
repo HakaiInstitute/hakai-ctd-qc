@@ -26,4 +26,4 @@ RUN poetry config virtualenvs.in-project true && \
 COPY . .
 RUN poetry install --only main
     
-CMD ["poetry","run","python", "hakai_profile_qc"]
+CMD ["poetry","run","python", "hakai_ctd_qc/api.py"]

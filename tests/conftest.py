@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from loguru import logger
 
-from hakai_profile_qc.__main__ import _derived_ocean_variables, run_qc_profiles
+from hakai_ctd_qc.__main__ import _derived_ocean_variables, run_qc_profiles
 from tests.utils import get_hakai_test_suite_data, get_hakai_test_suite_metadata
 
 MODULE_PATH = Path(__file__).parent

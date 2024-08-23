@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from hakai_profile_qc.version import __version__
+from hakai_ctd_qc.version import __version__
 
 
 def test_pyproject_version():

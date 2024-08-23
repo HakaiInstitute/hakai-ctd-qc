@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from hakai_profile_qc.__main__ import _get_hakai_flag_columns
+from hakai_ctd_qc.__main__ import _get_hakai_flag_columns
 
 
 @pytest.fixture(scope="function")
@@ -80,7 +80,9 @@ class TestHakaiFlags:
     def test_hakai_flag_with_null_value(self, df):
         df.loc[0, "x"] = None
         df = _get_hakai_flag_columns(df, var, r"_qartod_flag")
-        assert df.loc[0][['x','x_flag','x_flag_level_1']].isna().all(), "All value, flag and flag_level_1 should be NaN"
+        assert (
+            df.loc[0][["x", "x_flag", "x_flag_level_1"]].isna().all()
+        ), "All value, flag and flag_level_1 should be NaN"
         assert (df.loc[df.index[1:], "x_flag_level_1"] == 1).all()
         assert (df.loc[df.index[1:], "x_flag"].str.startswith("AV")).all()
 
@@ -91,8 +93,8 @@ class TestHakaiFlags:
         assert df.loc[0, "x_flag_level_1"] == 1
         assert (df.loc[df.index[1:], "x_flag"].str.startswith("AV")).all()
         assert (df.loc[df.index[1:], "x_flag_level_1"] == 1).all()
-    
-    def test_hakai_flag_all_null(self,df):
+
+    def test_hakai_flag_all_null(self, df):
         df.loc[0, "x_qartod_flag_1"] = None
         df.loc[0, "x_qartod_flag_2"] = None
         df = _get_hakai_flag_columns(df, var, r"_qartod_flag")
@@ -101,7 +103,7 @@ class TestHakaiFlags:
         assert (df.loc[df.index[1:], "x_flag"].str.startswith("AV")).all()
         assert (df.loc[df.index[1:], "x_flag_level_1"] == 1).all()
 
-    def test_hakai_flag_all_null_with_unknown(self,df):
+    def test_hakai_flag_all_null_with_unknown(self, df):
         df.loc[0, "x_qartod_flag_1"] = None
         df.loc[0, "x_qartod_flag_2"] = 2
         df = _get_hakai_flag_columns(df, var, r"_qartod_flag")
