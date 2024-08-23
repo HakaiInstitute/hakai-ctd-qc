@@ -10,6 +10,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, Header, HTTPException
 from loguru import logger
+from cron_descriptor import get_description
 
 from hakai_ctd_qc.__main__ import main as qc_profiles
 
@@ -103,7 +104,7 @@ async def get_jobs_status():
 
 if QC_CRON:
     app.description += (
-        f"<br><br>Running default `/qc` endpoint every cron:`{QC_CRON}`"
+        f"<br><br>Running default `/qc` endpoint: {get_description(QC_CRON)} ( {QC_CRON=} )"
     )
 
     @app.get("/jobs/schedule")

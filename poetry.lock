@@ -358,6 +358,20 @@ files = [
 dev = ["black (==22.3.0)", "hypothesis", "numpy", "pytest (>=5.30)", "pytest-xdist"]
 
 [[package]]
+name = "cron-descriptor"
+version = "1.4.3"
+description = "A Python library that converts cron expressions into human readable strings."
+optional = false
+python-versions = "*"
+files = [
+    {file = "cron_descriptor-1.4.3-py3-none-any.whl", hash = "sha256:a67ba21804983b1427ed7f3e1ec27ee77bf24c652b0430239c268c5ddfbf9dc0"},
+    {file = "cron_descriptor-1.4.3.tar.gz", hash = "sha256:7b1a00d7d25d6ae6896c0da4457e790b98cba778398a3d48e341e5e0d33f0488"},
+]
+
+[package.extras]
+dev = ["polib"]
+
+[[package]]
 name = "decorator"
 version = "5.1.1"
 description = "Decorators for Humans"
@@ -2218,4 +2232,4 @@ viz = ["matplotlib", "nc-time-axis", "seaborn"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "a10d2987f24188777d493d35b72cacee875f64807c2eb94871ad923cb0cb5b49"
+content-hash = "154b33c840efac95bec4a001aade61ee9aa691e878725bf167829a5bf128242f"
