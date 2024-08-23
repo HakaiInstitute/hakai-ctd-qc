@@ -1,4 +1,4 @@
-name: Rebuild Hakai CTD QC App
+name: Deploy to caprover server
 on:
   push:
     branches:
