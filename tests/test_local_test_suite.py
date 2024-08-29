@@ -1,10 +1,7 @@
 from pathlib import Path
 
 from hakai_ctd_qc import hakai_tests
-from hakai_ctd_qc.__main__ import (
-    _convert_time_to_datetime,
-    _derived_ocean_variables,
-)
+from hakai_ctd_qc.__main__ import _convert_time_to_datetime, _derived_ocean_variables
 from hakai_ctd_qc.variables import HAKAI_TEST_SUITE
 from tests.hakai_ids_with_issues import HAKAI_IDS_WITH_ISSUES
 
