@@ -192,7 +192,7 @@ async def run_quality_control_on_hakai_profiles(
 
 
 @app.get("/manual-qc-status")
-async def get_manual_qced():
+async def get_manual_qced(mininum_drops_per_station: int = 2, qced_only: bool = False):
     client = Client(credentials=os.getenv("HAKAI_API_TOKEN"))
     logger.info("Getting manual QCed data")
     response = client.get(API_ROOT + "/eims/views/output/ctd_qc?limit=-1")
@@ -205,13 +205,15 @@ async def get_manual_qced():
     df_cast = pd.DataFrame(response.json())
 
     # combine the two dataframes
-    df = pd.merge(df_qc, df_cast, on=["work_area","hakai_id"], how="outer")
+    df = pd.merge(df_cast, df_qc, on=["work_area","hakai_id"], how="outer")
     flag_columns = df.filter(like="_flag").columns
     summary = []
     for index,df_group in df.groupby(['organization', 'work_area', 'station']):
 
         qced = df_group.dropna(how='all', subset=flag_columns)
-        if qced.empty:
+        if len(df_group) < mininum_drops_per_station:
+            continue
+        if qced_only and len(qced) == 0:
             continue
 
         summary.append({
@@ -220,13 +222,17 @@ async def get_manual_qced():
             "station": index[2],
             "n_drops": len(df_group),
             "n_qced": len(qced),
+            "n_not_qced": len(df_group) - len(qced),
             **qced[flag_columns].count().to_dict(),
-            "last_drop_qced": qced['start_dt'].max()
+            "Last Drop QCed": qced['start_dt'].max()
         })
 
     df_summary = pd.DataFrame(summary)
+    logger.info("Summary of manual QCed data: len(df_summary)={}", len(df_summary)) 
     html_table = df_summary.to_html(index=False, classes='display', table_id='dataTable')
-
+    message = f"Only showing stations with more than {mininum_drops_per_station} drops"
+    if qced_only:
+        message += " and only showing stations that had previously been manually QCed"
     # Embed DataTables JavaScript and CSS
     html_string = f"""
     <!DOCTYPE html>
@@ -247,6 +253,7 @@ async def get_manual_qced():
     <body>
         <h1>Hakai CTD Profiles Manually QCed Status</h1>
         <p>Number of drops and number of drops that have been manually QCed</p>
+        <p>{message}</p>
         {html_table}
     </body>
     </html>
