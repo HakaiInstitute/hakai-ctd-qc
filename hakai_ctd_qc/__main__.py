@@ -103,7 +103,7 @@ DEFAULT_CONFIG_PATH = PACKAGE_PATH / ".." / "default-config.yaml"
 ENV_CONFIG_PATH = PACKAGE_PATH / ".." / "config.yaml"
 
 # Set logger
-logger.remove()
+# logger.remove() # do not remove logger in the hopes that this will log to stdout and docker logs again
 logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 LOG_FILE = os.environ.get("LOG_FILE")
 if LOG_FILE:
