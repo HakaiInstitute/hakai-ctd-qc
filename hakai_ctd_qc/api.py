@@ -72,7 +72,8 @@ if QC_CRON:
     schedule_job_id = f"scheduled:{QC_CRON}"
     scheduler.add_job(
         run_qc,
-        kwargs={"id": schedule_job_id},
+        kwargs={"id": schedule_job_id,
+               "api_root": API_ROOT},
         trigger=trigger,
         id=schedule_job_id,
         replace_existing=True,
