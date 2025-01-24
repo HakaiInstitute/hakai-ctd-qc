@@ -434,7 +434,7 @@ def post_hakai_data(url, post):
     "--upload-flag",
     help="Update database flags [env=UPDATE_SERVER_DATABASE]",
     default=False,
-    is_flag=True,
+    # is_flag=True,
     show_default=True,
     envvar="UPDATE_SERVER_DATABASE",
 )
