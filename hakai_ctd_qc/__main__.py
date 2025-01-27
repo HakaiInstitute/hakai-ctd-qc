@@ -9,6 +9,7 @@ import gsw
 import numpy as np
 import pandas as pd
 import sentry_sdk
+from click.core import ParameterSource
 from dotenv import load_dotenv
 from hakai_api import Client
 from ioos_qc.config import Config
@@ -434,7 +435,7 @@ def post_hakai_data(url, post):
     "--upload-flag",
     help="Update database flags [env=UPDATE_SERVER_DATABASE]",
     default=False,
-    # is_flag=True,
+    is_flag=True,
     show_default=True,
     envvar="UPDATE_SERVER_DATABASE",
 )
@@ -491,6 +492,10 @@ def main(
 
     """
 
+
+    parameter_source = click.get_current_context().get_parameter_source('upload_flag')
+    logger.info(parameter_source)
+    logger.info(upload_flag)
     check_hakai_database_rebuild(api_root)
     if profile:
         run_profiling(profile)
