@@ -457,6 +457,9 @@ def post_hakai_data(url, post):
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @logger.catch(reraise=True, onerror=_cleanup)
 def main_cli(**kwargs):
+    parameter_source = click.get_current_context().get_parameter_source('upload_flag')
+    logger.info(parameter_source)
+    logger.info(upload_flag)
     main(**kwargs)
 
 
@@ -491,11 +494,6 @@ def main(
         profile (str): Run cProfile on the process
 
     """
-
-
-    parameter_source = click.get_current_context().get_parameter_source('upload_flag')
-    logger.info(parameter_source)
-    logger.info(upload_flag)
     check_hakai_database_rebuild(api_root)
     if profile:
         run_profiling(profile)
