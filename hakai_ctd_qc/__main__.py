@@ -9,7 +9,6 @@ import gsw
 import numpy as np
 import pandas as pd
 import sentry_sdk
-from click.core import ParameterSource
 from dotenv import load_dotenv
 from hakai_api import Client
 from ioos_qc.config import Config
@@ -457,9 +456,6 @@ def post_hakai_data(url, post):
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @logger.catch(reraise=True, onerror=_cleanup)
 def main_cli(**kwargs):
-    parameter_source = click.get_current_context().get_parameter_source('upload_flag')
-    logger.info(parameter_source)
-    logger.info(upload_flag)
     main(**kwargs)
 
 

@@ -33,6 +33,7 @@ PORT = int(os.getenv("PORT", 8000))
 DEBUG = os.getenv("DEBUG", False)
 TOKENS = os.getenv("TOKENS", "").split(",")
 QC_CRON = os.getenv("QC_CRON")
+UPDATE_SERVER_DATABASE = os.getenv("UPDATE_SERVER_DATABASE", False)
 
 logger.info(f"Starting Hakai CTD QC API {version=}")
 logger.info("HAKAI API ROOT: {}", API_ROOT)
@@ -41,6 +42,7 @@ logger.info("PORT: {}", PORT)
 logger.info("DEBUG: {}", DEBUG)
 logger.info("N TOKENS: {}", len(TOKENS))
 logger.info("QC_CRON: {}", QC_CRON)
+logger.info("UPDATE_SERVER_DATABASE: {}", UPDATE_SERVER_DATABASE)
 
 
 JOBS_MESSAGES = {}
@@ -73,7 +75,8 @@ if QC_CRON:
     scheduler.add_job(
         run_qc,
         kwargs={"id": schedule_job_id,
-               "api_root": API_ROOT},
+               "api_root": API_ROOT,
+                "upload_flag": UPDATE_SERVER_DATABASE},
         trigger=trigger,
         id=schedule_job_id,
         replace_existing=True,
