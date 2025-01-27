@@ -12,4 +12,4 @@ RUN poetry install --without dev
 
 EXPOSE 80
     
-CMD ["poetry","run","uvicorn", "hakai_ctd_qc.api:app","--host", "0.0.0.0", "--port", "80"]
+CMD ["poetry","run","python","hakai_ctd_qc"]

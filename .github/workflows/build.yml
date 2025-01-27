@@ -1,0 +1,44 @@
+name: Build and Push Image to GHCR
+on:
+  push:
+    branches:
+      - docker_only
+  workflow_dispatch:
+
+jobs:
+      push-nginx-image:
+        runs-on: ubuntu-latest
+        steps:
+            - name: 'Checkout GitHub Action'
+              uses: actions/checkout@docker_only
+
+            - name: Docker meta
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                # list of Docker images to use as base name for tags
+                images: ghcr.io/hakaiinstitute/hakai_ctd_qc
+                # generate Docker tags based on the following events/attributes
+                tags: |
+                    # set latest tag for main branch
+                    type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'docker_only') }}
+                    type=semver,pattern={{version}}
+                    type=semver,pattern={{major}}.{{minor}}
+                    type=semver,pattern={{major}}
+
+            - name: 'Login to GitHub Container Registry'
+              uses: docker/login-action@v1
+              with:
+                  registry: ghcr.io
+                  username: hakai-it
+                  password: ${{ secrets.CI_TOKEN }}
+
+            - name: Build and push
+              uses: docker/build-push-action@v3
+              with:
+                context: .
+                push: ${{ github.event_name != 'pull_request' }}
+                tags: ${{ steps.meta.outputs.tags }}
+                labels: ${{ steps.meta.outputs.labels }}
+                cache-from: type=gha
+                cache-to: type=gha,mode=max                                

@@ -7,5 +7,3 @@ services:
     platform: linux/x86_64
     env_file:
       - .env
-    ports:
-      - '8200:80'

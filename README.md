@@ -32,11 +32,11 @@ Copy the `sample.env` file as `.env` and replace the different values accordingl
 #### Command Line Interface
 
 
-Once installed the package hakai_profile_qc can be run via the command line.
+Once installed the package hakai_ctd_qc can be run via the command line.
 See the help menu for a complete description of the different options:
 
 ```console
-python hakai_profile_qc --help
+python hakai_ctd_qc --help
 
 Usage: hakai_ctd_qc [OPTIONS]
 
@@ -96,12 +96,12 @@ Each instance is associated to their respective hakai database:
 
 The different tests applied are defined within the respective configurations:
 
-- [Hakai tests](hakai_profile_qc/config/hakai_ctd_profile_tests_config.json)
-- [QARTOD Tests](hakai_profile_qc/config/hakai_ctd_profile_qartod_test_config.json)
+- [Hakai tests](hakai_ctd_qc/config/hakai_ctd_profile_tests_config.json)
+- [QARTOD Tests](hakai_ctd_qc/config/hakai_ctd_profile_qartod_test_config.json)
 
-A subset of hakai_ids is used to test the qc tool and is maintained [here](hakai_profile_qc/config/HAKAI_ID_TEST_SUITE.txt)
+A subset of hakai_ids is used to test the qc tool and is maintained [here](hakai_ctd_qc/config/HAKAI_ID_TEST_SUITE.txt)
 
-Manual flags can also be implemented on any instrument-specific variables via the [grey-list](hakai_profile_qc/HakaiProfileDatasetGreyList.csv),
+Manual flags can also be implemented on any instrument-specific variables via the [grey-list](hakai_ctd_qc/HakaiProfileDatasetGreyList.csv),
 which overwrites any automatically generated flags.
 
 ### Testing
