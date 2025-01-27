@@ -1,3 +1,4 @@
+# This file is run on container start up, see Dockerfile to confirm. It creates a FastAPI app that runs the Hakai CTD QC tool.
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -55,6 +56,7 @@ scheduler = AsyncIOScheduler(
 )
 
 
+# run the main qc function found in __main__.py
 def run_qc(**kwargs):
     logger.info("Running default QC")
     id = kwargs.pop("id")
@@ -69,7 +71,8 @@ def run_qc(**kwargs):
     }
     return JOBS_MESSAGES
 
-
+# if a cron schedule is provided, add a job to the scheduler.
+# note the kwargas listed are the only ones passed to the run_qc function
 if QC_CRON:
     logger.info(f"Running default QC {QC_CRON=}")
     trigger = CronTrigger.from_crontab(QC_CRON, timezone="UTC")

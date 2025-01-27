@@ -134,6 +134,7 @@ if "HAKAI_API_TOKEN" in os.environ:
     logger.info(
         "HAKAI_API_TOKEN as env variable: {}", len(os.environ["HAKAI_API_TOKEN"])
     )
+# Global variable!!!
 client = Client(credentials=os.environ.get("HAKAI_API_TOKEN"))
 
 
@@ -152,6 +153,7 @@ def get_hakai_station_list():
     ).rename(columns={"name": "station", "depth": "station_depth"})
 
 
+# Global variable!!!
 hakai_stations = get_hakai_station_list()
 
 
@@ -455,10 +457,15 @@ def post_hakai_data(url, post):
 )
 @click.option("--profile", type=click.Path(), default=None, help="Run cProfile")
 @logger.catch(reraise=True, onerror=_cleanup)
+# run the main qc function and pass command line arugments to it
 def main_cli(**kwargs):
     main(**kwargs)
 
-
+# Main QC function run by the CLI or from the API
+# when run it will process all available casts that have not been qc'd yet
+# it will do it in chunks of 100 (default) casts at a time and 
+# will exit once all casts have been processed the default upload_flag is 
+# False so it will not update the results to the database.
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 def main(
     hakai_ids: str = None,

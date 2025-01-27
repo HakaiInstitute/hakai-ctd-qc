@@ -3,7 +3,7 @@
 `hakai-ctd-qc` is the main package used to handle the QCing of the CTD
 Datasets maintained by the Hakai Institute. Please refer to the
 [test description manual](tests_description.md) for a full description of the
-different tests applied within this package. Examples of tes
+different tests applied within this package.
 
 ## Installation
 
@@ -71,8 +71,8 @@ And within a browser to go: <http://127.0.0.1:8000>
 With vscode you can also run the debug configuration `Run API` which helps debug the interface in realtime.
 
 > [!IMPORTANT]
-> To protect the api from unpexted calls, you can set a list of accepted tokens as a list of comma separated list.
-> Any post calls to the api will then require a field `token` within the header of the post command and an accepted value.
+> To protect the api from unexpected calls, you can set a list of accepted tokens as a list of comma separated list.
+> Any post calls to the api will then require a `token` field within the header of the post command and an accepted value.
 
 ### Deployments
 
@@ -83,13 +83,13 @@ The hakai_ctd_qc tool is deployed via a Docker container
 - main: http://hakai-ctd-qc.server.hakai.app/ -> qc hakai database
     - a cron job is applied to this instance to qc latest data submitted.
 
-Each been associated to their respective hakai database:
+Each instance is associated to their respective hakai database:
 
 ### Continuous Integration
 
 1. **Testing**: Any changes to the package are tested via a [GitHub workflow](.GitHub/workflows/test-package-install.yml) that qc hakai_id test suite.
 2. **Docker Build Testing**: Docker container build is tested via a [GitHub worflow](.GitHub/workflows/test-docker-build.yml)
-3. Changes to the main and development versions are directely deployed to the different caprover instances via the [deploy action](.github/workflows/deploy.yml) each respective github environments.
+3. Changes to the main and development versions are directly deployed to the different caprover instances via the [deploy action](.github/workflows/deploy.yml) each respective github environments.
 4. **Errors and monitoring**: Sentry is use to monitor the different errors and cron jobs. Only the main deployment is required to run a cron job to make sure any newly submitted data is qced. See the following links for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d) encountered.
 
 ### Tests parametrization
@@ -106,7 +106,7 @@ which overwrites any automatically generated flags.
 
 ### Testing
 
-To make sure the tests are working appropriately a a series of pytests are available. Some of the tests are specific to the hakai tests, others to the hakai test suite. 
+To make sure the tests are working appropriately a series of pytests are available. Some of the tests are specific to the hakai tests, others to the hakai test suite. 
 
 The test suite is made available locally via the parquet file, or retrieved from the development or production database.
 
