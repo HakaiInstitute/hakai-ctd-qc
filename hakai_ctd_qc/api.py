@@ -34,6 +34,7 @@ DEBUG = os.getenv("DEBUG", False)
 TOKENS = os.getenv("TOKENS", "").split(",")
 QC_CRON = os.getenv("QC_CRON")
 UPDATE_SERVER_DATABASE = os.getenv("UPDATE_SERVER_DATABASE", False)
+CTD_CAST_CHUNKSIZE = os.getenv("CTD_CAST_CHUNKSIZE", 100)
 
 logger.info(f"Starting Hakai CTD QC API {version=}")
 logger.info("HAKAI API ROOT: {}", API_ROOT)
@@ -43,6 +44,7 @@ logger.info("DEBUG: {}", DEBUG)
 logger.info("N TOKENS: {}", len(TOKENS))
 logger.info("QC_CRON: {}", QC_CRON)
 logger.info("UPDATE_SERVER_DATABASE: {}", UPDATE_SERVER_DATABASE)
+logger.info("CTD_CAST_CHUNKSIZE: {}", CTD_CAST_CHUNKSIZE)
 
 
 JOBS_MESSAGES = {}
@@ -76,7 +78,8 @@ if QC_CRON:
         run_qc,
         kwargs={"id": schedule_job_id,
                "api_root": API_ROOT,
-                "upload_flag": UPDATE_SERVER_DATABASE},
+               "upload_flag": UPDATE_SERVER_DATABASE,
+               "chunksize": CTD_CAST_CHUNKSIZE},
         trigger=trigger,
         id=schedule_job_id,
         replace_existing=True,
