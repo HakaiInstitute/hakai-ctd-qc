@@ -34,7 +34,7 @@ DEBUG = os.getenv("DEBUG", False)
 TOKENS = os.getenv("TOKENS", "").split(",")
 QC_CRON = os.getenv("QC_CRON")
 UPDATE_SERVER_DATABASE = os.getenv("UPDATE_SERVER_DATABASE", False)
-CTD_CAST_CHUNKSIZE = os.getenv("CTD_CAST_CHUNKSIZE", 100)
+CTD_CAST_CHUNKSIZE = int(os.getenv("CTD_CAST_CHUNKSIZE", 100))
 
 logger.info(f"Starting Hakai CTD QC API {version=}")
 logger.info("HAKAI API ROOT: {}", API_ROOT)
