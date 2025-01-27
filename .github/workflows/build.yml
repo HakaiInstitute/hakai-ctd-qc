@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: 'Checkout GitHub Action'
-              uses: actions/checkout@docker_only
+              uses: actions/checkout@main
 
             - name: Docker meta
               id: meta
