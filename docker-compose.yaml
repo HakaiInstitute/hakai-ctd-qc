@@ -1,6 +1,7 @@
 version: '3.7'
 services:
   hakai-profile-qc:
+    image: ghcr.io/hakaiinstitute/hakai_ctd_qc:latest
     build:
       context: .
       dockerfile: Dockerfile
