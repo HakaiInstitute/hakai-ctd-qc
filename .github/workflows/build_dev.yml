@@ -1,8 +1,8 @@
-name: Build and Push Image to GHCR
+name: Build and Push Development Image to GHCR
 on:
   push:
     branches:
-      - main
+      - development
   workflow_dispatch:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
               uses: docker/metadata-action@v5
               with:
                 # list of Docker images to use as base name for tags
-                images: ghcr.io/hakaiinstitute/hakai_ctd_qc
+                images: ghcr.io/hakaiinstitute/hakai_ctd_qc_dev
                 # generate Docker tags based on the following events/attributes
                 tags: |
                     # set latest tag for main branch
@@ -25,7 +25,7 @@ jobs:
                     type=semver,pattern={{version}}
                     type=semver,pattern={{major}}.{{minor}}
                     type=semver,pattern={{major}}
-
+                    
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
 

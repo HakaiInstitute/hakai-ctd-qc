@@ -1,4 +1,4 @@
-name: Deploy to caprover server
+name: Disable - Deploy to caprover server 
 on:
   push:
     branches:
