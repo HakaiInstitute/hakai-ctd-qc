@@ -14,15 +14,16 @@ In all cases, it is best to clone locally the package and apply the appropriate 
 git clone git@GitHub.com:HakaiInstitute/hakai-ctd-qc.git
 ```
 
-### Locally for development only
+### Local development
 
-Clone locally the repository and create the conda environment:
+Clone the repository and create the conda environment:
 
 ```terminal
 pyenv install 3.11.2
 pyenv local 3.11.2
 pip install poetry
 poetry install
+cp sample.env .env
 ```
 
 Copy the `sample.env` file as `.env` and replace the different values accordingly.
@@ -60,6 +61,8 @@ Options:
 
 #### API 
 
+Important: The api code base still exists but is not accessible in production deployments. These instructions are left here for reference only
+
 Run the following command:
 
 ```
@@ -76,20 +79,20 @@ With vscode you can also run the debug configuration `Run API` which helps debug
 
 ### Deployments
 
-The hakai_ctd_qc tool is deployed via a Docker container
-(see [Dockerfile](Dockerfile)) on two caprover instances: related to the development and production branches.
+The hakai_ctd_qc tool is deployed via a Docker container (see [Dockerfile](Dockerfile)) and run from Windmill. On container start, the application
+will request all ctd casts that are awaiting qc and process them in batches of `chunk_size` casts. 
 
-- development: http://hakai-ctd-qc.server.hak4i.org/ -> qc hakaidev database
-- main: http://hakai-ctd-qc.server.hakai.app/ -> qc hakai database
-    - a cron job is applied to this instance to qc latest data submitted.
+- development: https://windmill-dev-server.windmill.hakai.app/scripts/get/d35488d8aec4898b?workspace=data-pipelines -> qc hakaidev database
+- main: https://windmill-dev-server.windmill.hakai.app/scripts/get/58d138bc6d80e3d4?workspace=data-pipelines -> qc hakai database
+    - a cron schedule is applied to this instance to qc latest data submitted.
 
-Each instance is associated to their respective hakai database:
+see [Windmill Schedules](https://windmill-dev-server.windmill.hakai.app/schedules?filter_kind=schedule&user_and_folders_only=false&status=all) for container run schedule
 
 ### Continuous Integration
 
 1. **Testing**: Any changes to the package are tested via a [GitHub workflow](.GitHub/workflows/test-package-install.yml) that qc hakai_id test suite.
 2. **Docker Build Testing**: Docker container build is tested via a [GitHub worflow](.GitHub/workflows/test-docker-build.yml)
-3. Changes to the main and development versions are directly deployed to the different caprover instances via the [deploy action](.github/workflows/deploy.yml) each respective github environments.
+3. Changes to the main and development versions trigger image builds which are in tern pulled into windmill on next schedualed run. [prod deploy action](.github/workflows/build.yml) [dev deploy action](.github/workflows/build_dev.yml).
 4. **Errors and monitoring**: Sentry is use to monitor the different errors and cron jobs. Only the main deployment is required to run a cron job to make sure any newly submitted data is qced. See the following links for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d) encountered.
 
 ### Tests parametrization
