@@ -84,7 +84,7 @@ And within a browser to go: <http://127.0.0.1:8000>
 
 With vscode you can also run the debug configuration `Run API` which helps debug the interface in realtime.
 
-> [!NOTICE]
+> [!NOTE]
 > To protect the api from unexpected calls, you can set a list of accepted tokens as a list of comma separated list.
 > Any post calls to the api will then require a `token` field within the header of the post command and an accepted value.
 
