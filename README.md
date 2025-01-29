@@ -5,6 +5,16 @@ Datasets maintained by the Hakai Institute. Please refer to the
 [test description manual](tests_description.md) for a full description of the
 different tests applied within this package.
 
+## Quick Start
+The following commands will start a docker container, request all ctd casts that are awaiting qc and process from the default api, and them process them in batches of `chunk_size` casts. 
+
+```terminal
+git clone git@GitHub.com:HakaiInstitute/hakai-ctd-qc.git
+cd hakai-ctd-qc
+cp sample.env .env
+docker-compose up
+```
+
 ## Installation
 
 The present package can be installed locally or through a docker container.
@@ -61,7 +71,8 @@ Options:
 
 #### API 
 
-Important: The api code base still exists but is not accessible in production deployments. These instructions are left here for reference only
+> [!IMPORTANT]
+> The api code base still exists but is not accessible in production deployments. These instructions are left here for reference only
 
 Run the following command:
 
@@ -73,7 +84,7 @@ And within a browser to go: <http://127.0.0.1:8000>
 
 With vscode you can also run the debug configuration `Run API` which helps debug the interface in realtime.
 
-> [!IMPORTANT]
+> [!NOTICE]
 > To protect the api from unexpected calls, you can set a list of accepted tokens as a list of comma separated list.
 > Any post calls to the api will then require a `token` field within the header of the post command and an accepted value.
 
