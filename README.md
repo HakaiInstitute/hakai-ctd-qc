@@ -58,7 +58,7 @@ Options:
                               8_binAvg,8_rbr_processed]
   --test-suite                Run Test suite [env=RUN_TEST_SUITE]
   --api-root TEXT             Hakai API root to use [env=HAKAI_API_ROOT]
-                              [default: https://goose.hakai.org/api]
+                              [default: https://portaldev.hakai.org/api]
   --upload-flag               Update database flags
                               [env=UPDATE_SERVER_DATABASE]
   --chunksize INTEGER         Process profiles by chunk

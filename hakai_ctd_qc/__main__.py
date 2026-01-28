@@ -148,7 +148,7 @@ def get_hakai_station_list():
     """
     return pd.DataFrame(
         client.get(
-            "https://hecate.hakai.org/api/eims/views/output/sites?limit=-1"
+            "https://portal.hakai.org/api/eims/views/output/sites?limit=-1"
         ).json()
     ).rename(columns={"name": "station", "depth": "station_depth"})
 
@@ -428,7 +428,7 @@ def post_hakai_data(url, post):
 @click.option(
     "--api-root",
     help="Hakai API root to use [env=HAKAI_API_ROOT]",
-    default="https://goose.hakai.org/api",
+    default="https://portaldev.hakai.org/api",
     show_default=True,
     envvar="HAKAI_API_ROOT",
 )
@@ -470,7 +470,7 @@ def main_cli(**kwargs):
 def main(
     hakai_ids: str = None,
     test_suite: bool = False,
-    api_root: str = "https://goose.hakai.org/api",
+    api_root: str = "https://portaldev.hakai.org/api",
     upload_flag: bool = False,
     processing_stages: str = "8_binAvg,8_rbr_processed",
     chunksize: int = 100,
