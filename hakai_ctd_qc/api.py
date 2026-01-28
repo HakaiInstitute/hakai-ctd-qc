@@ -28,7 +28,7 @@ def get_version_from_pyproject():
 
 version = get_version_from_pyproject()
 
-API_ROOT = os.getenv("HAKAI_API_ROOT", "https://goose.hakai.org/api")
+API_ROOT = os.getenv("HAKAI_API_ROOT", "https://portaldev.hakai.org/api")
 HOST = os.getenv("HOST", "127.0.0.1")
 PORT = int(os.getenv("PORT", 8000))
 DEBUG = os.getenv("DEBUG", False)
