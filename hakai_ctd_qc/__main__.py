@@ -16,6 +16,7 @@ from ioos_qc.stores import PandasStore
 from ioos_qc.streams import PandasStream
 from loguru import logger
 from sentry_sdk.crons import monitor
+from sentry_sdk.integrations.sys_exit import SysExitIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -49,7 +50,8 @@ def check_hakai_database_rebuild(api_root):
             "Stop process early since Hakai DB {} is running a rebuild",
             api_root,
         )
-        sys.exit()
+        return True
+    return False
 
 
 def log_to_sentry():
@@ -69,6 +71,7 @@ def log_to_sentry():
         dsn=sentry_dsn,
         integrations=[
             sentry_logging,
+            SysExitIntegration(),
         ],
         environment=os.environ.get("ENVIRONMENT", "development"),
         release=f"hakai-profile-qc@{__version__}",
@@ -463,8 +466,8 @@ def main_cli(**kwargs):
 
 # Main QC function run by the CLI or from the API
 # when run it will process all available casts that have not been qc'd yet
-# it will do it in chunks of 100 (default) casts at a time and 
-# will exit once all casts have been processed the default upload_flag is 
+# it will do it in chunks of 100 (default) casts at a time and
+# will exit once all casts have been processed the default upload_flag is
 # False so it will not update the results to the database.
 @monitor(monitor_slug=os.getenv("SENTRY_MONITOR_ID"))
 def main(
@@ -497,7 +500,8 @@ def main(
         profile (str): Run cProfile on the process
 
     """
-    check_hakai_database_rebuild(api_root)
+    if check_hakai_database_rebuild(api_root):
+        return
     if profile:
         run_profiling(profile)
     #  Generate filter query list based on input and configuration
