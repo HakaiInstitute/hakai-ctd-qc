@@ -1,15 +1,17 @@
-FROM  --platform=linux/amd64 python:3.11-slim AS base
+FROM --platform=linux/amd64 python:3.13-slim AS base
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-RUN pip install "poetry==1.6.1"
+COPY pyproject.toml uv.lock ./
 
+RUN uv sync --frozen --no-dev --no-install-project
 
 COPY . .
 
-RUN poetry config virtualenvs.in-project true
-RUN poetry install --without dev
+RUN uv sync --frozen --no-dev
 
 EXPOSE 80
-    
-CMD ["poetry","run","python","hakai_ctd_qc"]
+
+CMD ["uv", "run", "python", "-m", "hakai_ctd_qc"]
