@@ -25,18 +25,20 @@ git clone git@GitHub.com:HakaiInstitute/hakai-ctd-qc.git
 ```
 
 ### Local development
+**Requirements:** Python 3.13+, [uv](https://docs.astral.sh/uv/)
 
-Clone the repository and create the conda environment:
+**Install dependencies:**
 
-```terminal
-pyenv install 3.11.2
-pyenv local 3.11.2
-pip install poetry
-poetry install
-cp sample.env .env
+```bash
+uv sync
 ```
 
+**Create .env:**
 Copy the `sample.env` file as `.env` and replace the different values accordingly.
+
+```bash
+cp sample.env .env
+```
 
 ### Methods
 
@@ -77,7 +79,7 @@ Options:
 Run the following command:
 
 ```
-poetry run python hakai_ctd_qc/api.py
+uv run python hakai_ctd_qc/api.py
 ```
 
 And within a browser to go: <http://127.0.0.1:8000>
@@ -127,17 +129,17 @@ The test suite is made available locally via the parquet file, or retrieved from
 To run all the tests locally:
 
 ```shell
-poetry run pytest .
+uv run pytest .
 ```
 
 To run all the tests with the production data (hecate) or development data (goose). Use the `--test-suite-from` option. Here's an example for goose:
 
 ```shell
-poetry run pytest . --test-suite-from goose
+uv run pytest . --test-suite-from goose
 ```
 
 Once to test the results on any of the databases without rerunning the tests on the data, you can use the `--test-suite-qc False` option.
 
 ```shell
-poetry run pytest . --test-suite-form goose -k test_source_expected_results
+uv run pytest . --test-suite-form goose -k test_source_expected_results
 ```

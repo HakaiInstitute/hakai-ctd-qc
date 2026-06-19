@@ -1,6 +1,6 @@
 [project]
 name = "hakai-ctd-qc"
-version = "1.0.0"
+version = "1.0.1"
 description = "Hakai Automated Quality Control for CTD profiles"
 authors = [{name = "Jessy Barrette", email = "30420025+JessyBarrette@users.noreply.github.com"}]
 readme = "README.md"

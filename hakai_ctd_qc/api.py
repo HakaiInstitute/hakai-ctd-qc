@@ -23,7 +23,7 @@ import panel as pn
 def get_version_from_pyproject():
     with open("pyproject.toml") as f:
         pyproject = toml.load(f)
-    return pyproject["tool"]["poetry"]["version"]
+    return pyproject["project"]["version"]
 
 
 version = get_version_from_pyproject()
@@ -271,8 +271,6 @@ async def get_manual_qced(mininum_drops_per_station: int = 2, qced_only: bool = 
 
     return HTMLResponse(content=html_string, status_code=200)
 
-    
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=PORT)
-

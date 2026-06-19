@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.0.1(2026-06-19)
+- Move package management to `uv`
+
 ## v1.0.0 (2024-08-25)
 
 ### Add
