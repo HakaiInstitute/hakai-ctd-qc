@@ -103,10 +103,10 @@ see [Windmill Schedules](https://windmill-dev-server.windmill.hakai.app/schedule
 
 ### Continuous Integration
 
-1. **Testing**: Any changes to the package are tested via a [GitHub workflow](.GitHub/workflows/test-package-install.yml) that qc hakai_id test suite.
-2. **Docker Build Testing**: Docker container build is tested via a [GitHub worflow](.GitHub/workflows/test-docker-build.yml)
-3. Changes to the main and development versions trigger image builds which are in tern pulled into windmill on next schedualed run. [prod deploy action](.github/workflows/build.yml) [dev deploy action](.github/workflows/build_dev.yml).
-4. **Errors and monitoring**: Sentry is use to monitor the different errors and cron jobs. Only the main deployment is required to run a cron job to make sure any newly submitted data is qced. See the following links for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d) encountered.
+1. **Testing**: Any changes to the package are tested via a [GitHub workflow](.github/workflows/test-package-install.yml) that runs the hakai_id test suite.
+2. **Docker Build Testing**: Docker container build is tested via a [GitHub workflow](.github/workflows/test-docker-build.yml).
+3. Changes to the main and development versions trigger image builds which are in turn pulled into windmill on next scheduled run. [prod deploy action](.github/workflows/build.yml) [dev deploy action](.github/workflows/build_dev.yml).
+4. **Errors and monitoring**: Sentry is used to monitor the different errors and cron jobs. Only the main deployment is required to run a cron job to make sure any newly submitted data is QCed. See the following links for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d) encountered.
 
 ### Tests parametrization
 

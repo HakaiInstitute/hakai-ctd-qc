@@ -665,17 +665,30 @@ def _get_hakai_flag_columns(
 
     def __generate_level2_flag(row: pd.Series):
         """
-        Regroup together tests results in "flag_value_to_consider" as a
-        json string to be outputed as a level2 flag
+        row contains original flag values (1, 2, 3, 4, 9, or NaN).
+        Returns:
+          pd.NA  – any flag is truly null (test was never run)
+          "AV"   – no truly null flags and none are SUSPECT(3) or FAIL(4)
+          string – formatted description for any SUSPECT/FAIL flags present
         """
-        flags = row.dropna().to_dict()
-        if not flags:
+        non_good = row[row.isin([3, 4])]
+        if row.isna().any():
+            return pd.NA if non_good.empty else "; ".join(
+                sorted(
+                    [
+                        f"{hakai_tests.qartod_to_hakai_flag[int(v)]}: {k}"
+                        for k, v in non_good.items()
+                    ],
+                    reverse=True,
+                )
+            )
+        if non_good.empty:
             return "AV"
         return "; ".join(
             sorted(
                 [
-                    f"{hakai_tests.qartod_to_hakai_flag[qartod_flag]}: {test}"
-                    for test, qartod_flag in flags.items()
+                    f"{hakai_tests.qartod_to_hakai_flag[int(v)]}: {k}"
+                    for k, v in non_good.items()
                 ],
                 reverse=True,
             )
@@ -704,10 +717,11 @@ def _get_hakai_flag_columns(
         df_subset.astype(QARTOD_DTYPE).max(axis=1).astype(int)
     )
     logger.debug("Get Aggregated Hakai Flags")
-    # Generete Level 2 Flag Description for failed flag
+    # Generate Level 2 Flag Description using original flag values so the helper
+    # can distinguish truly-null (test never ran) from GOOD/NOT_EVALUATED flags.
     df.loc[df_subset.index, variable + "_flag"] = (
-        df_subset.astype("float64")
-        .replace({1: pd.NA})
+        df.filter(regex=flag_regex).loc[df_subset.index]
+        .astype("float64")
         .apply(
             lambda x: __generate_level2_flag(x),
             axis=1,

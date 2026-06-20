@@ -416,7 +416,7 @@ def apply_flag_from_process_log(df, metadata):
     Apply flag from processing log to the dataframe respective variables
     """
     for _, cast in metadata.iterrows():
-        if not cast["process_log"] or not re.search(
+        if pd.isna(cast["process_log"]) or not re.search(
             "warning", cast["process_log"], re.IGNORECASE
         ):
             continue
