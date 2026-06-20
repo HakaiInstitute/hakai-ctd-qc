@@ -71,25 +71,6 @@ Options:
   --help                      Show this message and exit.
 ```
 
-#### API 
-
-> [!IMPORTANT]
-> The api code base still exists but is not accessible in production deployments. These instructions are left here for reference only
-
-Run the following command:
-
-```
-uv run python hakai_ctd_qc/api.py
-```
-
-And within a browser to go: <http://127.0.0.1:8000>
-
-With vscode you can also run the debug configuration `Run API` which helps debug the interface in realtime.
-
-> [!NOTE]
-> To protect the api from unexpected calls, you can set a list of accepted tokens as a list of comma separated list.
-> Any post calls to the api will then require a `token` field within the header of the post command and an accepted value.
-
 ### Deployments
 
 The hakai_ctd_qc tool is deployed via a Docker container (see [Dockerfile](Dockerfile)) and run from Windmill. On container start, the application
