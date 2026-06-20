@@ -285,36 +285,43 @@ def run_qc_profiles(df, metadata):
         df = df.replace({value: np.nan for value in [None, pd.NA, -9.99e-29]})
 
     # Run QARTOD tests
+    # Use explicit iteration instead of groupby().progress_apply() so that group
+    # key columns (hakai_id, direction_flag) are always present in the sub-DataFrame
+    # regardless of the pandas/tqdm include_groups behaviour.
     # On profiles
-    tqdm.pandas(desc="Apply QARTOD Tests to individual profiles", unit=" profile")
-    df_profiles = (
-        df.query("direction_flag in ('d','u')")
-        .groupby(["hakai_id", "direction_flag"], as_index=False, group_keys=True)
-        .progress_apply(
-            lambda x: _run_ioosqc_on_dataframe(
-                x, qartod_config, **ioos_qc_coords_mapping
-            ),
+    _profile_groups = df.query("direction_flag in ('d','u')").groupby(
+        ["hakai_id", "direction_flag"]
+    )
+    _profile_results = [
+        _run_ioosqc_on_dataframe(group, qartod_config, **ioos_qc_coords_mapping)
+        for _, group in tqdm(
+            _profile_groups,
+            desc="Apply QARTOD Tests to individual profiles",
+            unit=" profile",
+            total=_profile_groups.ngroups,
         )
-    )
+    ]
+    df_profiles = pd.concat(_profile_results) if _profile_results else pd.DataFrame()
+
     # On static measurements
-    tqdm.pandas(
-        desc="Apply QARTOD Tests to individual static measurements",
-        unit=" measurement",
-    )
     # Drop QARTOD tests that aren't compatible with static unique mesurements
     static_qartod_config = qartod_config.copy()
     for context in static_qartod_config["contexts"]:
         for var, tests in context["streams"].items():
             tests["qartod"].pop("attenuated_signal_test", None)
-    df_static = (
-        df.query("direction_flag in ('s')")
-        .groupby(["hakai_id", "measurement_dt"], as_index=False, group_keys=True)
-        .progress_apply(
-            lambda x: _run_ioosqc_on_dataframe(
-                x, qartod_config, **ioos_qc_coords_mapping
-            ),
-        )
+    _static_groups = df.query("direction_flag in ('s')").groupby(
+        ["hakai_id", "measurement_dt"]
     )
+    _static_results = [
+        _run_ioosqc_on_dataframe(group, static_qartod_config, **ioos_qc_coords_mapping)
+        for _, group in tqdm(
+            _static_groups,
+            desc="Apply QARTOD Tests to individual static measurements",
+            unit=" measurement",
+            total=_static_groups.ngroups,
+        )
+    ]
+    df_static = pd.concat(_static_results) if _static_results else pd.DataFrame()
 
     # Regroup back together profiles and static data
     df = pd.concat([df_profiles, df_static]).reset_index(drop=True)
@@ -548,7 +555,7 @@ def main(
         ncols=100,
     )
     with logging_redirect_tqdm():
-        for chunk in np.array_split(df_casts, np.ceil(len(df_casts) / chunksize)):
+        for chunk in [df_casts.iloc[i : i + chunksize] for i in range(0, len(df_casts), chunksize)]:
             # Retrieve cast data for this chunk
             query = "%s/ctd/views/file/cast/data?hakai_id={%s}&limit=-1&fields=%s" % (
                 api_root,
@@ -663,7 +670,7 @@ def _get_hakai_flag_columns(
         """
         flags = row.dropna().to_dict()
         if not flags:
-            return pd.NA
+            return "AV"
         return "; ".join(
             sorted(
                 [
