@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import sys
@@ -305,7 +306,7 @@ def run_qc_profiles(df, metadata):
 
     # On static measurements
     # Drop QARTOD tests that aren't compatible with static unique mesurements
-    static_qartod_config = qartod_config.copy()
+    static_qartod_config = copy.deepcopy(qartod_config)
     for context in static_qartod_config["contexts"]:
         for var, tests in context["streams"].items():
             tests["qartod"].pop("attenuated_signal_test", None)
@@ -555,7 +556,7 @@ def main(
         ncols=100,
     )
     with logging_redirect_tqdm():
-        for chunk in [df_casts.iloc[i : i + chunksize] for i in range(0, len(df_casts), chunksize)]:
+        for chunk in (df_casts.iloc[i : i + chunksize] for i in range(0, len(df_casts), chunksize)):
             # Retrieve cast data for this chunk
             query = "%s/ctd/views/file/cast/data?hakai_id={%s}&limit=-1&fields=%s" % (
                 api_root,
@@ -672,18 +673,8 @@ def _get_hakai_flag_columns(
           string – formatted description for any SUSPECT/FAIL flags present
         """
         non_good = row[row.isin([3, 4])]
-        if row.isna().any():
-            return pd.NA if non_good.empty else "; ".join(
-                sorted(
-                    [
-                        f"{hakai_tests.qartod_to_hakai_flag[int(v)]}: {k}"
-                        for k, v in non_good.items()
-                    ],
-                    reverse=True,
-                )
-            )
         if non_good.empty:
-            return "AV"
+            return pd.NA if row.isna().any() else "AV"
         return "; ".join(
             sorted(
                 [
