@@ -14,4 +14,4 @@ RUN uv sync --frozen --no-dev
 
 EXPOSE 80
 
-CMD ["uv", "run", "python", "-m", "hakai_ctd_qc"]
+CMD ["uv", "run", "--no-sync", "--no-dev", "python", "-m", "hakai_ctd_qc"]
