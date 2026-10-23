@@ -73,9 +73,7 @@ Options:
 
 ### Deployments
 
-The hakai_ctd_qc tool is deployed via a Docker container (see [Dockerfile](Dockerfile)) and run from Windmill. Each scheduled Windmill
-run executes `docker pull ghcr.io/hakaiinstitute/hakai_ctd_qc:latest` before running the container, so a freshly built image is picked up
-automatically on the next run without a separate deploy step. On container start, the application
+The hakai_ctd_qc tool is deployed via a Docker container (see [Dockerfile](Dockerfile)) and run from Windmill. Each Windmill run pulls the :latest tag of its image (ghcr.io/hakaiinstitute/hakai_ctd_qc for main, ghcr.io/hakaiinstitute/hakai_ctd_qc_dev for development) before starting the container, so a freshly built image is picked up automatically on the next run without a separate deploy step. On container start, the application
 will request all ctd casts that are awaiting qc and process them in batches of `chunk_size` casts. 
 
 - development: https://windmill-dev-server.windmill.hakai.app/scripts/get/d35488d8aec4898b?workspace=data-pipelines -> qc hakaidev database
