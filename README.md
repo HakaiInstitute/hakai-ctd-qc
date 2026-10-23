@@ -73,7 +73,7 @@ Options:
 
 ### Deployments
 
-The hakai_ctd_qc tool is deployed via a Docker container (see [Dockerfile](Dockerfile)) and run from Windmill. On container start, the application
+The hakai_ctd_qc tool is deployed via a Docker container (see [Dockerfile](Dockerfile)) and run from Windmill. Each Windmill run pulls the :latest tag of its image (ghcr.io/hakaiinstitute/hakai_ctd_qc for main, ghcr.io/hakaiinstitute/hakai_ctd_qc_dev for development) before starting the container, so a freshly built image is picked up automatically on the next run without a separate deploy step. On container start, the application
 will request all ctd casts that are awaiting qc and process them in batches of `chunk_size` casts. 
 
 - development: https://windmill-dev-server.windmill.hakai.app/scripts/get/d35488d8aec4898b?workspace=data-pipelines -> qc hakaidev database
@@ -84,7 +84,7 @@ see [Windmill Schedules](https://windmill-dev-server.windmill.hakai.app/schedule
 
 ### Continuous Integration
 
-1. **Testing**: Any changes to the package are tested via a [GitHub workflow](.github/workflows/test-package-install.yml) that runs the hakai_id test suite.
+1. **Testing**: A [GitHub workflow](.github/workflows/test-package-install.yml) is intended to run the hakai_id test suite, but it is currently disabled and its path filter still points at the old `hakai_profile_qc/**` package path rather than `hakai_ctd_qc/**`; re-enable and fix the filter before relying on it.
 2. **Docker Build Testing**: Docker container build is tested via a [GitHub workflow](.github/workflows/test-docker-build.yml).
 3. Changes to the main and development versions trigger image builds which are in turn pulled into windmill on next scheduled run. [prod deploy action](.github/workflows/build.yml) [dev deploy action](.github/workflows/build_dev.yml).
 4. **Errors and monitoring**: Sentry is used to monitor the different errors and cron jobs. Only the main deployment is required to run a cron job to make sure any newly submitted data is QCed. See the following links for any [issues](https://hakai-institute.sentry.io/projects/ctd-auto-qc/?project=6685251) and [cron issues](https://hakai-institute.sentry.io/crons/8ac7c3da-4e18-4c7b-9ce9-c0fa22956775/?project=6685251&statsPeriod=7d) encountered.
